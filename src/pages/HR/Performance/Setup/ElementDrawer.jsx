@@ -5,6 +5,7 @@ import { Drawer, Input as AntInput } from "antd";
 import { Button, Checkbox, Chip } from "@nextui-org/react";
 import { useState } from "react";
 import { FaPlus } from "react-icons/fa6";
+import PropTypes from "prop-types";
 
 const ElementDrawer = ({
   open,
@@ -204,3 +205,12 @@ const ElementDrawer = ({
 };
 
 export default ElementDrawer;
+
+ElementDrawer.propTypes = {
+  open: PropTypes.bool,
+  onClose: PropTypes.func,
+  elementForm: PropTypes.object,
+  setElementForm: PropTypes.func,
+  onSave: PropTypes.func,
+  isEditing: PropTypes.bool,
+};

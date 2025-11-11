@@ -48,14 +48,19 @@ export const useCreateAper = (updateDraft) => {
   const queryClient = useQueryClient();
   const createAper = useMutation({
     mutationFn: async (payload) => {
-      console.log(payload)
-      return await API.post(updateDraft? "performance/update_aper_draft" : "performance/create_aper", payload);
+      console.log(payload);
+      return await API.post(
+        updateDraft
+          ? "performance/update_aper_draft"
+          : "performance/create_aper",
+        payload
+      );
     },
-    onSuccess:()=>{
+    onSuccess: () => {
       queryClient.invalidateQueries("my_draft_aper");
       queryClient.invalidateQueries("my_pending_aper");
       queryClient.invalidateQueries("my_completed_aper");
-    }
+    },
   });
 
   return createAper;
@@ -64,14 +69,31 @@ export const useUpdateAper = (updateDraft) => {
   const queryClient = useQueryClient();
   const updateAper = useMutation({
     mutationFn: async (payload) => {
-      return await API.post(updateDraft? "performance/update_aper_draft" : "performance/create_aper", payload);
+      return await API.post(
+        updateDraft
+          ? "performance/update_aper_draft"
+          : "performance/create_aper",
+        payload
+      );
     },
-    onSuccess:()=>{
+    onSuccess: () => {
       queryClient.invalidateQueries("my_draft_aper");
       queryClient.invalidateQueries("my_pending_aper");
       queryClient.invalidateQueries("my_completed_aper");
-    }
+    },
   });
 
   return updateAper;
+};
+
+export const useCreateTemplate = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload) => {
+      return await API.post("pms/create_template", payload);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries("my_template");
+    },
+  });
 };

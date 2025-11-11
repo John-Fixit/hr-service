@@ -149,6 +149,9 @@ export default {
               DEFAULT: "#00bcc2",
               foreground: "#fff",
             },
+            primary: {
+              DEFAULT: "rgb(10,31,52)",
+            },
           },
         },
       },
