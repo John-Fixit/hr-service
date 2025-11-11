@@ -6,7 +6,8 @@ import {
   MessagingSectionMenu,
   PayrollSectionMenu,
   PeopleSectionMenu,
-  PerformanceSectionMenu,
+  // PerformanceSectionMenu,
+  PerformanceSectionMenus,
   WorkflowSectionMenu,
   defaultMenu,
 } from "./routes";
@@ -91,14 +92,16 @@ const Sidebar = () => {
     switch (currentHomeSidemenu) {
       case "People":
         return PeopleSectionMenu;
-      case "Performance":
-        return PerformanceSectionMenu;
+      // case "Performance":
+      //   return PerformanceSectionMenu;
       case "Messaging":
         return MessagingSectionMenu;
       case "Workflow (Memos)":
         return WorkflowSectionMenu;
       case "Payroll":
         return PayrollSectionMenu;
+      case "Performance":
+        return PerformanceSectionMenus;
       default:
         return defaultMenu;
     }
