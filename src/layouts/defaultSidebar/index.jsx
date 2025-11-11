@@ -93,6 +93,9 @@ const DefaultSidebar = () => {
       navigate("/engage/home");
       return;
     }
+    if(menu === "Performance"){
+        navigate("/performance/dashboard");
+    }
 
     setSidebarMinimizedHome(false);
     setCurrentHomeSidemenu(menu);
