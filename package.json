@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5179",
+    "dev": "node api.js && vite --port 5179",
     "build": "NODE_OPTIONS='--max-old-space-size=4096' vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",

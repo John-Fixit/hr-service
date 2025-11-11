@@ -32,13 +32,15 @@ import { AiOutlineAudit } from "react-icons/ai";
 import { BsChatTextFill, BsPeople } from "react-icons/bs";
 import { MessageSquareTextIcon, UsersIcon } from "lucide-react";
 import { GiTrade } from "react-icons/gi";
-import { LuNetwork, LuWorkflow } from "react-icons/lu";
+import {  LuNetwork, LuWorkflow } from "react-icons/lu";
 import { RiSecurePaymentFill, RiSettingsFill } from "react-icons/ri";
 import { GrDocumentPerformance } from "react-icons/gr";
 import { FaRobot, FaWpforms } from "react-icons/fa";
 import { GoWorkflow } from "react-icons/go";
 import { CiCircleMore } from "react-icons/ci";
 import { FiFileMinus } from "react-icons/fi";
+import { BiFile } from "react-icons/bi";
+import { CgMenuRight } from "react-icons/cg";
 
 export const defaultMenu = [
   // home 2 sub
@@ -240,6 +242,51 @@ export const defaultMenu = [
   // applications sub 2 end
 ];
 
+// =============================performance================================
+
+export const PerformanceSectionMenus = [
+
+
+  {
+    title: "Dashboard",
+    name: "Dashboard",
+     route: "/performance/dashboard",
+    withSubMenu: false,
+    icon: CgMenuRight,
+    enabled: true,
+  },
+  {
+    title: "",
+    name: "Template",
+     route: "/performance/template",
+    withSubMenu: false,
+    icon: TbTemplate,
+      enabled: true,
+  },
+  {
+    title: "Report",
+    name: "Report",
+     route: "/performance/report",
+    withSubMenu: false,
+    icon: BiFile,
+      enabled: true,
+  },
+  {
+    title: "",
+    name: "Setting",
+     route: "/performance/setting",
+    withSubMenu: false,
+    icon: LuNetwork,
+      enabled: true,
+  },
+
+ 
+]
+
+
+// =============================performance================================
+
+
 export const PeopleSectionMenu = [
   // home 2 sub
   {
@@ -409,6 +456,16 @@ export const PeopleSectionMenu = [
       //
     ],
   },
+
+
+
+
+
+
+
+
+
+
   //Commented this for now because I want to build and we don't want it live yet
 
   //
@@ -1388,6 +1445,12 @@ export const defaultMenuHome = [
     icon: RiSecurePaymentFill,
   },
   {
+    name: "Performance",
+    route: "/performance",
+    icon: TiSpanner,
+        enabled: true,
+  },
+  {
     name: "More",
     route: "/more",
     icon: CiCircleMore,
@@ -1450,7 +1513,8 @@ export const defaultMenuHomeAll = [
     {
       name: "Performance",
       route: "/performance",
-      icon: TiShoppingCart,
+      icon: TiSpanner,
+         enabled: true,
     },
   ],
   [
