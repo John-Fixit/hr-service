@@ -7,7 +7,13 @@ import React, { useState } from "react";
 import PerformanceDrawer from "./PerformanceDrawer";
 import RequestCard from "../Approval/RequestCard";
 import useCurrentUser from "../../hooks/useCurrentUser";
-import { useGetActivePerformance, useGetMyAper } from "../../API/performance";
+import {
+  useGetActivePerformance,
+  useGetAwaitingPerformance,
+  useGetMyAper,
+  useGetPendingPerformance,
+  useGetPerformanceListing,
+} from "../../API/performance";
 import { errorToast } from "../../utils/toastMsgPop";
 
 import PerformanceTable from "../../components/core/performance/PerformanceTable";
@@ -17,6 +23,8 @@ import { AiOutlineFileDone } from "react-icons/ai";
 import { useGetRequestDetail } from "../../API/api_urls/my_approvals";
 import PerformanceApprovalDrawer from "../Approval/AperApprovalView";
 import { useDisclosure } from "@nextui-org/react";
+import { CiNoWaitingSign } from "react-icons/ci";
+import { FcCancel } from "react-icons/fc";
 
 const Performance = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,6 +39,11 @@ const Performance = () => {
   const { userData } = useCurrentUser();
 
   //===============get my APER =====================
+
+  const payload = {
+    staff_id: userData?.data?.STAFF_ID,
+    company_id: userData?.data?.COMPANY_ID,
+  };
   const {
     data: apers,
     isLoading: aperLoading,
@@ -43,18 +56,28 @@ const Performance = () => {
     data: pendingApers,
     isLoading: pendingAperLoading,
     refetch: refetchPending,
-  } = useGetMyAper({
-    staff_id: userData?.data?.STAFF_ID,
+  } = useGetPerformanceListing({
+    ...payload,
     status: "pending",
   });
-  const { data: draftApers, isLoading: draftAperLoading } = useGetMyAper({
-    staff_id: userData?.data?.STAFF_ID,
-    status: "draft",
+  const {
+    data: awaitingApers,
+    isLoading: awaitingAperLoading,
+    refetch: refetchAwaiting,
+  } = useGetPerformanceListing({
+    ...payload,
+    status: "awaiting",
   });
+
+  const { data: draftApers, isLoading: draftAperLoading } =
+    useGetPerformanceListing({
+      ...payload,
+      status: "draft",
+    });
   const { data: completedApers, isLoading: completedAperLoading } =
-    useGetMyAper({
-      staff_id: userData?.data?.STAFF_ID,
-      status: "completed",
+    useGetPerformanceListing({
+      ...payload,
+      status: "approved",
     });
 
   const { mutate: mutateRequestDetail, isPending } = useGetRequestDetail();
@@ -85,6 +108,13 @@ const Performance = () => {
       t_color: "text-amber-600",
     },
     {
+      id: "awaiting",
+      label: "Awaiting",
+      icon: CiNoWaitingSign,
+      b_color: "bg-teal-100",
+      t_color: "text-teal-600",
+    },
+    {
       id: "draft",
       label: "Draft",
       icon: FaFirstdraft,
@@ -105,6 +135,8 @@ const Performance = () => {
       return pendingApers;
     } else if (value == "draft") {
       return draftApers;
+    } else if (value == "awaiting") {
+      return awaitingApers;
     } else if (value == "completed") {
       return completedApers;
     }
@@ -115,11 +147,12 @@ const Performance = () => {
   };
 
   const handleViewAper = (aper, index) => {
+    console.log(aper, index);
     setViewIndex(index);
     setSelectedTab(0);
     mutateRequestDetail(
       {
-        request_id: aper?.request_id,
+        request_id: aper?.REQUEST_ID,
       },
 
       {
@@ -130,16 +163,16 @@ const Performance = () => {
         onSuccess: (res) => {
           const resData = res?.data?.data;
 
-        if(Number(aper?.canApprove)){
-          handleViewApproval(resData, aper?.request_id)
-        }else{
-          setAperData({...resData, is_draft: aper?.is_draft})
-          setIsOpen(true)
-        }
+          if (Number(aper?.canApprove)) {
+            handleViewApproval(resData, aper?.request_id);
+          } else {
+            setAperData({ ...resData, is_draft: aper?.is_draft });
+            setIsOpen(true);
+          }
+        },
       }
-    
-  })
-}
+    );
+  };
 
   const handleViewApproval = (value, reqID) => {
     const approvers = value?.approvers;
@@ -194,7 +227,7 @@ const Performance = () => {
       </div>
 
       <PerformanceTable
-        tableData={apers?.map((item) => {
+        tableData={detailsNo(detailsStatus)?.map((item) => {
           return {
             ...item,
             status: detailsStatus,
@@ -205,38 +238,6 @@ const Performance = () => {
         viewIndex={viewIndex}
         isPending={isPending}
       />
-      {/* <PerformanceRecord />
-      <div className="my-6 grid gap-4 md:grid-cols-2">
-        <PieChart />
-        <BarChart />
-        <LineChart />
-      </div>
-      <div className="my-8">
-        <h2 className="font-helvetica text-lg my-2">
-          The last three performances
-        </h2>
-        <LastThreePerformancesTable />
-      </div>
-      <div className="my-8">
-        <h2 className="font-helvetica text-lg my-2">All Performances</h2>
-        <HistoryTable />
-      </div> */}
-      {/* <ApprasealForm /> */}
-      {/* <Drawer
-        tabs={tabs}
-        selectedTab={selectedTab}
-        setSelectedTab={setSelectedTab}
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-        sideBarNeeded={true}
-        drawerWidth={"80rem"}
-      >
-        {tabs[selectedTab].title.toLowerCase() ==
-          "Attachments".toLowerCase() && <Attachment />}
-        {tabs[selectedTab].title.toLowerCase() == "Notes".toLowerCase() && (
-          <Note />
-        )}
-      </Drawer> */}
 
       <PerformanceDrawer
         isOpen={isOpen}

@@ -81,6 +81,7 @@ import PerformanceDashboard from "./pages/Performance_v2/dashbaord";
 import PerformanceTemplate from "./pages/Performance_v2/template";
 import PerformanceReport from "./pages/Performance_v2/report";
 import PerformanceSetting from "./pages/Performance_v2/settings";
+import PerformanceCycle from "./pages/Performance_v2/cycle";
 // import AdsPopup440 from "./pages/home/rightBar/components/AdsPopup440";
 
 const App = () => {
@@ -142,17 +143,19 @@ const App = () => {
           <Route path="" element={<Navigate to="/engage/home" />} />
           <Route path="/engage/home" element={<Home />} />
           {/* PERFORMANCE APPS */}
-         <Route path="performance/dashboard" element={<PerformanceDashboard />} />
-         <Route path="performance/template" element={<PerformanceTemplate />} />
-         <Route path="performance/report" element={<PerformanceReport />} />
-         <Route path="performance/setting" element={<PerformanceSetting/>} />
+          <Route
+            path="performance/dashboard"
+            element={<PerformanceDashboard />}
+          />
+          <Route
+            path="performance/template"
+            element={<PerformanceTemplate />}
+          />
+          <Route path="performance/cycle" element={<PerformanceCycle />} />
+          <Route path="performance/report" element={<PerformanceReport />} />
+          <Route path="performance/setting" element={<PerformanceSetting />} />
 
           {/* PERFORMANCE APPS */}
-
-
-
-
-
 
           {/* MESSAGING APPS */}
 

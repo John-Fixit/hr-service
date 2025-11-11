@@ -835,7 +835,7 @@ const HRISPerformance = () => {
           ]}
         />
 
-        {/* <FormRenderer
+        <FormRenderer
           appraisalHeader={{
             appraisalHeader: formData.appraisalHeader,
             appraisalSubHeader: formData.appraisalSubHeader,
@@ -843,7 +843,7 @@ const HRISPerformance = () => {
           sections={formData.allSection}
           //   onSubmit={handleSubmit}
           mode="fill"
-        /> */}
+        />
       </main>
 
       <Modal

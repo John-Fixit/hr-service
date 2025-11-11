@@ -642,8 +642,12 @@ const FormBuilder = ({
   appraisalHeader,
   handleSubmit,
   isSubmitting,
+  sections,
+  isEditing,
 }) => {
-  const [allSection, setAllSection] = useState(defaultSection || []);
+  const [allSection, setAllSection] = useState(
+    sections || defaultSection || []
+  );
   const [activeSelectedSection, setActiveSelectedSection] = useState(0);
   const [openSectionModal, setOpenSectionModal] = useState(false);
   const [editSection, setEditSection] = useState(false);
@@ -774,7 +778,6 @@ const FormBuilder = ({
 
   const editElement = (sectionIdx) => {
     setActiveSelectedSection(sectionIdx);
-    // Add your element editing logic here
   };
 
   const removeElement = (elementIdx) => {
@@ -787,8 +790,8 @@ const FormBuilder = ({
   // Save Form
   const handleSaveFn = async () => {
     const payload = {
-      appraisalHeader: appraisalHeader.header,
-      appraisalSubHeader: appraisalHeader.sub_header,
+      appraisalHeader: appraisalHeader?.header,
+      appraisalSubHeader: appraisalHeader?.sub_header,
       allSection,
     };
 
@@ -845,7 +848,7 @@ const FormBuilder = ({
               size="lg"
               isLoading={isSubmitting}
             >
-              Save Template
+              {isEditing ? "Update Template" : "Save Template"}
             </Button>
           )}
         </div>
@@ -1291,4 +1294,5 @@ FormBuilder.propTypes = {
   setAppraisalHeader: PropTypes.func,
   handleSubmit: PropTypes.func,
   isSubmitting: PropTypes.bool,
+  sections: PropTypes.array,
 };

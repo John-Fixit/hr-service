@@ -31,8 +31,8 @@ import { TiShoppingCart, TiSpanner } from "react-icons/ti";
 import { AiOutlineAudit } from "react-icons/ai";
 import { BsChatTextFill, BsPeople } from "react-icons/bs";
 import { MessageSquareTextIcon, UsersIcon } from "lucide-react";
-import { GiTrade } from "react-icons/gi";
-import {  LuNetwork, LuWorkflow } from "react-icons/lu";
+import { GiCycle, GiTrade } from "react-icons/gi";
+import { LuNetwork, LuWorkflow } from "react-icons/lu";
 import { RiSecurePaymentFill, RiSettingsFill } from "react-icons/ri";
 import { GrDocumentPerformance } from "react-icons/gr";
 import { FaRobot, FaWpforms } from "react-icons/fa";
@@ -245,12 +245,10 @@ export const defaultMenu = [
 // =============================performance================================
 
 export const PerformanceSectionMenus = [
-
-
   {
     title: "Dashboard",
     name: "Dashboard",
-     route: "/performance/dashboard",
+    route: "/performance/dashboard",
     withSubMenu: false,
     icon: CgMenuRight,
     enabled: true,
@@ -258,34 +256,38 @@ export const PerformanceSectionMenus = [
   {
     title: "",
     name: "Template",
-     route: "/performance/template",
+    route: "/performance/template",
     withSubMenu: false,
     icon: TbTemplate,
-      enabled: true,
+    enabled: true,
+  },
+  {
+    title: "",
+    name: "Cycle",
+    route: "/performance/cycle",
+    withSubMenu: false,
+    icon: GiCycle,
+    enabled: true,
   },
   {
     title: "Report",
     name: "Report",
-     route: "/performance/report",
+    route: "/performance/report",
     withSubMenu: false,
     icon: BiFile,
-      enabled: true,
+    enabled: true,
   },
   {
     title: "",
     name: "Setting",
-     route: "/performance/setting",
+    route: "/performance/setting",
     withSubMenu: false,
     icon: LuNetwork,
-      enabled: true,
+    enabled: true,
   },
-
- 
-]
-
+];
 
 // =============================performance================================
-
 
 export const PeopleSectionMenu = [
   // home 2 sub
@@ -456,15 +458,6 @@ export const PeopleSectionMenu = [
       //
     ],
   },
-
-
-
-
-
-
-
-
-
 
   //Commented this for now because I want to build and we don't want it live yet
 
@@ -1448,7 +1441,7 @@ export const defaultMenuHome = [
     name: "Performance",
     route: "/performance",
     icon: TiSpanner,
-        enabled: true,
+    enabled: true,
   },
   {
     name: "More",
@@ -1514,7 +1507,7 @@ export const defaultMenuHomeAll = [
       name: "Performance",
       route: "/performance",
       icon: TiSpanner,
-         enabled: true,
+      enabled: true,
     },
   ],
   [

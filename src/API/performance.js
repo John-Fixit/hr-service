@@ -5,7 +5,7 @@ export const useGetReportingOfficer = (payload) => {
   return useQuery({
     queryKey: ["get_reporting_officer"],
     queryFn: async () => {
-      const res = await API.post(`performance/get_reporting_officer`, payload);
+      const res = await API.post(`pms/get_reporting_officer`, payload);
       return res?.data?.data;
     },
   });
@@ -14,10 +14,7 @@ export const useGetCounterOfficer = (payload) => {
   return useQuery({
     queryKey: ["get_counter_officer"],
     queryFn: async () => {
-      const res = await API.post(
-        `performance/get_counter_signing_officer`,
-        payload
-      );
+      const res = await API.post(`pms/get_counter_signing_officer`, payload);
       return res?.data?.data;
     },
   });
@@ -93,7 +90,152 @@ export const useCreateTemplate = () => {
       return await API.post("pms/create_template", payload);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries("my_template");
+      queryClient.invalidateQueries("get_list_template");
+    },
+  });
+};
+export const useEditTemplate = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload) => {
+      return await API.post("pms/edit_template", payload);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries("get_list_template");
+    },
+  });
+};
+export const useCreateCycle = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload) => {
+      return await API.post("pms/create_cycle", payload);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries("get_cycle_list");
+    },
+  });
+};
+
+export const useGetListTemplate = ({ company_id }) => {
+  return useQuery({
+    queryKey: ["get_list_template"],
+    queryFn: async () => {
+      const res = await API.post("pms/list_templates", {
+        company_id,
+      });
+      return res?.data?.data;
+    },
+  });
+};
+export const useGetCycleList = ({ company_id }) => {
+  return useQuery({
+    queryKey: ["get_cycle_list"],
+    queryFn: async () => {
+      const res = await API.post("pms/list_cycles", {
+        company_id,
+      });
+      return res?.data?.data;
+    },
+  });
+};
+export const useGetTemplateDetail = ({ template_id }) => {
+  return useQuery({
+    queryKey: ["get_template_detail"],
+    queryFn: async () => {
+      const res = await API.post("pms/view_template", {
+        template_id,
+      });
+      return res?.data?.data;
+    },
+  });
+};
+
+export const useGetTemplateRecipient = ({
+  company_id = "",
+  recipient_type = "",
+}) => {
+  return useQuery({
+    queryKey: [`get_template_recipient_${company_id}_${recipient_type}`],
+    queryFn: async () => {
+      const res = await API.post("pms/get_recipient", {
+        company_id,
+        recipient_type,
+      });
+      return res?.data?.data;
+    },
+  });
+};
+export const useGetCycleRecipient = ({ cycle_id = "" }) => {
+  return useQuery({
+    queryKey: [`get_cycle_recipient_${cycle_id}`],
+    queryFn: async () => {
+      const res = await API.post("pms/view_cycle_recipients", {
+        cycle_id,
+      });
+      return res?.data?.data;
+    },
+  });
+};
+export const useGetCycleResponse = ({ cycle_id = "" }) => {
+  return useQuery({
+    queryKey: [`get_cycle_response_${cycle_id}`],
+    queryFn: async () => {
+      const res = await API.post("pms/view_cycle_responses", {
+        cycle_id,
+      });
+      return res?.data?.data;
+    },
+  });
+};
+
+export const useGetAwaitingPerformance = (payload) => {
+  return useQuery({
+    queryKey: [`list_awaiting_performances`, payload],
+    queryFn: async () => {
+      const res = await API.post(`pms/list_awaiting_performances`, payload);
+      return res?.data?.data;
+    },
+  });
+};
+
+export const useGetPerformanceListing = (payload) => {
+  return useQuery({
+    queryKey: [`list_${payload.status}_performances`, payload],
+    queryFn: async () => {
+      const res = await API.post(`pms/list_${payload.status}_performances`, {
+        staff_id: payload?.staff_id,
+        company_id: payload?.company_id,
+      });
+      return res?.data?.data;
+    },
+  });
+};
+
+export const useGetApprovedPerformance = (payload) => {
+  return useQuery({
+    queryKey: [`list_approved_performances`, payload],
+    queryFn: async () => {
+      const res = await API.post(`pms/list_approved_performances`, payload);
+      return res?.data?.data;
+    },
+  });
+};
+export const useGetDraftPerformance = (payload) => {
+  return useQuery({
+    queryKey: [`list_draft_performances`, payload],
+    queryFn: async () => {
+      const res = await API.post(`pms/list_draft_performances`, payload);
+      return res?.data?.data;
+    },
+  });
+};
+export const useGetPendingPerformance = (payload) => {
+  return useQuery({
+    queryKey: [`list_pending_performances`, payload],
+    queryFn: async () => {
+      const res = await API.post(`pms/list_pending_performances`, payload);
+      return res?.data?.data;
     },
   });
 };

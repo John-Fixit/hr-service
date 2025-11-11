@@ -267,20 +267,22 @@ const ReportingOfficer = ({
           <div className="flex justify-between gap-3">
             <Button
               size="sm"
-              className="my-4 bg-[#00bcc2] text-white rounded"
+              className="my-4 bg[#00bcc2] text-white rounded"
               onClick={saveAsDraft}
               isLoading={isDraft && isPending}
-              disabled={isPending}
+              // disabled={isPending}
+              disabled={true}
             >
               Submit as draft
             </Button>
             <Button
               size="sm"
-              color="success"
+              // color="success"
               className="my-4  text-white rounded"
               type="submit"
               isLoading={!isDraft && isPending}
-              disabled={isPending}
+              // disabled={isPending}
+              disabled={true}
             >
               Submit
             </Button>

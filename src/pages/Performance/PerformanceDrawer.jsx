@@ -37,7 +37,7 @@ import T1_PerformanceCriteriaSection from "../../components/core/performance/tem
 import NoteDetailsApproval from "../../components/core/approvals/NoteDetailsApproval";
 import ApprovalHistory from "../Approval/ApprovalHistory";
 import { ChatMessageCard } from "../../components/core/shared/ChatMessageCard";
-
+import FormRenderer from "../HR/Performance/Setup/FormRenderer";
 
 export default function PerformanceDrawer({
   isOpen,
@@ -683,10 +683,48 @@ export default function PerformanceDrawer({
     isDraft,
   ]);
 
+  const handleSendResponse = (data) => {
+    console.log(data);
+  };
+
+  const formTemplate = useMemo(() => {
+    return aperData?.data?.template?.DATA_CONTENT
+      ? JSON.parse(aperData?.data?.template?.DATA_CONTENT)
+      : [];
+  }, [aperData?.data?.template?.DATA_CONTENT]);
+
+  const tabs = useMemo(() => {
+    return [
+      {
+        title: "Template",
+        content: (
+          <FormRenderer
+            sections={formTemplate || []}
+            onSubmit={handleSendResponse}
+            mode="fill"
+            submitButtonText={"Send to Appraisers"}
+            viewer={"appraisee"}
+          />
+        ),
+      },
+      {
+        title: "Select Appraisers",
+        content: (
+          <ReportingOfficer
+            control={control}
+            saveAsDraft={() => {}}
+            isDraft={false}
+            isPending={false}
+          />
+        ),
+      },
+    ];
+  }, [control, formTemplate]);
+
   return (
     <>
       <Drawer
-        width={1000}
+        width={selectedTab === 0 ? "1500px" : 1000}
         onClose={() => {
           setAperData(null);
           setIsOpen(false);
@@ -697,27 +735,29 @@ export default function PerformanceDrawer({
           body: "bg-[#F7F7F7]",
           header: "font-helvetica bg-[#F7F7F7]",
         }}
-        
       >
-        <div className="flex mx-3 px-5" onClick={()=>{
-          setAperData(null);
-          setIsOpen(false);
-        }}>
-          <ChatMessageCard/>
+        <div
+          className="flex mx-3 px-5"
+          onClick={() => {
+            setAperData(null);
+            setIsOpen(false);
+          }}
+        >
+          <ChatMessageCard />
         </div>
         <div className="h-full mx-3">
           <div className="bg-[#f5f7fa] min-h-screen px-5 py-5">
             <h4 className="header_h3 text-2xl mb-3">New Appraisal</h4>
-            <div className="grid grid-cols-1 h-ful md:grid-cols-4 gap-x-7 gap-y-5">
+            <div className="grid grid-cols-1 h-ful md:grid-cols-7 gap-x-7 gap-y-5">
               <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="my- w-full p-5 overflow-y-auto col-span-3 shadow-xl bg-white rounded-[0.25rem] mb-[1rem] form_drawer_body_container order-2 md:order-1 "
+                className="my- w-full p-5 overflow-y-auto col-span-6 shadow-xl bg-white rounded-[0.25rem] mb-[1rem] form_drawer_body_container order-2 md:order-1 "
               >
-                {displayTab?.[selectedTab]?.content}
+                {tabs?.[selectedTab]?.content}
               </form>
 
               <div className="flex flex-col border-l-1 border-gray-400 py-10 text-sm gap-3 px-4 ms-8 md:ms-2 my-5 md:my-0 md:h-full order-1 md:order-2">
-                {displayTab?.map((tab, index) => (
+                {tabs?.map((tab, index) => (
                   <div
                     key={index}
                     onClick={() => setSelectedTab(index)}

@@ -30,16 +30,21 @@ const PerformanceTable = ({
 
   const tableHead = [
     {
+      name: "TITLE",
+      key: "TITLE",
+    },
+    {
       name: "START DATE",
-      key: "date_from",
+      key: "START_DATE",
       isDate: true,
     },
     {
       name: "END DATE",
-      key: "date_to",
+      key: "END_DATE",
       isDate: true,
     },
-    tableStatus !== "pending" && {
+
+    tableStatus === "completed" && {
       name: "AVERAGE SCORE",
       key: "average_score",
       isNumber: true,
