@@ -77,6 +77,10 @@ import PayRunView from "./pages/payroll/payrun";
 import ReportWizard from "./pages/payroll/Report/Report_Wizard";
 import Recalculate from "./pages/payroll/Payroll/Recalculate/Recalculate";
 import HRISPerformance from "./pages/HR/PerformanceSetting/Performance";
+import PerformanceDashboard from "./pages/Performance_v2/dashbaord";
+import PerformanceTemplate from "./pages/Performance_v2/template";
+import PerformanceReport from "./pages/Performance_v2/report";
+import PerformanceSetting from "./pages/Performance_v2/settings";
 // import AdsPopup440 from "./pages/home/rightBar/components/AdsPopup440";
 
 const App = () => {
@@ -137,7 +141,19 @@ const App = () => {
           {/* DEFAULT APPS */}
           <Route path="" element={<Navigate to="/engage/home" />} />
           <Route path="/engage/home" element={<Home />} />
-          {/* DEFAULT APPS */}
+          {/* PERFORMANCE APPS */}
+         <Route path="performance/dashboard" element={<PerformanceDashboard />} />
+         <Route path="performance/template" element={<PerformanceTemplate />} />
+         <Route path="performance/report" element={<PerformanceReport />} />
+         <Route path="performance/setting" element={<PerformanceSetting/>} />
+
+          {/* PERFORMANCE APPS */}
+
+
+
+
+
+
           {/* MESSAGING APPS */}
 
           {/* COURSES APPS */}
