@@ -30,7 +30,7 @@ import {
 /* ------------------------------------------------------------------ */
 /*  Fake data – Individual Performance Reports                         */
 /* ------------------------------------------------------------------ */
-const makeReports = () => {
+const makeReports = (reportType="Individual Report") => {
   const cycles = [
     "H1 2024",
     "H2 2024",
@@ -99,7 +99,7 @@ const statusColor = {
 /* ------------------------------------------------------------------ */
 /*  Page                                                              */
 /* ------------------------------------------------------------------ */
-const IndividualPerformanceReport = () => {
+const IndividualPerformanceReport = ({selectedReport}) => {
   const [reports] = useState(makeReports());
   const [page, setPage] = useState(1);
   const [sortDescriptor, setSortDescriptor] = useState({
@@ -138,7 +138,7 @@ const IndividualPerformanceReport = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              Individual Performance Reports
+             {selectedReport.name}
             </h1>
             <p className="text-gray-600">
               Employee-specific performance reviews and assessments
