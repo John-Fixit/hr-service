@@ -278,59 +278,59 @@ export const PerformanceSectionMenus = [
     enabled: true,
   },
 
-  {
-    title: "Payroll",
-    name: "Payroll",
-    withSubMenu: true,
-    submenu: [
-      {
-        name: "Payroll",
-        icon: LiaConnectdevelop,
-        prefix: "payroll",
-        menus: [
-          {
-            name: "Variation",
-            route: "payroll/salary_variation",
-            enabled: true,
-          },
-          {
-            name: "Pay Run",
-            route: "/payroll/payrun",
-            enabled: true,
-          },
-        ],
-      },
+  // {
+  //   title: "Payroll",
+  //   name: "Payroll",
+  //   withSubMenu: true,
+  //   submenu: [
+  //     {
+  //       name: "Payroll",
+  //       icon: LiaConnectdevelop,
+  //       prefix: "payroll",
+  //       menus: [
+  //         {
+  //           name: "Variation",
+  //           route: "payroll/salary_variation",
+  //           enabled: true,
+  //         },
+  //         {
+  //           name: "Pay Run",
+  //           route: "/payroll/payrun",
+  //           enabled: true,
+  //         },
+  //       ],
+  //     },
 
-      //Commented this for now because I want to build and we don't want it live yet
-      {
-        name: "Staff",
-        icon: LiaConnectdevelop,
-        prefix: "staff",
-        menus: [
-          {
-            name: "All Staff",
-            route: "/payroll/staff/all",
-            enabled: true,
-          },
-          {
-            name: "Non Membership Staff",
-            route: "/payroll/staff/non_membership",
-            enabled: true,
-          },
-          {
-            name: "Awaiting",
-            route: "/payroll/staff/awaiting",
-            enabled: true,
-          },
-          {
-            name: "Suspension",
-            route: "/payroll/staff/suspension",
-            enabled: true,
-          },
-        ],
-      },
-    ],
-  },
+  //     //Commented this for now because I want to build and we don't want it live yet
+  //     {
+  //       name: "Staff",
+  //       icon: LiaConnectdevelop,
+  //       prefix: "staff",
+  //       menus: [
+  //         {
+  //           name: "All Staff",
+  //           route: "/payroll/staff/all",
+  //           enabled: true,
+  //         },
+  //         {
+  //           name: "Non Membership Staff",
+  //           route: "/payroll/staff/non_membership",
+  //           enabled: true,
+  //         },
+  //         {
+  //           name: "Awaiting",
+  //           route: "/payroll/staff/awaiting",
+  //           enabled: true,
+  //         },
+  //         {
+  //           name: "Suspension",
+  //           route: "/payroll/staff/suspension",
+  //           enabled: true,
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
 
   {
     title: "",

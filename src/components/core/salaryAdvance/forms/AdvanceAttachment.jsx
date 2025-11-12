@@ -18,27 +18,29 @@ import useCurrentUser from "../../../../hooks/useCurrentUser";
 import { baseURL } from "../../../../utils/filePrefix";
 import PropTypes from "prop-types";
 
-const AdvanceAttachments = ({ 
+const AdvanceAttachments = ({
   setValue,
   getValues,
   watch,
+  buttonText,
   goToNextTab,
- }) => {
+}) => {
   const [uploadLoading, setUploadLoading] = useState(false);
 
   const { userData } = useCurrentUser();
 
   const attachments = watch("attachment");
 
-
   const handleFileInputChange = (e) => {
     const file = e.target.files[0];
-    
+
+    const watchAttachments = watch("attachment") || [];
+
     if (file) {
       if (file?.name.trim() !== "" && file) {
         // console.log({ name: file?.name, file: file, file_url: URL.createObjectURL(file) })
         setValue("attachment", [
-          ...getValues().attachment,
+          ...watchAttachments,
           { name: file?.name, file: file, file_url: URL.createObjectURL(file) },
         ]);
       }
@@ -57,7 +59,7 @@ const AdvanceAttachments = ({
     try {
       const res = await axios({
         method: "post",
-        url:baseURL +"attachment/addChatFile",
+        url: baseURL + "attachment/addChatFile",
         data: formData,
         headers: {
           "Content-Type": "multipart/form-data",
@@ -81,7 +83,7 @@ const AdvanceAttachments = ({
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    var attachments = getValues().attachment
+    var attachments = getValues().attachment;
     setUploadLoading(true);
     try {
       const uploadedAttachmentIDs = await Promise.all(
@@ -96,11 +98,9 @@ const AdvanceAttachments = ({
       );
       setUploadLoading(false);
 
- 
-
       //step 1: split the IDs and join first
-      const reversedArray = uploadedAttachmentIDs.map((item) =>
-        item.split("").join("")
+      const reversedArray = uploadedAttachmentIDs?.map((item) =>
+        item?.split("")?.join("")
       );
 
       // Step 2: Join the reversed strings with a comma
@@ -115,8 +115,6 @@ const AdvanceAttachments = ({
           file_url_id: item, // Update the file_url
         }))
       );
-
-
 
       goToNextTab();
     } catch (error) {
@@ -133,17 +131,15 @@ const AdvanceAttachments = ({
     return extensions.some((ext) => fileName?.toLowerCase().includes(ext));
   };
 
-
   return (
     <>
       <div className="">
         <form onSubmit={onSubmit}>
           <div className="bg-white rounded mb-3">
-          <h1 className="font-helvetica text-[#212529]">
-           Attachment
-          </h1>
-          <p className="font-helvetica opacity-70">Upload your Last two Payslip</p>
-            
+            <h1 className="font-helvetica text-[#212529]">Attachment</h1>
+            <p className="font-helvetica opacity-70">
+              Upload your Last two Payslip
+            </p>
           </div>
 
           <div className="w-full px-8 bg-white rounded">
@@ -174,8 +170,7 @@ const AdvanceAttachments = ({
               </div>
             </div>
           </div>
-        <div>
-         
+          <div>
             {attachments?.map((data, i) => (
               <div
                 key={i}
@@ -296,7 +291,7 @@ const AdvanceAttachments = ({
               className="bg-btnColor px-6 py-2 header_h3 outline-none  text-white rounded hover:bg-btnColor/70 flex gap-2"
             >
               {uploadLoading ? <Spinner color="default" size="sm" /> : ""}
-              Continue
+              {buttonText || "Continue"}
             </button>
           </div>
           {/* )} */}
@@ -313,34 +308,6 @@ AdvanceAttachments.propTypes = {
   getValues: PropTypes.func,
   goToNextTab: PropTypes.func,
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // /* eslint-disable react/prop-types */
 // /* eslint-disable no-unused-vars */
@@ -411,8 +378,6 @@ AdvanceAttachments.propTypes = {
 //         });
 //       }
 //     }
-
-
 
 //     // goToNextTab();
 //   };

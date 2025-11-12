@@ -42,6 +42,7 @@ import NoteDetailsApproval from "../../components/core/approvals/NoteDetailsAppr
 import ApprovalHistory from "../Approval/ApprovalHistory";
 import { ChatMessageCard } from "../../components/core/shared/ChatMessageCard";
 import FormRenderer from "../HR/Performance/Setup/FormRenderer";
+import AdvanceAttachments from "../../components/core/salaryAdvance/forms/AdvanceAttachment";
 
 export default function PerformanceDrawer({
   isOpen,
@@ -99,6 +100,7 @@ export default function PerformanceDrawer({
       end_date: period?.end_date,
       report_officer: "",
       counter_officer: "",
+      attachment: [],
     },
     mode: "onSubmit",
     reValidateMode: "onSubmit",
@@ -836,6 +838,8 @@ export default function PerformanceDrawer({
         answers: answers,
         reporting_officer: values?.report_officer,
         counter_signing_officer: values?.counter_officer,
+        note: values?.note,
+        attachment: values?.attachments || [],
       };
 
       if (!json.reporting_officer || !json.counter_signing_officer) {
@@ -891,6 +895,8 @@ export default function PerformanceDrawer({
         answers: answers,
         reporting_officer: values?.report_officer,
         counter_signing_officer: values?.counter_officer,
+        note: values?.note,
+        attachment: values?.attachments || [],
       };
 
       if (!json.reporting_officer || !json.counter_signing_officer) {
@@ -986,7 +992,15 @@ export default function PerformanceDrawer({
       },
       (detailsStatus === "draft" || detailsStatus === "awaiting") && {
         title: "Add Attachment",
-        content: <ApprovalHistory details={aperData} />,
+        content: (
+          <AdvanceAttachments
+            setValue={setValue}
+            getValues={getValues}
+            watch={watch}
+            buttonText="Upload Attachment"
+            goToNextTab={() => setSelectedTab(0)}
+          />
+        ),
       },
       !(detailsStatus === "draft" || detailsStatus === "awaiting") && {
         title: "Note History",
@@ -1001,12 +1015,21 @@ export default function PerformanceDrawer({
     aperData,
     control,
     detailsStatus,
+    formState,
     formTemplate,
+    getValues,
     handleSaveAsDraft,
     handleSendResponse,
+    isDraft,
+    isPending,
     isSavingDraft,
     isSendingToAppraiser,
+    register,
     responseData,
+    saveAsDraft,
+    setSelectedTab,
+    setValue,
+    watch,
   ]);
 
   return (
