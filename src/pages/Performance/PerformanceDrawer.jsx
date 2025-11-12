@@ -819,46 +819,60 @@ export default function PerformanceDrawer({
     };
   }
 
-  const handleSendResponse = useCallback(async (data) => {
-    const values = getValues();
-    const efficientPayload = mapResponsesUsingLookup(lookupMap, data);
-    const answers = efficientPayload?.map((ans) => ({
-      template_key: ans?.template_key,
-      section_key: ans?.section_key,
-      element_key: ans?.element_key,
-      answer: ans?.answer || "",
-    }));
-    const json = {
-      company_id: userData?.data?.COMPANY_ID,
-      staff_id: userData?.data?.STAFF_ID,
-      request_id: aperData?.request_id,
-      answers: answers,
-      reporting_officer: values?.report_officer,
-      counter_signing_officer: values?.counter_officer,
-    };
+  const handleSendResponse = useCallback(
+    async (data) => {
+      const values = getValues();
+      const efficientPayload = mapResponsesUsingLookup(lookupMap, data);
+      const answers = efficientPayload?.map((ans) => ({
+        template_key: ans?.template_key,
+        section_key: ans?.section_key,
+        element_key: ans?.element_key,
+        answer: ans?.answer || "",
+      }));
+      const json = {
+        company_id: userData?.data?.COMPANY_ID,
+        staff_id: userData?.data?.STAFF_ID,
+        request_id: aperData?.request_id,
+        answers: answers,
+        reporting_officer: values?.report_officer,
+        counter_signing_officer: values?.counter_officer,
+      };
 
-    if (!json.reporting_officer || !json.counter_signing_officer) {
-      errorToast("Please select report officer and counter signing officer");
-      return;
-    }
-
-    const result = checkRequiredFieldsAnswered(formTemplate, json.answers);
-
-    if (result.allAnswered) {
-      try {
-        console.log(json);
-        const res = await mutateSentToReortOfficer(json);
-        successToast(res?.data?.message);
-        setIsOpen(false);
-      } catch (err) {
-        errorToast(err?.response?.data?.message || err?.message);
+      if (!json.reporting_officer || !json.counter_signing_officer) {
+        errorToast("Please select report officer and counter signing officer");
+        return;
       }
-    } else {
-      errorToast(
-        `Please answer ${result.missingCount} required field(s), all the required fields must be answered`
-      );
-    }
-  }, []);
+
+      const result = checkRequiredFieldsAnswered(formTemplate, json.answers);
+
+      console.log(json);
+
+      if (result.allAnswered) {
+        try {
+          console.log(json);
+          const res = await mutateSentToReortOfficer(json);
+          successToast(res?.data?.message);
+          setIsOpen(false);
+        } catch (err) {
+          errorToast(err?.response?.data?.message || err?.message);
+        }
+      } else {
+        errorToast(
+          `Please answer ${result.missingCount} required field(s), all the required fields must be answered`
+        );
+      }
+    },
+    [
+      aperData?.request_id,
+      formTemplate,
+      getValues,
+      lookupMap,
+      mutateSentToReortOfficer,
+      setIsOpen,
+      userData?.data?.COMPANY_ID,
+      userData?.data?.STAFF_ID,
+    ]
+  );
 
   const handleSaveAsDraft = useCallback(
     async (data) => {
@@ -883,6 +897,8 @@ export default function PerformanceDrawer({
         errorToast("Please select report officer and counter signing officer");
         return;
       }
+
+      console.log(json);
       try {
         const res = await mutateSaveDraftPerformance(json);
         successToast(res?.data?.message);
@@ -917,14 +933,17 @@ export default function PerformanceDrawer({
             }
             submitButtonText={
               detailsStatus === "awaiting"
-                ? "Save as draft"
+                ? "Submit for Appraisal"
                 : detailsStatus === "draft"
                 ? "Submit for Appraisal"
                 : ""
             }
             viewer={
-              (detailsStatus === "draft" || detailsStatus === "awaiting") &&
-              "appraisee"
+              detailsStatus === "draft" || detailsStatus === "awaiting"
+                ? "appraisee"
+                : detailsStatus === "pending"
+                ? "appraiser"
+                : ""
             }
             responseData={responseData}
             isSubmitting={isSendingToAppraiser}
@@ -949,6 +968,26 @@ export default function PerformanceDrawer({
             />
           ),
         }),
+      (detailsStatus === "draft" || detailsStatus === "awaiting") && {
+        title: "Add Note",
+        content: (
+          <NoteForm
+            view="pms"
+            register={register}
+            setValue={setValue}
+            watch={watch}
+            saveAsDraft={saveAsDraft}
+            formState={formState}
+            isDraft={isDraft}
+            isPending={isPending}
+            // isApprovalPage={}
+          />
+        ),
+      },
+      (detailsStatus === "draft" || detailsStatus === "awaiting") && {
+        title: "Add Attachment",
+        content: <ApprovalHistory details={aperData} />,
+      },
       !(detailsStatus === "draft" || detailsStatus === "awaiting") && {
         title: "Note History",
         content: <NoteDetailsApproval details={aperData} />,
@@ -1002,7 +1041,18 @@ export default function PerformanceDrawer({
                 // onSubmit={handleSubmit(onSubmit)}
                 className="my- w-full p-5 overflow-y-auto col-span-6 shadow-xl bg-white rounded-[0.25rem] mb-[1rem] form_drawer_body_container order-2 md:order-1 "
               >
-                {tabs?.[selectedTab]?.content}
+                <div>
+                  {tabs?.map((tab, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        display: selectedTab === index ? "block" : "none",
+                      }}
+                    >
+                      {tab?.content}
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="flex flex-col border-l-1 border-gray-400 py-10 text-sm gap-3 px-4 ms-8 md:ms-2 my-5 md:my-0 md:h-full order-1 md:order-2">

@@ -45,14 +45,6 @@ const Performance = () => {
     company_id: userData?.data?.COMPANY_ID,
   };
   const {
-    data: apers,
-    isLoading: aperLoading,
-    refetch,
-  } = useGetMyAper({
-    staff_id: userData?.data?.STAFF_ID,
-    status: detailsStatus,
-  });
-  const {
     data: pendingApers,
     isLoading: pendingAperLoading,
     refetch: refetchPending,
@@ -149,6 +141,7 @@ const Performance = () => {
   const handleViewAper = (aper, index) => {
     setViewIndex(index);
     // setSelectedTab(0);
+    console.log(aper);
     mutateRequestDetail(
       {
         request_id: aper?.REQUEST_ID,
@@ -215,6 +208,8 @@ const Performance = () => {
     setIsOpen(true);
     // setCanApprove()
   };
+
+  console.log(detailsNo(detailsStatus));
 
   return (
     <div className="py-8 font-helvetica">

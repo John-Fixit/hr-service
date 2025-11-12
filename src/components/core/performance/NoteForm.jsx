@@ -11,6 +11,7 @@ const NoteForm = ({
   isDraft,
   isPending,
   isApprovalPage
+  view
 }) => {
 
   return (
@@ -29,8 +30,12 @@ const NoteForm = ({
     </div>
 
       {
+        
         !isApprovalPage  && 
       <div className="flex justify-between gap-3">
+        {
+          view!=="pms"&&
+        <>
         <Button
           size="sm"
           className="my-4 bg-[#00bcc2] text-white rounded"
@@ -50,6 +55,9 @@ const NoteForm = ({
         >
           Send to Reporting Officer
         </Button>
+        
+        </>
+        }
       </div>
       }
     </>

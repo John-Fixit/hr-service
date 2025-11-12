@@ -1075,9 +1075,10 @@ const FormRenderer = ({
 }) => {
   // For appraiser, show all sections. For others, filter by respondent
   const formattedSections = useMemo(() => {
-    if (!viewer) return sections;
-    if (viewer === "appraiser") return sections;
-    return sections?.filter((section) => section?.respondent === viewer);
+    return sections;
+    // if (!viewer) return sections;
+    // if (viewer === "appraiser") return sections;
+    // return sections?.filter((section) => section?.respondent === viewer);
   }, [sections, viewer]);
 
   const transformResponseToFormData = useMemo(() => {
@@ -1136,28 +1137,50 @@ const FormRenderer = ({
     setValue(elementKey, { rate: value, comment: "" });
   };
 
+  // // Helper function to determine if an element should be disabled
+  // const isElementDisabled = (element, section) => {
+  //   // If in view mode, everything is disabled
+  //   if (mode === "view") return true;
+
+  //   if (viewer === "appraiser") {
+  //     const isAppraiserSection = section?.respondent === "appraiser";
+
+  //     if (isAppraiserSection) return false;
+
+  //     // NEW: If element is gradable and appraiser can grade it, disable the main element
+  //     // (only grading will be enabled, handled separately in renderGrading)
+  //     if (element?.gradable && element?.grade_by === "appraiser") {
+  //       return true; // Disable the main element
+  //     }
+
+  //     return true;
+  //   }
+
+  //   // For other viewers (appraisee, counter-sign, etc.)
+  //   // Check if the section belongs to the current viewer
+
+  //   // For other viewers (appraisee, counter-sign, etc.)
+  //   const isSectionForViewer = section?.respondent === viewer;
+
+  //   if (!isSectionForViewer) return true;
+
+  //   // NEW: If element is gradable and current viewer can grade it, disable the main element
+  //   if (element?.gradable && element?.grade_by === viewer) {
+  //     return true; // Disable the main element, only grading is fillable
+  //   }
+
+  //   // If element is gradable but viewer cannot grade it
+  //   if (element?.gradable && element?.grade_by !== viewer) {
+  //     return true;
+  //   }
+
+  //   return false;
+  // };
+
   // Helper function to determine if an element should be disabled
   const isElementDisabled = (element, section) => {
     // If in view mode, everything is disabled
     if (mode === "view") return true;
-
-    // For appraiser viewer
-    // if (viewer === "appraiser") {
-    //   // Check if the section belongs to appraiser
-    //   const isAppraiserSection = section?.respondent === "appraiser";
-
-    //   // If it's an appraiser section, enable it
-    //   if (isAppraiserSection) return false;
-
-    //   // For non-appraiser sections, check if there's a gradable element
-    //   // If the element is gradable and grade_by is appraiser, enable it
-    //   if (element?.gradable && element?.grade_by === "appraiser") {
-    //     return false;
-    //   }
-
-    //   // Otherwise disable it (it's another respondent's section)
-    //   return true;
-    // }
 
     if (viewer === "appraiser") {
       const isAppraiserSection = section?.respondent === "appraiser";
@@ -1174,36 +1197,18 @@ const FormRenderer = ({
     }
 
     // For other viewers (appraisee, counter-sign, etc.)
-    // Check if the section belongs to the current viewer
-
-    console.log(section?.respondent, viewer);
-    // const isSectionForViewer = section?.respondent === viewer;
-
-    // // Disable if section is not for this viewer
-    // if (!isSectionForViewer) return true;
-
-    // // If element is gradable, check if viewer can grade it
-    // if (element?.gradable && element?.grade_by !== viewer) {
-    //   return true;
-    // }
-
-    // return false;
-
-    // For other viewers (appraisee, counter-sign, etc.)
     const isSectionForViewer = section?.respondent === viewer;
 
     if (!isSectionForViewer) return true;
 
     // NEW: If element is gradable and current viewer can grade it, disable the main element
+    // (only grading will be enabled, handled separately in renderGrading)
     if (element?.gradable && element?.grade_by === viewer) {
       return true; // Disable the main element, only grading is fillable
     }
 
-    // If element is gradable but viewer cannot grade it
-    if (element?.gradable && element?.grade_by !== viewer) {
-      return true;
-    }
-
+    // If element is gradable but viewer cannot grade it, the primary element stays enabled
+    // because they need to fill it (someone else will grade it later)
     return false;
   };
 
@@ -1596,11 +1601,11 @@ const FormRenderer = ({
                           {section.header?.toLowerCase()}
                         </h4>
                       </div>
-                      {section.sub_header && (
+                      {/* {section.sub_header && (
                         <p className="text-xs text-gray-500 ml-6">
                           {section.sub_header}
                         </p>
-                      )}
+                      )} */}
                     </div>
                   </div>
                 </div>
@@ -1639,12 +1644,12 @@ const FormRenderer = ({
                     </p>
                   )}
                   {/* Show indicator for sections not editable by current viewer */}
-                  {viewer === "appraiser" &&
+                  {/* {viewer === "appraiser" &&
                     section?.respondent !== "appraiser" && (
                       <p className="text-xs text-orange-600 mt-2 bg-orange-50 px-2 py-1 rounded inline-block">
                         Read-only section (for {section?.respondent})
                       </p>
-                    )}
+                    )} */}
                 </div>
 
                 {/* Section Content */}

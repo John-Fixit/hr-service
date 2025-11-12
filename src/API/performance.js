@@ -141,7 +141,7 @@ export const useGetCycleList = ({ company_id }) => {
 };
 export const useGetTemplateDetail = ({ template_id }) => {
   return useQuery({
-    queryKey: ["get_template_detail"],
+    queryKey: [`get_template_detail_${template_id}`],
     queryFn: async () => {
       const res = await API.post("pms/view_template", {
         template_id,

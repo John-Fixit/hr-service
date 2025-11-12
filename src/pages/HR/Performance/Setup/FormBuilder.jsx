@@ -518,7 +518,7 @@
 // ============================================
 import { useState } from "react";
 import { Card, CardBody, Button } from "@nextui-org/react";
-import { Modal, Input, Dropdown, Checkbox, Radio } from "antd";
+import { Modal, Input, Dropdown, Checkbox, Radio, Menu } from "antd";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { IoEllipsisVerticalSharp } from "react-icons/io5";
 import { FaEdit } from "react-icons/fa";
@@ -849,6 +849,30 @@ const FormBuilder = ({
     };
     setAllSection(updatedSections);
   };
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const predefinedOptions = [
+    "Goal Achievement Rate",
+    "KPI Score",
+    "Competency Rating",
+    "Productivity & Efficiency",
+    "Engagement & Feedback",
+    "Learning & Development Progress",
+  ];
+
+  const menu = (
+    <Menu
+      onClick={({ key }) => {
+        setSectionHeader({ ...sectionHeader, header: key });
+        setDropdownOpen(false);
+      }}
+      items={predefinedOptions.map((option) => ({
+        key: option,
+        label: option,
+      }))}
+    />
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1273,14 +1297,67 @@ const FormBuilder = ({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Section Header <span className="text-red-500">*</span>
             </label>
-            <Input
+            {/* <Input
               size="large"
               value={sectionHeader.header}
               onChange={(e) =>
                 setSectionHeader({ ...sectionHeader, header: e.target.value })
               }
               placeholder="e.g., Personal Information"
-            />
+            /> */}
+
+            <div style={{ position: "relative" }}>
+              <Input
+                size="large"
+                value={sectionHeader.header}
+                onChange={(e) =>
+                  setSectionHeader({ ...sectionHeader, header: e.target.value })
+                }
+                onFocus={() => setDropdownOpen(true)}
+                onBlur={() => setTimeout(() => setDropdownOpen(false), 200)}
+                placeholder="e.g., Personal Information"
+              />
+              {dropdownOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    right: 0,
+                    backgroundColor: "white",
+                    border: "1px solid #d9d9d9",
+                    borderRadius: "4px",
+                    maxHeight: "200px",
+                    overflowY: "auto",
+                    zIndex: 1000,
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                  }}
+                >
+                  {predefinedOptions.map((option) => (
+                    <div
+                      key={option}
+                      onClick={() => {
+                        setSectionHeader({ ...sectionHeader, header: option });
+                        setDropdownOpen(false);
+                      }}
+                      style={{
+                        padding: "8px 12px",
+                        cursor: "pointer",
+                        ":hover": { backgroundColor: "#f5f5f5" },
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.target.style.backgroundColor = "#f5f5f5")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.target.style.backgroundColor = "white")
+                      }
+                    >
+                      {option}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1324,4 +1401,5 @@ FormBuilder.propTypes = {
   handleSubmit: PropTypes.func,
   isSubmitting: PropTypes.bool,
   sections: PropTypes.array,
+  isEditing: PropTypes.bool,
 };
