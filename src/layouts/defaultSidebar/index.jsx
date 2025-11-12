@@ -93,8 +93,8 @@ const DefaultSidebar = () => {
       navigate("/engage/home");
       return;
     }
-    if(menu === "Performance"){
-        navigate("/performance/dashboard");
+    if (menu === "Performance") {
+      navigate("/performance/dashboard");
     }
 
     setSidebarMinimizedHome(false);
@@ -134,22 +134,22 @@ const DefaultSidebar = () => {
               }`}
             >
               <div className="flex items-center justify-center h-20 py-6">
-                <img
+                {/* <img
                   src="/assets/images/NCAA.png"
                   alt="comuneety-logo"
                   className={cn(
                     ` w-10`,
                     sidebarMinimizedHome ? "block" : "hidden"
                   )}
-                />
-                <img
+                /> */}
+                {/* <img
                   src="/assets/images/community_logo_light.png"
                   alt="comuneety-logo"
                   className={cn(
                     ` w-52 mt-10`,
                     sidebarMinimizedHome ? "hidden" : "block"
                   )}
-                />
+                /> */}
               </div>
               {/* <div
                 className={`w-100 h-4  flex justify-end my-2   p-3 px-4 font-medium hover:cursor-pointer ${

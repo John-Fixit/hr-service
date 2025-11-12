@@ -796,29 +796,8 @@ const HRISPerformance = () => {
     return true;
   };
 
-  const { mutateAsync: createTemplate, isPending: isSubmitting } =
-    useCreateTemplate();
   const handleSubmit = async (data) => {
-    const validVisibility = validateSectionVisibility(data);
-
-    if (validVisibility) {
-      const json = {
-        company_id: userData?.data?.COMPANY_ID,
-        staff_id: userData?.data?.STAFF_ID,
-        title: data.appraisalHeader,
-        template: JSON.stringify(data.allSection),
-      };
-
-      try {
-        const res = await createTemplate(json);
-        console.log(res);
-        successToast(res?.data?.message);
-        handleCloseNewAppraisal();
-      } catch (err) {
-        const errMsg = err?.response?.data?.message || err?.message;
-        errorToast(errMsg);
-      }
-    }
+    console.log(data);
   };
 
   return (
@@ -892,7 +871,6 @@ const HRISPerformance = () => {
           appraisalHeader={appraisalHeader}
           setAppraisalHeader={setAppraisalHeader}
           handleSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
         />
       </Drawer>
     </>

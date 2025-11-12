@@ -239,3 +239,26 @@ export const useGetPendingPerformance = (payload) => {
     },
   });
 };
+
+export const useSaveDraftPerformance = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload) => {
+      return await API.post("pms/save_draft_performances", payload);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries("list_draft_performances");
+    },
+  });
+};
+export const useSendToReportingOfficerPerformance = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload) => {
+      return await API.post("pms/submit_performances", payload);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries("list_pending_performances");
+    },
+  });
+};

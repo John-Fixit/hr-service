@@ -772,7 +772,7 @@ const SectionFormDrawer = ({
 }) => {
   const [fields, setFields] = useState(
     selectedSection?.formElements?.length
-      ? [...selectedSection?.formElements]
+      ? [...selectedSection.formElements]
       : [createNewField()]
   );
 
@@ -1379,3 +1379,27 @@ const SubQuestionEditor = ({ subQuestion, subIndex, updateSubQuestion }) => {
 };
 
 export default SectionFormDrawer;
+
+SubQuestions.propTypes = {
+  field: PropTypes.object,
+  index: PropTypes.number,
+  updateField: PropTypes.func,
+  fieldIndex: PropTypes.number,
+};
+SectionFormDrawer.propTypes = {
+  openSectionEditor: PropTypes.func,
+  closeSectionEditor: PropTypes.func,
+  sectionId: PropTypes.number,
+  selectedSection: PropTypes.object,
+  onUpdateSection: PropTypes.func,
+};
+SubQuestionEditor.propTypes = {
+  subQuestion: PropTypes.object,
+  subIndex: PropTypes.number,
+  updateSubQuestion: PropTypes.func,
+};
+FieldEditor.propTypes = {
+  field: PropTypes.object,
+  index: PropTypes.number,
+  updateField: PropTypes.func,
+};

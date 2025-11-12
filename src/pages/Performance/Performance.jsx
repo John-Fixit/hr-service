@@ -147,9 +147,8 @@ const Performance = () => {
   };
 
   const handleViewAper = (aper, index) => {
-    console.log(aper, index);
     setViewIndex(index);
-    setSelectedTab(0);
+    // setSelectedTab(0);
     mutateRequestDetail(
       {
         request_id: aper?.REQUEST_ID,
@@ -166,7 +165,11 @@ const Performance = () => {
           if (Number(aper?.canApprove)) {
             handleViewApproval(resData, aper?.request_id);
           } else {
-            setAperData({ ...resData, is_draft: aper?.is_draft });
+            setAperData({
+              ...resData,
+              request_id: aper?.REQUEST_ID,
+              is_draft: aper?.is_draft,
+            });
             setIsOpen(true);
           }
         },
@@ -247,6 +250,7 @@ const Performance = () => {
         aperData={aperData}
         setAperData={setAperData}
         period={period}
+        detailsStatus={detailsStatus}
       />
 
       <PerformanceApprovalDrawer

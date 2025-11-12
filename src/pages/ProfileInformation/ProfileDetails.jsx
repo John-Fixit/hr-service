@@ -2,14 +2,11 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import Profile from "../../components/ProfileInformation/Profile";
-import SideContents from "../../components/ProfileInformation/SideContents";
 import PersonalInformation from "../../components/ProfileInformation/PersonalInformation";
 import { useViewStaffProfile } from "../../API/profile";
 import { useParams } from "react-router-dom";
 import OfficialInformation from "../../components/ProfileInformation/OfficialInformation";
 import OfficialEditform from "../../components/ProfileInformation/OfficialEditform";
-import ExpandedDrawerWithButton from "../../components/modals/ExpandedDrawerWithButton";
-import FormDrawer from "../../components/payroll_components/FormDrawer";
 import Attachments from "../../components/Request&FormComponent/Attachments";
 import Note from "../../components/Request&FormComponent/Note";
 import Drawer from "../../components/Request&FormComponent/Drawer";

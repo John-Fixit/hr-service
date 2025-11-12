@@ -6,7 +6,11 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import useCurrentUser from "../../hooks/useCurrentUser";
 import { useGetProfile } from "../../API/profile";
-import { useCreateAper } from "../../API/performance";
+import {
+  useCreateAper,
+  useSaveDraftPerformance,
+  useSendToReportingOfficerPerformance,
+} from "../../API/performance";
 import { errorToast, successToast } from "../../utils/toastMsgPop";
 import PeriodSection from "../../components/core/performance/PeriodSection";
 import T1_EmployeePotentialSection from "../../components/core/performance/template1/components/T1_EmployeePotentialSection";
@@ -47,6 +51,7 @@ export default function PerformanceDrawer({
   setAperData,
   aperData,
   period,
+  detailsStatus,
 }) {
   const [isDraft, setIsDraft] = useState(false);
 
@@ -362,12 +367,28 @@ export default function PerformanceDrawer({
   ]);
   // ----------------autoFill---------------
 
+  function getApprovers(approversArray = []) {
+    const reportOfficer = approversArray?.find(
+      (item) => item.DESIGNATION === "APPRAISER/REPORT OFFICER"
+    );
+
+    const counterOfficer = approversArray.find(
+      (item) => item.DESIGNATION === "COUNTER SIGNING OFFICER"
+    );
+
+    return {
+      report_officer: reportOfficer?.APPROVER || null,
+      counter_officer: counterOfficer?.APPROVER || null,
+    };
+  }
+
+  // Output: { report_officer: 0, counter_officer: 5146 }
+
   useEffect(() => {
     reset({
       start_date: period?.start_date,
       end_date: period?.end_date,
-      report_officer: "",
-      counter_officer: "",
+      ...getApprovers(aperData?.approvers),
       note: aperData?.notes?.[0]?.NOTE_CONTENT || "",
       training_response: aperData?.data?.training_response || "",
       appraisee_comment: aperData?.data?.appraisee_comment || "",
@@ -375,7 +396,14 @@ export default function PerformanceDrawer({
       job_performance: [],
     });
     autoFill();
-  }, [period, reset, autoFill, aperData?.data, aperData?.notes]);
+  }, [
+    period,
+    reset,
+    autoFill,
+    aperData?.data,
+    aperData?.notes,
+    aperData?.approvers,
+  ]);
 
   useEffect(() => {
     const validateAllFields = async () => {
@@ -414,49 +442,49 @@ export default function PerformanceDrawer({
   const onSubmit = async ({ is_draft }) => {
     const values = getValues();
 
-    const formErrors = validateForm(values);
+    // const formErrors = validateForm(values);
 
-    const payload = {
-      company_id: userData?.data?.COMPANY_ID,
-      staff_id: userData?.data?.STAFF_ID,
-      start_date: values?.start_date,
-      end_date: values?.end_date,
-      report_officer: values?.report_officer,
-      counter_officer: values?.counter_officer,
-      training_response: values?.training_response,
-      appraisee_comment: values?.appraisee_comment,
-      is_draft: is_draft || 0,
-      template: templateNo,
-      section_two: values?.section_two,
-      job_performance: values?.job_performance,
-      note: values?.note,
-      aper_id: aperData?.data?.id,
-      request_id: aperData?.data?.request_id,
-    };
+    // const payload = {
+    //   company_id: userData?.data?.COMPANY_ID,
+    //   staff_id: userData?.data?.STAFF_ID,
+    //   start_date: values?.start_date,
+    //   end_date: values?.end_date,
+    //   report_officer: values?.report_officer,
+    //   counter_officer: values?.counter_officer,
+    //   training_response: values?.training_response,
+    //   appraisee_comment: values?.appraisee_comment,
+    //   is_draft: is_draft || 0,
+    //   template: templateNo,
+    //   section_two: values?.section_two,
+    //   job_performance: values?.job_performance,
+    //   note: values?.note,
+    //   aper_id: aperData?.data?.id,
+    //   request_id: aperData?.data?.request_id,
+    // };
 
-    if (Object.keys(formErrors).length > 0) {
-      const combinedMessage = Object.values(formErrors).join("\n");
-      errorToast(combinedMessage);
-      return;
-    }
+    // if (Object.keys(formErrors).length > 0) {
+    //   const combinedMessage = Object.values(formErrors).join("\n");
+    //   errorToast(combinedMessage);
+    //   return;
+    // }
 
-    // console.log(payload);
+    // // console.log(payload);
 
-    mutateCreateAper(payload, {
-      onError: (error) => {
-        const errMsg = error?.response?.data?.message || error?.message;
+    // mutateCreateAper(payload, {
+    //   onError: (error) => {
+    //     const errMsg = error?.response?.data?.message || error?.message;
 
-        errorToast(errMsg);
-      },
-      onSuccess: (res) => {
-        const resMsg = res?.data?.message;
+    //     errorToast(errMsg);
+    //   },
+    //   onSuccess: (res) => {
+    //     const resMsg = res?.data?.message;
 
-        successToast(resMsg);
-        reset();
-        setIsOpen(false);
-        setIsDraft(false);
-      },
-    });
+    //     successToast(resMsg);
+    //     reset();
+    //     setIsOpen(false);
+    //     setIsDraft(false);
+    //   },
+    // });
   };
 
   const saveAsDraft = useCallback(() => {
@@ -683,15 +711,196 @@ export default function PerformanceDrawer({
     isDraft,
   ]);
 
-  const handleSendResponse = (data) => {
-    console.log(data);
-  };
+  const template = aperData?.data?.template;
+  const responseData = useMemo(
+    () => aperData?.data?.responses || [],
+    [aperData?.data?.responses]
+  );
 
   const formTemplate = useMemo(() => {
-    return aperData?.data?.template?.DATA_CONTENT
-      ? JSON.parse(aperData?.data?.template?.DATA_CONTENT)
-      : [];
-  }, [aperData?.data?.template?.DATA_CONTENT]);
+    return template?.DATA_CONTENT ? JSON.parse(template?.DATA_CONTENT) : [];
+  }, [template?.DATA_CONTENT]);
+
+  function createElementLookupMap(templateConfig) {
+    const lookupMap = new Map();
+
+    templateConfig.forEach((section) => {
+      section.formElements.forEach((element) => {
+        lookupMap.set(element.elementKey, {
+          template_key: template.ID,
+          section_key: section.sectionId,
+          element_key: element.elementKey,
+          label: element.label,
+          type: element.type,
+        });
+
+        // Add sub-questions to lookup map
+        if (element.sub_question && Array.isArray(element.sub_question)) {
+          element.sub_question.forEach((subQuestion) => {
+            lookupMap.set(subQuestion.elementKey, {
+              template_key: template.ID,
+              section_key: section.sectionId,
+              element_key: subQuestion.elementKey,
+              parent_element_key: element.elementKey,
+              label: subQuestion.label,
+              type: subQuestion.type,
+            });
+          });
+        }
+      });
+    });
+
+    return lookupMap;
+  }
+
+  const lookupMap = createElementLookupMap(formTemplate);
+
+  function mapResponsesUsingLookup(lookupMap, responses) {
+    const result = [];
+    const parsedResponses =
+      typeof responses === "string" ? JSON.parse(responses) : responses;
+
+    Object.entries(parsedResponses).forEach(([elementKey, answer]) => {
+      const metadata = lookupMap.get(elementKey);
+      if (metadata) {
+        result.push({
+          ...metadata,
+          answer: answer,
+        });
+      }
+    });
+
+    return result;
+  }
+
+  const { mutateAsync: mutateSaveDraftPerformance, isPending: isSavingDraft } =
+    useSaveDraftPerformance();
+  const {
+    mutateAsync: mutateSentToReortOfficer,
+    isPending: isSendingToAppraiser,
+  } = useSendToReportingOfficerPerformance();
+
+  // console.log(template?.DATA_CONTENT);
+
+  function checkRequiredFieldsAnswered(formSections, answers) {
+    // Get all required elements from the form sections
+    const requiredElements = [];
+
+    formSections.forEach((section) => {
+      section.formElements.forEach((element) => {
+        if (element.isRequired) {
+          requiredElements.push({
+            sectionId: section.sectionId,
+            elementKey: element.elementKey,
+            label: element.label,
+            type: element.type,
+          });
+        }
+      });
+    });
+
+    // Create a Set of answered element keys for faster lookup
+    const answeredKeys = new Set(
+      answers
+        .filter((ans) => ans.answer && ans.answer.trim() !== "") // Filter out empty answers
+        .map((ans) => ans.element_key)
+    );
+
+    // Find unanswered required fields
+    const unansweredFields = requiredElements.filter(
+      (req) => !answeredKeys.has(req.elementKey)
+    );
+    return {
+      allAnswered: unansweredFields.length === 0,
+      totalRequired: requiredElements.length,
+      totalAnswered: requiredElements.length - unansweredFields.length,
+      unansweredFields: unansweredFields,
+      missingCount: unansweredFields.length,
+    };
+  }
+
+  const handleSendResponse = useCallback(async (data) => {
+    const values = getValues();
+    const efficientPayload = mapResponsesUsingLookup(lookupMap, data);
+    const answers = efficientPayload?.map((ans) => ({
+      template_key: ans?.template_key,
+      section_key: ans?.section_key,
+      element_key: ans?.element_key,
+      answer: ans?.answer || "",
+    }));
+    const json = {
+      company_id: userData?.data?.COMPANY_ID,
+      staff_id: userData?.data?.STAFF_ID,
+      request_id: aperData?.request_id,
+      answers: answers,
+      reporting_officer: values?.report_officer,
+      counter_signing_officer: values?.counter_officer,
+    };
+
+    if (!json.reporting_officer || !json.counter_signing_officer) {
+      errorToast("Please select report officer and counter signing officer");
+      return;
+    }
+
+    const result = checkRequiredFieldsAnswered(formTemplate, json.answers);
+
+    if (result.allAnswered) {
+      try {
+        console.log(json);
+        const res = await mutateSentToReortOfficer(json);
+        successToast(res?.data?.message);
+        setIsOpen(false);
+      } catch (err) {
+        errorToast(err?.response?.data?.message || err?.message);
+      }
+    } else {
+      errorToast(
+        `Please answer ${result.missingCount} required field(s), all the required fields must be answered`
+      );
+    }
+  }, []);
+
+  const handleSaveAsDraft = useCallback(
+    async (data) => {
+      const values = getValues();
+      const efficientPayload = mapResponsesUsingLookup(lookupMap, data);
+      const answers = efficientPayload?.map((ans) => ({
+        template_key: ans?.template_key,
+        section_key: ans?.section_key,
+        element_key: ans?.element_key,
+        answer: ans?.answer || "",
+      }));
+      const json = {
+        company_id: userData?.data?.COMPANY_ID,
+        staff_id: userData?.data?.STAFF_ID,
+        request_id: aperData?.request_id,
+        answers: answers,
+        reporting_officer: values?.report_officer,
+        counter_signing_officer: values?.counter_officer,
+      };
+
+      if (!json.reporting_officer || !json.counter_signing_officer) {
+        errorToast("Please select report officer and counter signing officer");
+        return;
+      }
+      try {
+        const res = await mutateSaveDraftPerformance(json);
+        successToast(res?.data?.message);
+        setIsOpen(false);
+      } catch (err) {
+        errorToast(err?.response?.data?.message || err?.message);
+      }
+    },
+    [
+      aperData?.request_id,
+      getValues,
+      lookupMap,
+      mutateSaveDraftPerformance,
+      setIsOpen,
+      userData?.data?.COMPANY_ID,
+      userData?.data?.STAFF_ID,
+    ]
+  );
 
   const tabs = useMemo(() => {
     return [
@@ -701,25 +910,65 @@ export default function PerformanceDrawer({
           <FormRenderer
             sections={formTemplate || []}
             onSubmit={handleSendResponse}
-            mode="fill"
-            submitButtonText={"Send to Appraisers"}
-            viewer={"appraisee"}
+            mode={
+              detailsStatus === "awaiting" || detailsStatus === "draft"
+                ? "fill"
+                : "view"
+            }
+            submitButtonText={
+              detailsStatus === "awaiting"
+                ? "Save as draft"
+                : detailsStatus === "draft"
+                ? "Submit for Appraisal"
+                : ""
+            }
+            viewer={
+              (detailsStatus === "draft" || detailsStatus === "awaiting") &&
+              "appraisee"
+            }
+            responseData={responseData}
+            isSubmitting={isSendingToAppraiser}
+            isDraftLoading={isSavingDraft}
+            saveAsDraftFunction={handleSaveAsDraft}
+            canSaveAsDraft={
+              (detailsStatus === "draft" || detailsStatus === "awaiting") &&
+              true
+            }
           />
         ),
       },
-      {
-        title: "Select Appraisers",
-        content: (
-          <ReportingOfficer
-            control={control}
-            saveAsDraft={() => {}}
-            isDraft={false}
-            isPending={false}
-          />
-        ),
+      detailsStatus === "draft" ||
+        (detailsStatus === "awaiting" && {
+          title: "Select Appraisers",
+          content: (
+            <ReportingOfficer
+              control={control}
+              saveAsDraft={() => {}}
+              isDraft={false}
+              isPending={false}
+            />
+          ),
+        }),
+      !(detailsStatus === "draft" || detailsStatus === "awaiting") && {
+        title: "Note History",
+        content: <NoteDetailsApproval details={aperData} />,
       },
-    ];
-  }, [control, formTemplate]);
+      !(detailsStatus === "draft" || detailsStatus === "awaiting") && {
+        title: "Approval History",
+        content: <ApprovalHistory details={aperData} />,
+      },
+    ].filter(Boolean);
+  }, [
+    aperData,
+    control,
+    detailsStatus,
+    formTemplate,
+    handleSaveAsDraft,
+    handleSendResponse,
+    isSavingDraft,
+    isSendingToAppraiser,
+    responseData,
+  ]);
 
   return (
     <>
@@ -749,12 +998,12 @@ export default function PerformanceDrawer({
           <div className="bg-[#f5f7fa] min-h-screen px-5 py-5">
             <h4 className="header_h3 text-2xl mb-3">New Appraisal</h4>
             <div className="grid grid-cols-1 h-ful md:grid-cols-7 gap-x-7 gap-y-5">
-              <form
-                onSubmit={handleSubmit(onSubmit)}
+              <div
+                // onSubmit={handleSubmit(onSubmit)}
                 className="my- w-full p-5 overflow-y-auto col-span-6 shadow-xl bg-white rounded-[0.25rem] mb-[1rem] form_drawer_body_container order-2 md:order-1 "
               >
                 {tabs?.[selectedTab]?.content}
-              </form>
+              </div>
 
               <div className="flex flex-col border-l-1 border-gray-400 py-10 text-sm gap-3 px-4 ms-8 md:ms-2 my-5 md:my-0 md:h-full order-1 md:order-2">
                 {tabs?.map((tab, index) => (

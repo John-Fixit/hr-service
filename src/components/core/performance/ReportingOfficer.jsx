@@ -264,7 +264,7 @@ const ReportingOfficer = ({
               )}
             />
           </div>
-          <div className="flex justify-between gap-3">
+          {/* <div className="flex justify-between gap-3">
             <Button
               size="sm"
               className="my-4 bg[#00bcc2] text-white rounded"
@@ -286,7 +286,7 @@ const ReportingOfficer = ({
             >
               Submit
             </Button>
-          </div>
+          </div> */}
         </div>
       </CardBody>
     </Card>

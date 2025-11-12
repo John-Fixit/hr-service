@@ -234,10 +234,10 @@ const Sidebar = () => {
                   }`}
                   onClick={routeToHome}
                 >
-                  <img
+                  {/* <img
                     src="/assets/images/community_logo_light.png"
                     alt="comuneety-logo"
-                  />
+                  /> */}
                 </div>
 
                 <div

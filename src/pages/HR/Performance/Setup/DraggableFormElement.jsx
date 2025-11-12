@@ -160,6 +160,7 @@ const DraggableFormElement = ({
   isDragging,
   isDraggedOver,
   componentRole,
+  openSectionDrawer,
 }) => {
   const nonLabelElements = ["submit", "header", "paragraph"];
 
@@ -291,7 +292,7 @@ const DraggableFormElement = ({
             size="sm"
             type="button"
             variant="flat"
-            onPress={onEdit}
+            onPress={openSectionDrawer}
           >
             <MdModeEdit size={18} color="blue" />
           </Button>

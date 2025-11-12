@@ -780,6 +780,26 @@ const FormBuilder = ({
     setActiveSelectedSection(sectionIdx);
   };
 
+  //   const editElement = (sectionIdx, elementIdx) => {
+  //   const element = allSection[sectionIdx].formElements[elementIdx];
+  //   setActiveSelectedSection(sectionIdx);
+  //   setElementForm({
+  //     ...element,
+  //     editIndex: elementIdx,
+  //   });
+  //   setDrawerOpen(true);
+  // };
+
+  //   const editElement = (sectionIdx, elementIdx) => {
+  //     const element = allSection[sectionIdx].formElements[elementIdx];
+  //     setActiveSelectedSection(sectionIdx);
+  //     setElementForm({
+  //       ...element,
+  //       editIndex: elementIdx,
+  //     });
+  //     setDrawerOpen(true);
+  //   };
+
   const removeElement = (elementIdx) => {
     const updatedSections = [...allSection];
     updatedSections[activeSelectedSection].formElements.splice(elementIdx, 1);
@@ -1125,6 +1145,15 @@ const FormBuilder = ({
                                         activeSelectedSection,
                                         elementIdx
                                       )
+                                    }
+                                    // onEdit={() =>
+                                    //   editElement(
+                                    //     activeSelectedSection,
+                                    //     elementIdx
+                                    //   )
+                                    // }
+                                    openSectionDrawer={() =>
+                                      openSectionDrawer(activeSelectedSection)
                                     }
                                     onRemove={() => removeElement(elementIdx)}
                                     isDragging={draggedItem === elementIdx}
