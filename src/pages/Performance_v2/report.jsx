@@ -244,21 +244,50 @@ export default PerformanceReport;
 function PerformanceReportsMenu() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [openDrawer, setOpenDrawer] = useState(false);
+  const sections = [
+    {
+      title: "1. Performance Evaluation Reports",
+      hasMarginBottom: true,
+      items: [
+        { name: "Individual Performance Report", type: "Individual Report" },
+        { name: "Team Performance Summary", type: "Team Report" },
+        { name: "Departmental Performance Report", type: "Department Report" },
+        { name: "Company-Wide Performance Report", type: "Company Report" },
+        { name: "Rating Distribution Report", type: "Analytics Report" },
+      ],
+    },
+    {
+      title: "2. Goal and KPI Reports",
+      hasMarginBottom: false,
+      items: [
+        { name: "Goal Achievement Report", type: "Goal Report" },
+        { name: "KPI Performance Report", type: "KPI Report" },
+        { name: "Goal Alignment Report", type: "Alignment Report" },
+        { name: "Goal Progress Over Time", type: "Progress Report" },
+      ],
+    },
+    {
+      title: "3. Feedback and Engagement Reports",
+      hasMarginBottom: true,
+      items: [
+        { name: "Feedback Activity Report", type: "Feedback Report" },
+        { name: "360° Feedback Summary", type: "Engagement Report" },
+      ],
+    },
+    {
+      title: "4. Appraisal and Review Cycle Reports",
+      hasMarginBottom: false,
+      items: [
+        { name: "Review Completion Status Report", type: "Completion Report" },
+        { name: "Pending Review Report", type: "Pending Report" },
+        { name: "Late Review Report", type: "Delay Report" },
+      ],
+    },
+  ];
+  
 
-  const components = {
-    "Individual Performance Report": <IndividualPerformanceReport />,
-    "Team Performance Summary": <TeamPerformanceReport />,
-    // "Departmental Performance Report": <DepartmentalPerformanceReport,
-    // "Company-Wide Performance Report": CompanyPerformanceReport,
-    // "Rating Distribution Report": RatingDistributionReport,
-    // "Goal Progress Over Time": GoalProgressOverTime,
-    // "Goal Alignment Report": GoalAlignmentReport,
-    // "Feedback Activity Report": FeedbackActivityReport,
-    // "360° Feedback Summary": FeedbackSummary,
-    // "Pending Review Report": PendingReviewReport,
-    // "Late Review Report": LateReviewReport,
-    // "Review Completion Status Report": ReviewCompletionStatusReport,
-  };
+  const leftSections = sections.slice(0, 2);
+  const rightSections = sections.slice(2, 4);
 
   const handleItemClick = (item) => {
     console.log(item);
@@ -270,104 +299,33 @@ function PerformanceReportsMenu() {
     setOpenDrawer(false);
   };
 
+  const renderSection = (section) => (
+    <div className={`mb-12 ${!section.hasMarginBottom ? 'mb-0' : ''}`}>
+      <h2 className="text-2xl font-bold text-primary mb-6">
+        {section.title}
+      </h2>
+      <div className="space-y-3">
+        {section.items.map((item, index) => (
+          <div
+            key={index}
+            onClick={() => handleItemClick(item)}
+            className="text-gray-700 text-lg cursor-pointer hover:text-teal-600 hover:translate-x-2 transition-all duration-200"
+          >
+            {item.name}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-2 gap-16">
           {/* Left Column */}
-          <div>
-            {/* Section 1 */}
-            <div className="mb-12">
-              <h2 className="text-2xl font-bold text-primary mb-6">
-                1. Performance Evaluation Reports
-              </h2>
-              <div className="space-y-3">
-                {[
-                  "Individual Performance Report",
-                  "Team Performance Summary",
-                  "Departmental Performance Report",
-                  "Company-Wide Performance Report",
-                  "Rating Distribution Report",
-                ].map((item, index) => (
-                  <div
-                    key={index}
-                    onClick={() => handleItemClick(item)}
-                    className="text-gray-700 text-lg cursor-pointer hover:text-teal-600 hover:translate-x-2 transition-all duration-200"
-                  >
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div>{leftSections.map((section, index) => renderSection(section))}</div>
 
-            {/* Section 2 */}
-            <div>
-              <h2 className="text-2xl font-bold text-primary mb-6">
-                2. Goal and KPI Reports
-              </h2>
-              <div className="space-y-3">
-                {[
-                  "Goal Achievement Report",
-                  "KPI Performance Report",
-                  "Goal Alignment Report",
-                  "Goal Progress Over Time",
-                ].map((item, index) => (
-                  <div
-                    key={index}
-                    onClick={() => handleItemClick(item)}
-                    className="text-gray-700 text-lg cursor-pointer hover:text-teal-600 hover:translate-x-2 transition-all duration-200"
-                  >
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column */}
-          <div>
-            {/* Section 3 */}
-            <div className="mb-12">
-              <h2 className="text-2xl font-bold text-primary mb-6">
-                3. Feedback and Engagement Reports
-              </h2>
-              <div className="space-y-3">
-                {["Feedback Activity Report", "360° Feedback Summary"].map(
-                  (item, index) => (
-                    <div
-                      key={index}
-                      onClick={() => handleItemClick(item)}
-                      className="text-gray-700 text-lg cursor-pointer hover:text-teal-600 hover:translate-x-2 transition-all duration-200"
-                    >
-                      {item}
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
-
-            {/* Section 4 */}
-            <div>
-              <h2 className="text-2xl font-bold text-primary mb-6">
-                4. Appraisal and Review Cycle Reports
-              </h2>
-              <div className="space-y-3">
-                {[
-                  "Review Completion Status Report",
-                  "Pending Review Report",
-                  "Late Review Report",
-                ].map((item, index) => (
-                  <div
-                    key={index}
-                    onClick={() => handleItemClick(item)}
-                    className="text-gray-700 text-lg cursor-pointer hover:text-teal-600 hover:translate-x-2 transition-all duration-200"
-                  >
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <div>{rightSections.map((section, index) => renderSection(section))}</div>
         </div>
 
         <Drawer
@@ -376,7 +334,7 @@ function PerformanceReportsMenu() {
           width={"1500px"}
           onClose={handleCloseDrawer}
         >
-          {components?.[selectedItem]}
+          <IndividualPerformanceReport selectedReport={selectedItem} />
         </Drawer>
       </div>
     </div>
