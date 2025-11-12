@@ -847,9 +847,9 @@ export default function PerformanceDrawer({
         return;
       }
 
-      const result = checkRequiredFieldsAnswered(formTemplate, json.answers);
+      const result = { allAnswered: true }; //checkRequiredFieldsAnswered(formTemplate, json.answers);
 
-      console.log(json);
+      // console.log(json);
 
       if (result.allAnswered) {
         try {
