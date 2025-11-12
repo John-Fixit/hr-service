@@ -10,6 +10,8 @@ import {
   XCircle,
   FileText,
 } from "lucide-react";
+import { Avatar } from "@nextui-org/react";
+import { preProfileLink } from "../../../../../utils/pre-profile-link";
 
 const ViewCycleRecipient = ({ cycle }) => {
   const { data: cycleRecipient, isPending: isLoadingRecipient } =
@@ -38,7 +40,7 @@ const ViewCycleRecipient = ({ cycle }) => {
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">
+      <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded-full">
         <XCircle size={12} /> Pending
       </span>
     );
@@ -94,7 +96,13 @@ const ViewCycleRecipient = ({ cycle }) => {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <User size={20} className="text-blue-600" />
+                            {/* <User size={20} className="text-blue-600" /> */}
+                            <Avatar
+                              src={preProfileLink(
+                                recipient.FIRST_NAME,
+                                recipient.LAST_NAME
+                              )}
+                            />
                           </div>
                           <div>
                             <div className="text-sm font-medium text-gray-900">
