@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PageHeader from "../../../components/payroll_components/PageHeader";
 import Separator from "../../../components/payroll_components/Separator";
 import TopCards from "./TopCards";
@@ -53,6 +53,7 @@ import SignMemo from "../../home/Engage/memo/components/SignMemo";
 import DefaultDetails from "../../Approval/DefaultDetails";
 import LeaveReturnDetails from "../../Approval/LeaveReturn";
 import PerformanceApprovalDrawer from "../../Approval/AperApprovalView";
+import FormRenderer from "../../HR/Performance/Setup/FormRenderer";
 
 // new
 const tabElements = [
@@ -82,7 +83,11 @@ export default function Request() {
 
   // for aper
   const [selectedTab, setSelectedTab] = useState(0);
-  const {isOpen:isAperOpen, onOpen:onAperOpen, onClose:onAperClose} = useDisclosure()
+  const {
+    isOpen: isAperOpen,
+    onOpen: onAperOpen,
+    onClose: onAperClose,
+  } = useDisclosure();
 
   const { mutate: getDetails } = useGetRequestDetail();
 
@@ -134,23 +139,26 @@ export default function Request() {
           const approvers = value?.approvers;
           const attachments = value?.attachments;
           const requestData = value?.data;
+
           const notes = value?.notes;
 
-          setDetails({
+          const formattedData = {
             ...details,
             approvers,
             attachments,
             notes,
-            data: requestData,
-          });
-          if(type === "Performance"){
-           onAperOpen()
-          }else{
+            data: { ...requestData },
+          };
+
+          setDetails(formattedData);
+          console.log(formattedData);
+          if (type === "Performance") {
+            onAperOpen();
+          } else {
             setIsOpen({ type: type, status: true });
           }
         },
         onError: (err) => {
-          console.log(err);
           setIsOpen({ type: type, status: false });
         },
       }
@@ -168,8 +176,14 @@ export default function Request() {
       attachments: [],
       data: null,
       notes: [],
-    })
+    });
   };
+
+  const template = details?.data?.template;
+
+  const formTemplate = useMemo(() => {
+    return template?.DATA_CONTENT ? JSON.parse(template?.DATA_CONTENT) : [];
+  }, [template?.DATA_CONTENT]);
 
   const tabs = !isOpen?.status
     ? []
@@ -269,6 +283,31 @@ export default function Request() {
               details={details}
               handleClose={handleClose}
               role="request"
+            />
+          ),
+        },
+        {
+          title: "Attachment",
+          component: <AttachmentDetailsApproval details={details} />,
+        },
+        { title: "Note", component: <NoteDetailsApproval details={details} /> },
+      ]
+    : isOpen.type === "Performance Management"
+    ? [
+        {
+          title: isOpen?.type,
+          component: (
+            <FormRenderer
+              sections={formTemplate || []}
+              // onSubmit={handleSendResponse}
+              mode={"view"}
+              submitButtonText={""}
+              viewer={""}
+              responseData={details?.data?.responses}
+              isSubmitting={false}
+              isDraftLoading={false}
+              // saveAsDraftFunction={}
+              canSaveAsDraft={false}
             />
           ),
         },
@@ -465,7 +504,17 @@ export default function Request() {
         </div>
       </main>
 
-      <ExpandedDrawerWithButton maxWidth={isOpen.type == "Variation" ? 1100 :  920} isOpen={isOpen?.status} onClose={handleClose}>
+      <ExpandedDrawerWithButton
+        maxWidth={
+          isOpen.type == "Variation"
+            ? 1100
+            : isOpen.type === "Performance Management"
+            ? "1500px"
+            : 920
+        }
+        isOpen={isOpen?.status}
+        onClose={handleClose}
+      >
         <FormDrawer
           title={"Who you be:"}
           tabs={[
@@ -480,7 +529,7 @@ export default function Request() {
 
       <PerformanceApprovalDrawer
         isOpen={isAperOpen}
-        setIsOpen={()=>onAperClose()}
+        setIsOpen={() => onAperClose()}
         selectedTab={selectedTab}
         setSelectedTab={setSelectedTab}
         incomingData={details}

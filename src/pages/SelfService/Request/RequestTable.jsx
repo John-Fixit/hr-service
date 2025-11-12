@@ -1,8 +1,7 @@
 /* eslint-disable no-unused-vars */
 
-
 import React from "react";
-import PropTypes from 'prop-types'
+import PropTypes from "prop-types";
 import {
   Table,
   TableHeader,
@@ -17,13 +16,12 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  Chip
+  Chip,
 } from "@nextui-org/react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { useClassNames } from "../../../utils/tableClassNames";
 import ActionButton from "../../../components/forms/FormElements/ActionButton";
 // import { useClassNames } from "../../../../utils/tableClassNames";
-
 
 const SearchIcon = (props) => (
   <svg
@@ -54,11 +52,10 @@ const SearchIcon = (props) => (
 );
 
 const statusOptions = [
-  {name: "Active", uid: "active"},
-  {name: "Paused", uid: "paused"},
-  {name: "Vacation", uid: "vacation"},
+  { name: "Active", uid: "active" },
+  { name: "Paused", uid: "paused" },
+  { name: "Vacation", uid: "vacation" },
 ];
-
 
 const statusColorMap = {
   active: "success",
@@ -67,20 +64,15 @@ const statusColorMap = {
 };
 
 const columns = [
-  {name: "S/N", uid: "s_n", sortable: true},
-  {name: "Request Type", uid: "type", sortable: true},
-  {name: "Request Date", uid: "date", sortable: true},
-  {name: "Actions", uid: "actions", sortable: true},
+  { name: "S/N", uid: "s_n", sortable: true },
+  { name: "Request Type", uid: "type", sortable: true },
+  { name: "Request Date", uid: "date", sortable: true },
+  { name: "Actions", uid: "actions", sortable: true },
 ];
 
-const INITIAL_VISIBLE_COLUMNS = [
-  "s_n",
-  "type",
-  "date",
-  "actions"
-];
+const INITIAL_VISIBLE_COLUMNS = ["s_n", "type", "date", "actions"];
 
-const RequestTable = ({handleOpenDrawer, rows}) => {
+const RequestTable = ({ handleOpenDrawer, rows }) => {
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState(
@@ -105,9 +97,9 @@ const RequestTable = ({handleOpenDrawer, rows}) => {
   }, [visibleColumns]);
 
   const filteredItems = React.useMemo(() => {
-    let filteredrows = [...rows]?.map((each, i)=>{
-      each._id = i+1
-      return each
+    let filteredrows = [...rows]?.map((each, i) => {
+      each._id = i + 1;
+      return each;
     });
 
     if (hasSearchFilter) {
@@ -151,17 +143,29 @@ const RequestTable = ({handleOpenDrawer, rows}) => {
     switch (columnKey) {
       case "s_n":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{user?._id}</p>
+          <p className="text-bold text-tiny capitalize text-default-400">
+            {user?._id}
+          </p>
         );
-      
+
       case "type":
-        return <p className="text-bold text-tiny capitalize text-default-400">{cellValue}</p>;
-        case "date":
-          return <p className="text-bold text-tiny capitalize text-default-400">{cellValue}</p>;
-     case "actions":
+        return (
+          <p className="text-bold text-tiny capitalize text-default-400">
+            {cellValue}
+          </p>
+        );
+      case "date":
+        return (
+          <p className="text-bold text-tiny capitalize text-default-400">
+            {cellValue}
+          </p>
+        );
+      case "actions":
         return (
           <div className="relative flex gap-2">
-                    <ActionButton onClick={()=>handleOpenDrawer(user?.type)}>View</ActionButton>
+            <ActionButton onClick={() => handleOpenDrawer(user?.type)}>
+              View
+            </ActionButton>
           </div>
         );
       default:
@@ -215,9 +219,8 @@ const RequestTable = ({handleOpenDrawer, rows}) => {
             size="sm"
             onValueChange={onSearchChange}
             classNames={{
-              inputWrapper: "bg-white border-[2px] shadow-none"
+              inputWrapper: "bg-white border-[2px] shadow-none",
             }}
-            
           />
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
@@ -249,16 +252,15 @@ const RequestTable = ({handleOpenDrawer, rows}) => {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
         <span className="w-[30%] text-small text-default-400">
-          {
-          selectedKeys.size===0?
-          (<span className="text-default-400 text-small">
-          Total {rows.length} Staff
-        </span>) : (
-          selectedKeys === "all"
-            ? "All items selected"
-            : `${selectedKeys.size} of ${filteredItems.length} selected`
-          ) 
-            }
+          {selectedKeys.size === 0 ? (
+            <span className="text-default-400 text-small">
+              Total {rows.length} Staff
+            </span>
+          ) : selectedKeys === "all" ? (
+            "All items selected"
+          ) : (
+            `${selectedKeys.size} of ${filteredItems.length} selected`
+          )}
         </span>
         <Pagination
           isCompact
@@ -298,8 +300,6 @@ const RequestTable = ({handleOpenDrawer, rows}) => {
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
-
-
   return (
     <Table
       aria-label="Example table with custom cells, pagination and sorting"
@@ -335,7 +335,7 @@ const RequestTable = ({handleOpenDrawer, rows}) => {
         {(item, index) => (
           <TableRow key={item._id}>
             {(columnKey) => (
-              <TableCell >{renderCell(item, columnKey)}</TableCell>
+              <TableCell>{renderCell(item, columnKey)}</TableCell>
               // <TableCell className="font-Exoti text-[12px]  font-helvetica capitalize">{renderCell(item, columnKey)}</TableCell>
             )}
           </TableRow>
@@ -348,5 +348,5 @@ export default RequestTable;
 
 RequestTable.propTypes = {
   handleOpenDrawer: PropTypes.func,
-  rows: PropTypes.array
-}
+  rows: PropTypes.array,
+};

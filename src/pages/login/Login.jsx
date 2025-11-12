@@ -248,7 +248,7 @@ export default function Login() {
 
   return (
     <>
-      <main className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-[#092035]/5 to-[#092035]/10 flex flex-col space-y-5 items-center justify-center px-3 py-8">
+      <main className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-[#092035]/5 to-[#092035]/10 flex flex-col space-y-5 items-center justify-center px-3 py-8 ">
         {/* Background decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#092035]/30 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>

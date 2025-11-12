@@ -48,56 +48,40 @@ export default function BioDataDetail({
     onClose: stopLoading,
   } = useDisclosure();
 
-  const { mutateAsync: declineRequestAction, isPending:isDeclinePending } = useDeclineApprovalRequest();
-  const { mutateAsync: approveRequestAction, isPending:isApprovePending } = useApprovedApprovalRequest();
+  const { mutateAsync: declineRequestAction, isPending: isDeclinePending } =
+    useDeclineApprovalRequest();
+  const { mutateAsync: approveRequestAction, isPending: isApprovePending } =
+    useApprovedApprovalRequest();
   const { userData } = useCurrentUser();
-  const { mutateAsync:checkCanAssign } = useCanAssign();
-  const [canAssign, setCanAssign] = useState()
-  const [canAssignPk, setCanAssignPk] = useState(null)
+  const { mutateAsync: checkCanAssign } = useCanAssign();
+  const [canAssign, setCanAssign] = useState();
+  const [canAssignPk, setCanAssignPk] = useState(null);
 
+  useEffect(() => {
+    const checkReassignStatus = async () => {
+      const json = {
+        company_id: userData?.data?.COMPANY_ID,
+        staff_id: userData?.data?.STAFF_ID,
+        request_id: details?.requestID,
+      };
 
+      const res = await checkCanAssign(json);
 
-
-useEffect(() => {
-
-  const checkReassignStatus = async ()=>{
-
-   const json =  {
-      company_id: userData?.data?.COMPANY_ID,
-      staff_id: userData?.data?.STAFF_ID,
-      request_id: details?.requestID,
-    }
-
-      const res = await checkCanAssign(json)
-
-      if(res){
-        setCanAssign(res?.data?.can_assign)
-        setCanAssignPk(res?.data?.package_id)
+      if (res) {
+        setCanAssign(res?.data?.can_assign);
+        setCanAssignPk(res?.data?.package_id);
       }
-  }
+    };
 
+    checkReassignStatus();
 
-  checkReassignStatus()
-
-  return ()=>{
-    setCanAssign(false)
-  }
-
-}, [checkCanAssign, details, userData])
-
-
-
-
-
-
-
-
-
-
-
+    return () => {
+      setCanAssign(false);
+    };
+  }, [checkCanAssign, details, userData]);
 
   const rejectRequest = async (rejectnote) => {
-    if(isDeclinePending) return
+    if (isDeclinePending) return;
     startLoading();
     let notes = "";
 
@@ -120,13 +104,13 @@ useEffect(() => {
         handleClose("refresh");
       }
     } catch (error) {
-      toast.error(`${error?.response?.data?.message}.`, {duration: 10000})
+      toast.error(`${error?.response?.data?.message}.`, { duration: 10000 });
       stopLoading();
     }
   };
 
   const approveRequest = async () => {
-    if(isApprovePending) return
+    if (isApprovePending) return;
     onModalCancel();
     const json = {
       company_id: userData?.data?.COMPANY_ID,
@@ -141,16 +125,16 @@ useEffect(() => {
     };
 
     try {
-      startLoading()
-      const res = await approveRequestAction(json)
-      if(res){
-        toast.success("You successfully approve request", {duration: 7000})
-        stopLoading()
-        onRejectModalClose()
-        handleClose('refresh')
+      startLoading();
+      const res = await approveRequestAction(json);
+      if (res) {
+        toast.success("You successfully approve request", { duration: 7000 });
+        stopLoading();
+        onRejectModalClose();
+        handleClose("refresh");
       }
     } catch (error) {
-      toast.error(`${error?.response?.data?.message}.`, {duration: 10000})
+      toast.error(`${error?.response?.data?.message}.`, { duration: 10000 });
       stopLoading();
     }
   };
@@ -159,7 +143,6 @@ useEffect(() => {
     user: userData?.data,
     path: "/profile/get_profile",
   });
-
 
   // console.log(currentStatus, details, role)
   // console.log((!currentStatus ? true : currentStatus === "pending") &&
@@ -198,27 +181,28 @@ useEffect(() => {
           </div>
         ) : (
           <ul className=" mt-2 text-[15px] flex flex-col space-y-3">
-            {details && details?.data?.map((dt) => (
-              <li
-                key={dt?.ATTRIBUTE_NAME}
-                className=" grid grid-cols-3  my-3 border-b pb-1"
-              >
-                <span className="text-[#444e4e] font-helvetica font-[500] text-[0.9rem] capitalize ">
-                  {" "}
-                  {dt?.ATTRIBUTE_NAME?.replace(/_/g, " ")}:
-                </span>
-                <span className="text-[#888888]  text-en w-full  max-w-sm fontbold font-profileFontSize ">
-                  {dt?.CURRENT_VALUE || "N/A"}
-                </span>
-                <span className="text-[#888888]  text-en w-full  max-w-sm fontbold font-profileFontSize ">
-                  {dt?.NEW_NAME || dt?.NEW_VALUE}
-                </span>
-              </li>
-            ))}
+            {details?.data?.length &&
+              details?.data?.map((dt) => (
+                <li
+                  key={dt?.ATTRIBUTE_NAME}
+                  className=" grid grid-cols-3  my-3 border-b pb-1"
+                >
+                  <span className="text-[#444e4e] font-helvetica font-[500] text-[0.9rem] capitalize ">
+                    {" "}
+                    {dt?.ATTRIBUTE_NAME?.replace(/_/g, " ")}:
+                  </span>
+                  <span className="text-[#888888]  text-en w-full  max-w-sm fontbold font-profileFontSize ">
+                    {dt?.CURRENT_VALUE || "N/A"}
+                  </span>
+                  <span className="text-[#888888]  text-en w-full  max-w-sm fontbold font-profileFontSize ">
+                    {dt?.NEW_NAME || dt?.NEW_VALUE}
+                  </span>
+                </li>
+              ))}
           </ul>
         )}
         {(!currentStatus ? true : currentStatus === "pending") &&
-          (details?.data) &&
+          details?.data &&
           role !== "request" && (
             <div className="flex justify-between mt-3">
               <button
@@ -226,36 +210,29 @@ useEffect(() => {
                 className="header_btnStyle bg-red-500 rounded text-white font-semibold  mx-2 my-1 md:my-0 px-[13px] py-[7px] uppercase flex items-center gap-2"
                 onClick={onRejectModalOpen}
               >
-                  { isDeclinePending &&
-                    <Loader2Icon className="animate-spin"/>
-                  }
+                {isDeclinePending && <Loader2Icon className="animate-spin" />}
                 Reject
               </button>
 
-            <div className="flex gap-2">
-
-              {
-                canAssign && 
-                <button
-                  disabled={Loading}
-                  className="header_btnStyle bg-gray-600 rounded text-white font-semibold  mx-2 my-1 md:my-0 px-[13px] py-[7px] uppercase disabled:cursor-not-allowed disabled:bg-gray-300"
-                  onClick={onAssignModalOpen}
-                >
-                  Re-Assign
-                </button>
-              }
+              <div className="flex gap-2">
+                {canAssign && (
+                  <button
+                    disabled={Loading}
+                    className="header_btnStyle bg-gray-600 rounded text-white font-semibold  mx-2 my-1 md:my-0 px-[13px] py-[7px] uppercase disabled:cursor-not-allowed disabled:bg-gray-300"
+                    onClick={onAssignModalOpen}
+                  >
+                    Re-Assign
+                  </button>
+                )}
                 <button
                   disabled={Loading || isApprovePending}
                   className="header_btnStyle bg-[#00bcc2] rounded text-white font-semibold  mx-2 my-1 md:my-0 px-[13px] py-[7px] uppercase disabled:cursor-not-allowed disabled:bg-gray-300 flex items-center gap-2"
                   onClick={openModal}
                 >
-                  { isApprovePending &&
-                    <Loader2Icon className="animate-spin"/>
-                  }
+                  {isApprovePending && <Loader2Icon className="animate-spin" />}
                   Approve
                 </button>
-
-            </div>
+              </div>
             </div>
           )}
       </div>
@@ -274,8 +251,16 @@ useEffect(() => {
         </div>
       </ExpandedDrawerWithButton>
 
-      <ExpandedDrawerWithButton isOpen={isAssignModalOpen} onClose={onAssignModalClose} maxWidth={450}>
-          <AssignStaff closeDrawer={()=>handleClose('refresh')} package_id={canAssignPk} request_id={details?.requestID}/>
+      <ExpandedDrawerWithButton
+        isOpen={isAssignModalOpen}
+        onClose={onAssignModalClose}
+        maxWidth={450}
+      >
+        <AssignStaff
+          closeDrawer={() => handleClose("refresh")}
+          package_id={canAssignPk}
+          request_id={details?.requestID}
+        />
       </ExpandedDrawerWithButton>
 
       <ConfirmApprovalModal

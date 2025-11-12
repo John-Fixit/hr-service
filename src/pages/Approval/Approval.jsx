@@ -37,6 +37,7 @@ import LeaveReturnDetails from "./LeaveReturn";
 import PerformanceApprovalDrawer from "./AperApprovalView";
 import { useDisclosure } from "@nextui-org/react";
 import { formatNaira } from "../../utils/utitlities";
+import FormRenderer from "../HR/Performance/Setup/FormRenderer";
 
 const memoData = {
   APPROVALS: "2543,2544,2560",
@@ -283,7 +284,7 @@ const Approval = () => {
           const requestData = value?.data;
           const notes = value?.notes;
 
-          setDetails({
+          const formattedData = {
             ...details,
             approvers,
             attachments,
@@ -291,9 +292,11 @@ const Approval = () => {
             data:
               type === "Variation"
                 ? formatVariationDetail(requestData)
-                : requestData, // removed staff_id from summary
+                : { ...requestData }, // removed staff_id from summary
             requestID: id, //59388 //
-          });
+          };
+
+          setDetails(formattedData);
           if (type === "Performance") {
             onAperOpen();
           } else {
@@ -341,6 +344,15 @@ const Approval = () => {
     if (actionOpened) {
       setActionOpened(false);
     }
+  };
+
+  const template = details?.data?.template;
+  const formTemplate = useMemo(() => {
+    return template?.DATA_CONTENT ? JSON.parse(template?.DATA_CONTENT) : [];
+  }, [template?.DATA_CONTENT]);
+
+  const handleSendResponse = (data) => {
+    console.log(data);
   };
 
   const tabs = !isOpen?.status
@@ -470,6 +482,32 @@ const Approval = () => {
               details={details}
               handleClose={handleClose}
               currentStatus={approvalStatus}
+            />
+          ),
+        },
+        {
+          title: "Attachment",
+          component: <AttachmentDetailsApproval details={details} />,
+        },
+        { title: "Note", component: <NoteDetailsApproval details={details} /> },
+      ]
+    : isOpen.type === "Performance Management"
+    ? [
+        {
+          title: isOpen?.type,
+          component: (
+            <FormRenderer
+              sections={formTemplate || []}
+              onSubmit={handleSendResponse}
+              mode={"fill"}
+              submitButtonText={"SUBMIT APPRAISEE GRADING AND REVIEW"}
+              viewer={"appraiser"}
+              responseData={details?.data?.responses}
+              isSubmitting={false}
+              isDraftLoading={false}
+              disableSubmit={false}
+              // saveAsDraftFunction={}
+              canSaveAsDraft={false}
             />
           ),
         },
@@ -706,7 +744,13 @@ const Approval = () => {
         </div>
 
         <ExpandedDrawerWithButton
-          maxWidth={isOpen.type == "Variation" ? 1100 : 920}
+          maxWidth={
+            isOpen.type == "Variation"
+              ? 1100
+              : isOpen.type === "Performance Management"
+              ? "1500px"
+              : 920
+          }
           isOpen={isOpen.status}
           onClose={handleClose}
         >

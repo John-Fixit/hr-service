@@ -3,7 +3,7 @@ import { MdMenu } from "react-icons/md";
 import { dashboardContext } from "../../context/Dashboard";
 import UserDropdown from "../components/UserDropdown";
 import DropdownNotification from "../components/DropdownNotification";
-import { Search,  } from "lucide-react";
+import { Search } from "lucide-react";
 // import { FaGlobeAmericas } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 // import { TbMessage2 } from "react-icons/tb";
@@ -27,7 +27,6 @@ const Navbar = () => {
     setOpenSearchContainer(true);
   };
   //============================== ends here! ==================================
-
 
   const selectAChat = () => {
     setShowLargeChatContainer(true);
@@ -65,13 +64,13 @@ const Navbar = () => {
               <MdMenu size={25} />
             </div>
 
-            <img
+            {/* <img
               src="/assets/images/community-logo.png"
               alt="comuneety-logo"
               className={`w-32  ${
                 sidebarMinimizedHome && sidebarOpen && "hidden"
               }`}
-            />
+            /> */}
 
             <div className="hidden md:block">
               <div
@@ -104,7 +103,6 @@ const Navbar = () => {
             </div>
           </div>
           <div className="flex items-center justify-between md:gap-8  gap-3 pr-4">
-            
             {/* <Tooltip showArrow={true} placement="top" content="Marketplace">
               <span>
                 <TiShoppingCart
@@ -137,8 +135,14 @@ const Navbar = () => {
             </div>
             <UserDropdown className="font-medium text-gray-600" />
 
-            <div onClick={selectAChat} className={cn("rounded-full p-1 bg-gray-300 h-10 w-10 cursor-pointer   items-center justify-center", pathname === "/engage/home" ? "flex md:hidden" : "flex")}>
-                <TbMessage2 className="w-6 h-6" />
+            <div
+              onClick={selectAChat}
+              className={cn(
+                "rounded-full p-1 bg-gray-300 h-10 w-10 cursor-pointer   items-center justify-center",
+                pathname === "/engage/home" ? "flex md:hidden" : "flex"
+              )}
+            >
+              <TbMessage2 className="w-6 h-6" />
             </div>
           </div>
         </div>
@@ -148,7 +152,7 @@ const Navbar = () => {
         setOpenSearchContainer={setOpenSearchContainer}
       />
 
-        {
+      {
         <ChatDrawer
           isOpen={showLargeChatContainer}
           onClose={handleOnclose}
