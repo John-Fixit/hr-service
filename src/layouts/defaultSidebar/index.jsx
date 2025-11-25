@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import { dashboardContext } from "../../context/Dashboard";
 import { defaultMenuHome, defaultMenuHomeAll } from "../sidebar/routes";
-import { cn, Tooltip } from "@nextui-org/react";
+import { Tooltip } from "@nextui-org/react";
 
 const DefaultSidebar = () => {
   const {
@@ -95,6 +95,9 @@ const DefaultSidebar = () => {
     }
     if (menu === "Performance") {
       navigate("/performance/dashboard");
+    }
+    if (menu === "LMS") {
+      navigate("/lms/dashboard");
     }
 
     setSidebarMinimizedHome(false);

@@ -23,6 +23,8 @@ export default {
         Domine: "Domine",
         Roboto: "Roboto",
         Oswald: "Oswald",
+        Outfit: "Outfit",
+        outfit: "Outfit",
         Exo: "Exo/ 2, Helvetica, Neue, Arial,sans-serif",
         Helvetica: "Helvetica",
         sans: ["Open Sans", "sans-serif"],
@@ -44,6 +46,7 @@ export default {
           "Apple Color Emoji",
           "Segoe UI Emoji",
           "Segoe UI Symbol",
+          "Outfit",
         ],
       },
       profileFontSize: {

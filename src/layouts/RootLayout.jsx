@@ -96,7 +96,7 @@ function RootLayout() {
             </main>
           ) : (
             <main
-              className={`py-4 flex-1 max-w-[100%] md:max-w-[95%] overflow-clip mx-auto px-6 ${
+              className={`py-4 flex-1 max-w-[100%] md:max-w-[95%] overflow-clip mx-auto px6 ${
                 !sidebarMinimized && !sidebarOpen && "lg:ml-0"
               }`}
             >

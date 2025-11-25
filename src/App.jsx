@@ -82,6 +82,9 @@ import PerformanceTemplate from "./pages/Performance_v2/template";
 import PerformanceReport from "./pages/Performance_v2/report";
 import PerformanceSetting from "./pages/Performance_v2/settings";
 import PerformanceCycle from "./pages/Performance_v2/cycle";
+import AdminDashboard from "./pages/LMS/AdminDashboard";
+import StaffDashboard from "./pages/LMS/StaffDashboard";
+import LMSLayoutOutlet from "./layouts/lms/LMSLayoutOutlet";
 // import AdsPopup440 from "./pages/home/rightBar/components/AdsPopup440";
 
 const App = () => {
@@ -282,6 +285,12 @@ const App = () => {
 
           {/* AUDIT ROUTES */}
           <Route path="/audit/variation" element={<AuditVariation />} />
+
+          <Route path="/lms" element={<LMSLayoutOutlet />}>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="employee" element={<StaffDashboard />} />
+            <Route path="staff" element={<StaffDashboard />} />
+          </Route>
 
           {/* PEOPLE APP */}
           {/* HRIM APPS */}

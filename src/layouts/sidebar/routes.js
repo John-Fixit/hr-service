@@ -11,6 +11,7 @@ import {
   MdOutlinePayments,
   MdReport,
   MdSms,
+  MdSpaceDashboard,
   MdVerifiedUser,
 } from "react-icons/md";
 import { IoDocumentsOutline, IoHomeOutline } from "react-icons/io5";
@@ -35,7 +36,7 @@ import { GiCycle, GiTrade } from "react-icons/gi";
 import { LuNetwork, LuWorkflow } from "react-icons/lu";
 import { RiSecurePaymentFill, RiSettingsFill } from "react-icons/ri";
 import { GrDocumentPerformance } from "react-icons/gr";
-import { FaRobot, FaWpforms } from "react-icons/fa";
+import { FaGraduationCap, FaRobot, FaWpforms } from "react-icons/fa";
 import { GoWorkflow } from "react-icons/go";
 import { CiCircleMore } from "react-icons/ci";
 import { FiFileMinus } from "react-icons/fi";
@@ -342,7 +343,101 @@ export const PerformanceSectionMenus = [
   },
 ];
 
-// =============================performance================================
+// =============================performance route ends here================================
+
+// =============================LMS================================
+
+export const LMSSectionMenus = [
+  {
+    title: "Dashboard",
+    name: "Dashboard",
+    route: "/lms/dashboard",
+    withSubMenu: false,
+    icon: CgMenuRight,
+    enabled: true,
+  },
+  {
+    title: "Employee",
+    name: "Employee Dashboard",
+    route: "/lms/employee",
+    withSubMenu: false,
+    icon: MdDashboard,
+    enabled: true,
+  },
+  {
+    title: "",
+    name: "Staff Dashboard",
+    route: "/lms/staff",
+    withSubMenu: false,
+    icon: MdSpaceDashboard,
+    enabled: true,
+  },
+
+  // {
+  //   title: "Payroll",
+  //   name: "Payroll",
+  //   withSubMenu: true,
+  //   submenu: [
+  //     {
+  //       name: "Payroll",
+  //       icon: LiaConnectdevelop,
+  //       prefix: "payroll",
+  //       menus: [
+  //         {
+  //           name: "Variation",
+  //           route: "payroll/salary_variation",
+  //           enabled: true,
+  //         },
+  //         {
+  //           name: "Pay Run",
+  //           route: "/payroll/payrun",
+  //           enabled: true,
+  //         },
+  //       ],
+  //     },
+
+  //     //Commented this for now because I want to build and we don't want it live yet
+  //     {
+  //       name: "Staff",
+  //       icon: LiaConnectdevelop,
+  //       prefix: "staff",
+  //       menus: [
+  //         {
+  //           name: "All Staff",
+  //           route: "/payroll/staff/all",
+  //           enabled: true,
+  //         },
+  //         {
+  //           name: "Non Membership Staff",
+  //           route: "/payroll/staff/non_membership",
+  //           enabled: true,
+  //         },
+  //         {
+  //           name: "Awaiting",
+  //           route: "/payroll/staff/awaiting",
+  //           enabled: true,
+  //         },
+  //         {
+  //           name: "Suspension",
+  //           route: "/payroll/staff/suspension",
+  //           enabled: true,
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
+
+  {
+    title: "",
+    name: "Setting",
+    route: "/performance/setting",
+    withSubMenu: false,
+    icon: LuNetwork,
+    enabled: false,
+  },
+];
+
+// =============================LMS Menus Ends here================================
 
 export const PeopleSectionMenu = [
   // home 2 sub
@@ -1499,6 +1594,12 @@ export const defaultMenuHome = [
     enabled: true,
   },
   {
+    name: "LMS",
+    route: "/lms",
+    icon: FaGraduationCap,
+    enabled: true,
+  },
+  {
     name: "More",
     route: "/more",
     icon: CiCircleMore,
@@ -1562,6 +1663,12 @@ export const defaultMenuHomeAll = [
       name: "Performance",
       route: "/performance",
       icon: TiSpanner,
+      enabled: true,
+    },
+    {
+      name: "LMS",
+      route: "/lms",
+      icon: FaGraduationCap,
       enabled: true,
     },
   ],

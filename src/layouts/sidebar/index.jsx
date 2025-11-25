@@ -3,6 +3,7 @@ import { useRef } from "react";
 import SubMenu from "./SubMenu";
 import { motion } from "framer-motion";
 import {
+  LMSSectionMenus,
   MessagingSectionMenu,
   PayrollSectionMenu,
   PeopleSectionMenu,
@@ -102,6 +103,8 @@ const Sidebar = () => {
         return PayrollSectionMenu;
       case "Performance":
         return PerformanceSectionMenus;
+      case "LMS":
+        return LMSSectionMenus;
       default:
         return defaultMenu;
     }
