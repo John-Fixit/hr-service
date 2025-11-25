@@ -4,9 +4,11 @@ import { useGetTemplateRecipient } from "../../../../../API/performance";
 import useCurrentUser from "../../../../../hooks/useCurrentUser";
 import { useMemo } from "react";
 import PropTypes from "prop-types";
+import { Button } from "@nextui-org/react";
+import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 
 const AddCourseRecipient = (props) => {
-  const { control, watch } = props;
+  const { control, watch, handlePrev, handleNext } = props;
 
   const recipientTypes = [
     { label: "Staffs", value: "staff" },
@@ -34,6 +36,11 @@ const AddCourseRecipient = (props) => {
       })),
     [get_recipients]
   );
+
+  const handlePublish = () => {
+    //submit course here
+    handleNext();
+  };
   return (
     <>
       <main>
@@ -119,6 +126,25 @@ const AddCourseRecipient = (props) => {
               />
             </div>
           </div>
+          <div className="flex justify-between gap-2 items-center border-t border-gray-200 py-4 mt-6">
+            <Button
+              color="primary"
+              variant="bordered"
+              className="mt-6 font-outfit"
+              radius="sm"
+              onPress={handlePrev}
+            >
+              <IoChevronBack /> Prev
+            </Button>
+            <Button
+              color="primary"
+              className="mt-6 font-outfit"
+              radius="sm"
+              onPress={handlePublish}
+            >
+              Publish <IoChevronForward />
+            </Button>
+          </div>
         </div>
       </main>
     </>
@@ -129,6 +155,8 @@ AddCourseRecipient.propTypes = {
   control: PropTypes.any,
   watch: PropTypes.any,
   curriculumDefaultRows: PropTypes.any,
+  handlePrev: PropTypes.func,
+  handleNext: PropTypes.func,
 };
 
 export default AddCourseRecipient;

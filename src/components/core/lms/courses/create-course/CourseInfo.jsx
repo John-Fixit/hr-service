@@ -1,22 +1,24 @@
 import { DatePicker, Input, Select } from "antd";
-import { useRef } from "react";
 import { Controller } from "react-hook-form";
 import PropTypes from "prop-types";
 import { Button } from "@nextui-org/react";
 import { IoChevronForward } from "react-icons/io5";
+import useCurrentUser from "../../../../../hooks/useCurrentUser";
+import { uploadFileData } from "../../../../../utils/uploadfile";
+import dayjs from "dayjs";
 
 const CourseInfo = (props) => {
-  const thumbnailRef = useRef(null);
+  const { control, watch, setValue, handleNext } = props;
 
-  const { control, watch } = props;
+  const { userData } = useCurrentUser();
 
-  const handleClick = () => {
-    thumbnailRef.current.click();
+  const handlePickThumbnail = async (file) => {
+    const res = await uploadFileData(file, userData?.token);
+    return {
+      ...res,
+    };
   };
 
-  const handlePickThumbnail = (e) => {
-    console.log(e.target.files[0]);
-  };
   return (
     <>
       <main>
@@ -169,7 +171,31 @@ const CourseInfo = (props) => {
                 }}
                 render={({ field, fieldState: { error } }) => (
                   <>
-                    <DatePicker className="w-full" size="large" {...field} />
+                    {/* <DatePicker.RangePicker
+                      className="w-full"
+                      size="large"
+                      {...field}
+                      value={field.value ? dayjs(field.value) : null}
+                      onChange={(dateString) =>
+                        // field.onChange(dateString)
+                        console.log(dateString)
+                      }
+                      disabledDate={(current) =>
+                        current < dayjs().startOf("day")
+                      }
+                    /> */}
+                    <DatePicker
+                      className="w-full"
+                      size="large"
+                      {...field}
+                      value={field.value ? dayjs(field.value) : null}
+                      onChange={(date, dateString) =>
+                        field.onChange(dateString)
+                      }
+                      disabledDate={(current) =>
+                        current < dayjs().startOf("day")
+                      }
+                    />
                     {!!error?.message && (
                       <span className="text-red-400 font-outfit text-sm px-1">
                         {error?.message}
@@ -191,7 +217,21 @@ const CourseInfo = (props) => {
                 }}
                 render={({ field, fieldState: { error } }) => (
                   <>
-                    <DatePicker className="w-full" size="large" {...field} />
+                    <DatePicker
+                      className="w-full"
+                      size="large"
+                      {...field}
+                      value={field.value ? dayjs(field.value) : null}
+                      onChange={(date, dateString) =>
+                        field.onChange(dateString)
+                      }
+                      disabledDate={(current) =>
+                        watch("start_date")
+                          ? current &&
+                            current < dayjs(watch("start_date")).startOf("day")
+                          : false
+                      }
+                    />
                     {!!error?.message && (
                       <span className="text-red-400 font-outfit text-sm px-1">
                         {error?.message}
@@ -206,27 +246,37 @@ const CourseInfo = (props) => {
             <label htmlFor="" className="font-outfit">
               Course thumbnail
             </label>
-            <div>
-              <div className="" onClick={handleClick}>
-                <div className="border rounded-lg flex">
-                  <p className="bg-gray-100 p-3 font-medium font-outfit">
-                    Choose File
-                  </p>
-                  <div className="p-3 font-outfit">No file choosen</div>
+
+            <label htmlFor="course_thumbnail_file" className="mt-1">
+              <div className="border rounded flex">
+                <p className="bg-gray-100 p-3 font-medium font-outfit flex items-center">
+                  Choose File
+                </p>
+                <div className="py-2 px-3 font-outfit">
+                  {watch("course_thumbnail_file")?.name || "No file choosen"}
                 </div>
               </div>
-
               <input
                 type="file"
-                accept="./png"
+                accept=".png,.jpg,.jpeg"
                 className="hidden"
-                ref={thumbnailRef}
-                onChange={handlePickThumbnail}
+                id="course_thumbnail_file"
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  setValue(`course_thumbnail_file`, file);
+                  const fileRes = await handlePickThumbnail(file);
+                  setValue(`course_thumbnail_url`, fileRes.file_url);
+                }}
               />
-            </div>
+            </label>
           </div>
           <div className="flex justify-between flex-row-reverse gap-2 items-center border-gray-200 py-4 mt-6">
-            <Button color="primary" className="mt-6 font-outfit" radius="sm">
+            <Button
+              color="primary"
+              className="mt-6 font-outfit"
+              radius="sm"
+              onPress={handleNext}
+            >
               Next <IoChevronForward />
             </Button>
           </div>
@@ -239,6 +289,8 @@ const CourseInfo = (props) => {
 CourseInfo.propTypes = {
   control: PropTypes.any,
   watch: PropTypes.any,
+  setValue: PropTypes.any,
+  handleNext: PropTypes.func,
 };
 
 export default CourseInfo;

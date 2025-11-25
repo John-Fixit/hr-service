@@ -3,6 +3,65 @@ import CourseCurriculum from "./CourseCurriculum";
 import { Check } from "lucide-react";
 import CourseFeatures from "./CourseFeatures";
 import { useCourseStore } from "../../../../../hooks/useCourseStore";
+import dayjs from "dayjs";
+
+const couDetail = {
+  course_category: "techinal",
+  course_description:
+    "Good day Learners\n\nKindly attempts the quiz within the stipulated time.\n\nBest of Luck.",
+  course_objective: "Good day Learners",
+  course_thumbnail_url:
+    "https://hr.ncaa.gov.ng/old_hr/pub/attachments/1764084568.jpeg",
+  course_title: "UX/UI Design Essentials",
+  curriculum: [
+    {
+      document_url:
+        "https://hr.ncaa.gov.ng/old_hr/pub/attachments/1764084588.pdf",
+      has_quiz: true,
+      lesson_description:
+        "Good day Learners\n\nKindly attempts the quiz within the stipulated time.\n\nBest of Luck.",
+      lesson_title: "CSC 301 QUIZ for Study Session 1",
+      quiz: {
+        config: {
+          allowed_attempt: 1,
+          total_grade: 10,
+          time_limit: 5,
+          grading_method: "highest",
+        },
+        questions: [
+          {
+            id: "e554a6d6-19a3-4f67-ae56-ab6a9e40e271",
+            question: "Have you read the material of this lesson?",
+            correct_answer: "f9e5ba75-3e06-4073-8764-aa81c3a5f6cb",
+            options: [
+              {
+                key: "f9e5ba75-3e06-4073-8764-aa81c3a5f6cb",
+                value: "Yes",
+              },
+              {
+                key: "d89a20a1-9d6a-4b2c-90d7-f885e4237f85",
+                value: "No",
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+  start_date: "2025-11-26",
+  end_date: "2025-11-27",
+  recipientType: "directorate",
+  // recipients: ["6", "7"],
+  recipients: [
+    "Beginners interested in starting a career in web design",
+    "Developers looking to expand their skills into design",
+    "Anyone wanting to create their own websites or improve existing ones",
+    "Students pursuing careers in tech, design, or media",
+    "Freelancers who want to expand their service offerings",
+    "Graphic designers looking to transition into UI/UX or web design",
+    "Entrepreneurs and business owners who want to build or maintain their own websites",
+  ],
+};
 
 const CourseDetail = () => {
   const enrollmentList = [
@@ -16,8 +75,29 @@ const CourseDetail = () => {
   ];
 
   const {
+    // eslint-disable-next-line no-unused-vars
     data: { courseDetail },
   } = useCourseStore();
+
+  const durationDiff = ({ start_date, end_date }) => {
+    const diff = dayjs(end_date).diff(dayjs(start_date), "day");
+
+    let result;
+
+    if (diff < 7) {
+      result = diff + " days";
+    } else if (diff < 30) {
+      result = (diff / 7).toFixed(1) + " weeks";
+    } else if (diff < 365) {
+      result = (diff / 30).toFixed(1) + " months";
+    } else {
+      result = (diff / 365).toFixed(1) + " years";
+    }
+
+    return result;
+  };
+
+  console.log(couDetail);
 
   return (
     <>
@@ -25,7 +105,7 @@ const CourseDetail = () => {
         <header
           className="relative bg-cover bg-center min-h-80 flex items-center rounded-xl"
           style={{
-            backgroundImage: `linear-gradient(rgba(15, 35, 65, 0.7), rgba(15, 35, 65, 0.7)), url("${courseDetail?.image}")`,
+            backgroundImage: `linear-gradient(rgba(15, 35, 65, 0.7), rgba(15, 35, 65, 0.7)), url("${couDetail?.course_thumbnail_url}")`,
           }}
         >
           <div className="container mx-auto px-6 lg:px-12 my-10">
@@ -39,7 +119,7 @@ const CourseDetail = () => {
               </span>
             </div>
             <h1 className="text-white text-4xl lg:text-5xl font-outfit font-bold mb-4 line-clamp-1">
-              {courseDetail?.title}
+              {couDetail?.course_title}
             </h1>
             <div className="flex flex-wrap items-center gap-6 text-white mb-5">
               <div className="flex items-center gap-2">
@@ -56,7 +136,12 @@ const CourseDetail = () => {
                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
-                <span className="font-outfit text-sm">10 - 20 weeks</span>
+                <span className="font-outfit text-sm">
+                  {durationDiff({
+                    start_date: couDetail?.start_date,
+                    end_date: couDetail?.end_date,
+                  })}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <svg
@@ -72,7 +157,9 @@ const CourseDetail = () => {
                     d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
                   />
                 </svg>
-                <span className="font-outfit text-sm">102 Lectures</span>
+                <span className="font-outfit text-sm">
+                  {couDetail?.curriculum?.length} Lessons
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <svg
@@ -88,8 +175,9 @@ const CourseDetail = () => {
                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                   />
                 </svg>
-                <span className="font-outfit text-sm">
-                  502 Student Enrolled
+                <span className="font-outfit text-sm capitalize">
+                  {/* 502 Student Enrolled */}
+                  {couDetail?.recipients?.length} {couDetail?.recipientType}s
                 </span>
               </div>
             </div>
@@ -134,23 +222,27 @@ const CourseDetail = () => {
 
                   <div className="space-y-3 mb-5">
                     <p className="text-gray-700 text-base font-outfit leading-relaxed">
-                      Learn the fundamental principles and practices of modern
+                      {/* Learn the fundamental principles and practices of modern
                       web design in this comprehensive course. Whether
                       you&apos;re a beginner or looking to refresh your skills,
                       you&apos;ll dive into HTML5, CSS3, responsive design, and
                       more. Get hands-on experience with industry tools and
-                      create stunning websites from scratch.
+                      create stunning websites from scratch. */}
+                      {couDetail?.course_description}
                     </p>
-
+                    <h4 className="text-blue-900 text-[16px] lg:text-[16px] font-outfit font-bold">
+                      Course Objective
+                    </h4>
                     <p className="text-gray-700 text-base font-outfit leading-relaxed">
-                      Unlock your creativity and master the art of web design
+                      {/* Unlock your creativity and master the art of web design
                       with this all-in-one course. You&apos;ll start from the
                       ground up—learning how websites work, how to structure
                       content using HTML, style it with CSS, and make it come
                       alive with JavaScript. This course blends theory with
                       real-world projects to ensure you&apos;re job-ready by the
                       end. Perfect for beginners or anyone looking to build
-                      beautiful, user-friendly websites from scratch.
+                      beautiful, user-friendly websites from scratch. */}
+                      {couDetail?.course_objective}
                     </p>
                   </div>
 
@@ -160,7 +252,7 @@ const CourseDetail = () => {
                   </h3>
 
                   <div className="space-y-2">
-                    {enrollmentList.map((item, index) => (
+                    {couDetail?.recipients.map((item, index) => (
                       <div key={index} className="flex items-center gap-3">
                         <div className="flex-shrink-0 mt-1">
                           <svg
@@ -194,78 +286,7 @@ const CourseDetail = () => {
                     ))}
                   </div>
                 </div>
-                <CourseCurriculum />
-                <CourseAuthorCard />
-              </div>
-              <div className="space-y-6">
-                <div className="border rounded-lg p-6">
-                  <h2 className="text-blue-900 text-[18px] lg:text-[20px] font-outfit font-bold">
-                    Course Overview
-                  </h2>
-
-                  <div className="space-y-3 mb-5">
-                    <p className="text-gray-700 text-base font-outfit leading-relaxed">
-                      Learn the fundamental principles and practices of modern
-                      web design in this comprehensive course. Whether
-                      you&apos;re a beginner or looking to refresh your skills,
-                      you&apos;ll dive into HTML5, CSS3, responsive design, and
-                      more. Get hands-on experience with industry tools and
-                      create stunning websites from scratch.
-                    </p>
-
-                    <p className="text-gray-700 text-base font-outfit leading-relaxed">
-                      Unlock your creativity and master the art of web design
-                      with this all-in-one course. You&apos;ll start from the
-                      ground up—learning how websites work, how to structure
-                      content using HTML, style it with CSS, and make it come
-                      alive with JavaScript. This course blends theory with
-                      real-world projects to ensure you&apos;re job-ready by the
-                      end. Perfect for beginners or anyone looking to build
-                      beautiful, user-friendly websites from scratch.
-                    </p>
-                  </div>
-
-                  {/* Who Should Enroll Section */}
-                  <h3 className="text-blue-900 text-lg font-outfit font-bold mb-4">
-                    Who Should Enroll?
-                  </h3>
-
-                  <div className="space-y-2">
-                    {enrollmentList.map((item, index) => (
-                      <div key={index} className="flex items-center gap-3">
-                        <div className="flex-shrink-0 mt-1">
-                          <svg
-                            className="w-5 h-5 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="1"
-                              fill="none"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={1}
-                              d="M9 12l2 2 4-4"
-                            />
-                          </svg>
-                        </div>
-
-                        {/* Text */}
-                        <p className="text-gray-700 text-sm font-medium font-outfit leading-relaxed">
-                          {item}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <CourseCurriculum />
+                <CourseCurriculum course={couDetail} />
                 <CourseAuthorCard />
               </div>
             </div>

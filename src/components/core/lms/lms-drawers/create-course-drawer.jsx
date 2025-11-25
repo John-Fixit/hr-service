@@ -12,10 +12,19 @@ const curriculumDefaultRows = {
   document_type: "",
   document_url: "",
   document_file: null,
+  has_quiz: false,
 };
 
 const CreateCourseDrawer = () => {
   const { isOpen, closeCourseDrawer } = useCourseStore();
+  const [selectedTab, setSelectedTab] = useState(0);
+
+  const handleNext = () => {
+    setSelectedTab(selectedTab + 1);
+  };
+  const handlePrev = () => {
+    setSelectedTab(selectedTab - 1);
+  };
 
   const hook_form_props = useForm({
     defaultValues: {
@@ -23,10 +32,40 @@ const CreateCourseDrawer = () => {
     },
   });
 
+  const handleSubmit = () => {
+    // eslint-disable-next-line no-unused-vars
+    const { course_thumbnail_file, curriculum, ...rest } =
+      hook_form_props.getValues();
+    const formattedCurriculum = curriculum.map((crcl) => {
+      const {
+        lesson_title,
+        lesson_description,
+        document_url,
+        has_quiz,
+        quiz,
+        quizString,
+      } = crcl;
+
+      console.log(quizString);
+      return {
+        lesson_title,
+        lesson_description,
+        document_url,
+        has_quiz,
+        quiz,
+      };
+    });
+    const json = {
+      ...rest,
+      curriculum: formattedCurriculum,
+    };
+    console.log(json);
+  };
+
   const sideTabs = [
     {
       title: "Course Info",
-      content: <CourseInfo {...hook_form_props} />,
+      content: <CourseInfo {...hook_form_props} handleNext={handleNext} />,
     },
     {
       title: "Curriculum",
@@ -34,6 +73,8 @@ const CreateCourseDrawer = () => {
         <AddCurriculum
           {...hook_form_props}
           curriculumDefaultRows={curriculumDefaultRows}
+          handlePrev={handlePrev}
+          handleNext={handleNext}
         />
       ),
     },
@@ -43,11 +84,12 @@ const CreateCourseDrawer = () => {
         <AddCourseRecipient
           {...hook_form_props}
           curriculumDefaultRows={curriculumDefaultRows}
+          handlePrev={handlePrev}
+          handleNext={handleSubmit}
         />
       ),
     },
   ];
-  const [selectedTab, setSelectedTab] = useState(0);
 
   return (
     <Drawer

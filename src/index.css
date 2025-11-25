@@ -359,6 +359,19 @@ a {
   color: #9b9d9f;
 }
 
+
+/* Remove spinner arrows from number inputs */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}
+
+
 /* sidebar text(short cut) = 8A9199
 
 when menu is dropped down = 272C33

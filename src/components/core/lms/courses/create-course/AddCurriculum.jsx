@@ -1,29 +1,85 @@
 import { Input } from "antd";
-import { useRef } from "react";
-import { Controller, useFieldArray } from "react-hook-form";
+import { useState } from "react";
+import { Controller, useFieldArray, useWatch } from "react-hook-form";
 import PropTypes from "prop-types";
-import { Button } from "@nextui-org/react";
+import { Button, Switch } from "@nextui-org/react";
 import { GoPlus } from "react-icons/go";
-import { IoChevronBack, IoChevronForward } from "react-icons/io5";
+import {
+  IoChevronBack,
+  IoChevronForward,
+  IoCreateOutline,
+} from "react-icons/io5";
 import { FaTrashAlt } from "react-icons/fa";
+import { MdOutlineQuiz } from "react-icons/md";
+import QuizBuilderModal from "./QuizBuiderModal";
+import { errorToast } from "../../../../../utils/toastMsgPop";
+import { uploadFileData } from "../../../../../utils/uploadfile";
+import useCurrentUser from "../../../../../hooks/useCurrentUser";
 
 const AddCurriculum = (props) => {
-  const thumbnailRef = useRef(null);
+  const [isOpenQuizModal, setIsOpenQuizModal] = useState({
+    state: false,
+    lessonIndex: null,
+  });
 
-  const { control, curriculumDefaultRows } = props;
+  const { control, curriculumDefaultRows, setValue, handleNext, handlePrev } =
+    props;
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "curriculum",
   });
 
-  const handleClick = () => {
-    thumbnailRef.current.click();
+  const { userData } = useCurrentUser();
+
+  const handlePickThumbnail = async (file) => {
+    const res = await uploadFileData(file, userData?.token);
+    return {
+      ...res,
+    };
   };
 
-  const handlePickThumbnail = (e) => {
-    console.log(e.target.files[0]);
+  const validateQuiz = () => {
+    const allLessonWithRequiredQuiz = curriculumValues.filter(
+      (l) => l.has_quiz
+    );
+    const allHasQuiz = allLessonWithRequiredQuiz.every((l) => l.quiz);
+
+    console.log(allHasQuiz, allLessonWithRequiredQuiz);
+    if (!allHasQuiz) {
+      return ["Please set quiz for all lessons said to have quiz"];
+    }
+    return [];
   };
+
+  const handleContinue = () => {
+    const validateErrors = validateQuiz();
+    if (validateErrors.length) {
+      errorToast(validateErrors.join("\n"));
+    } else {
+      //final submittion to next page will be here
+      handleNext();
+    }
+  };
+
+  const curriculumValues = useWatch({
+    control,
+    name: "curriculum",
+  });
+
+  const handleOpenQuizModal = (lessonIndex) => {
+    setIsOpenQuizModal({
+      state: true,
+      lessonIndex: lessonIndex,
+    });
+  };
+  const handleCloseQuizModal = () => {
+    setIsOpenQuizModal({
+      state: false,
+    });
+  };
+
+  console.log(curriculumValues);
   return (
     <>
       <main>
@@ -35,27 +91,40 @@ const AddCurriculum = (props) => {
         </p>
         <div className="mt-6 space-y-4">
           {fields.map((field, index) => (
-            <div key={index}>
+            <div key={index + field.id}>
               <div className="space-y-3 border rounded-lg p-3 relative">
                 <div className="flex justify-between items-center">
                   <p className="font-semibold font-outfit">
                     {" "}
                     Lesson {index + 1}
                   </p>
-                  {fields.length > 1 && (
-                    <div className="absolute right-3 top-3">
+                  <div className="flex gap-2">
+                    {curriculumValues?.[index]?.has_quiz && (
                       <Button
-                        color="danger"
-                        className="font-outfit h-8 w-8"
-                        radius="full"
-                        isIconOnly
+                        className="font-outfit px-2 flex gap-1"
                         size="sm"
-                        onPress={() => remove(index)}
+                        onPress={() => handleOpenQuizModal(index)}
                       >
-                        <FaTrashAlt size={14} />
+                        <IoCreateOutline size={16} />
+                        Set Quiz
                       </Button>
-                    </div>
-                  )}
+                    )}
+
+                    {fields.length > 1 && (
+                      <div className="">
+                        <Button
+                          color="danger"
+                          className="font-outfit h-8 w-8"
+                          radius="full"
+                          isIconOnly
+                          size="sm"
+                          onPress={() => remove(index)}
+                        >
+                          <FaTrashAlt size={14} />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <label htmlFor="" className="font-outfit font-light">
@@ -63,7 +132,7 @@ const AddCurriculum = (props) => {
                   </label>
                   <Controller
                     control={control}
-                    name="lesson_title"
+                    name={`curriculum[${index}].lesson_title`}
                     rules={{
                       required: "Lesson title is required",
                     }}
@@ -89,13 +158,14 @@ const AddCurriculum = (props) => {
                   </label>
                   <Controller
                     control={control}
-                    name="lesson_description"
+                    name={`curriculum[${index}].lesson_description`}
                     render={({ field, fieldState: { error } }) => (
                       <>
                         <Input.TextArea
                           placeholder="Enter description"
                           size="large"
                           {...field}
+                          autoSize
                         />
                         {!!error?.message && (
                           <span className="text-red-400 font-outfit text-sm px-1">
@@ -106,31 +176,62 @@ const AddCurriculum = (props) => {
                     )}
                   />
                 </div>
-
                 <div>
                   <label htmlFor="" className="font-outfit font-light">
-                    Upload Document
+                    Upload Media Content
                   </label>
                   <div>
-                    <div className="mt-1" onClick={handleClick}>
+                    <label htmlFor="media_content_file" className="mt-1">
                       <div className="border rounded flex">
                         <p className="bg-gray-100 px-3 font-medium font-outfit flex items-center">
                           Choose File
                         </p>
                         <div className="py-2 px-3 font-outfit">
-                          No file choosen
-                          <p className="font-outfit text-gray-300 text-xs">
+                          {curriculumValues?.[index]?.document_file?.name ||
+                            "No file choosen"}
+                          <p className="font-outfit text-gray-400 text-xs">
                             pdf, doc, ppt, txt, xls, xlsx, zip, mp4
                           </p>
                         </div>
                       </div>
+                      <input
+                        type="file"
+                        accept=".png,.jpg,.jpeg,.pdf,.doc,.docx,.ppt,.pptx,.txt,.xls,.xlsx,.zip,.mp4"
+                        className="hidden"
+                        id="media_content_file"
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          setValue(`curriculum[${index}].document_file`, file);
+                          const fileRes = await handlePickThumbnail(file);
+                          setValue(
+                            `curriculum[${index}].document_url`,
+                            fileRes.file_url
+                          );
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between p-3 bg-gray-100 rounded-lg transition-colors mt-3">
+                    <div className="flex items-center gap-3">
+                      <MdOutlineQuiz className="w-5 h-5 text-gray-400" />
+
+                      <span className="font-outfit text-slate-800">
+                        Has Quiz?
+                      </span>
                     </div>
-                    <input
-                      type="file"
-                      accept="./png"
-                      className="hidden"
-                      ref={thumbnailRef}
-                      onChange={handlePickThumbnail}
+                    <Controller
+                      name={`curriculum[${index}].has_quiz`}
+                      control={control}
+                      render={({ field }) => (
+                        <>
+                          <Switch
+                            isSelected={field.value}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                          />
+                        </>
+                      )}
                     />
                   </div>
                 </div>
@@ -152,21 +253,37 @@ const AddCurriculum = (props) => {
               variant="bordered"
               className="mt-6 font-outfit"
               radius="sm"
+              onPress={handlePrev}
             >
               <IoChevronBack /> Prev
             </Button>
-            <Button color="primary" className="mt-6 font-outfit" radius="sm">
+            <Button
+              color="primary"
+              className="mt-6 font-outfit"
+              radius="sm"
+              onPress={handleContinue}
+            >
               Next <IoChevronForward />
             </Button>
           </div>
         </div>
       </main>
+
+      <QuizBuilderModal
+        isOpen={isOpenQuizModal.state}
+        handleClose={handleCloseQuizModal}
+        setValue={setValue}
+        lessonIndex={isOpenQuizModal.lessonIndex}
+      />
     </>
   );
 };
 AddCurriculum.propTypes = {
   control: PropTypes.any,
   watch: PropTypes.any,
+  setValue: PropTypes.any,
   curriculumDefaultRows: PropTypes.any,
+  handleNext: PropTypes.func,
+  handlePrev: PropTypes.func,
 };
 export default AddCurriculum;
