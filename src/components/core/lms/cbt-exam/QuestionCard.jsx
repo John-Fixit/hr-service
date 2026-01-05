@@ -15,10 +15,10 @@ const QuestionCard = ({
   return (
     <div className="bg-white rounded-lg p-8 border border-gray-200">
       <div className="flex items-center gap-2 mb-6">
-        <span onClick={onToggleReview}>
+        <span onClick={onToggleReview} className="cursor-pointer">
           <Icon
             className={clsx(
-              "w-4 h-4",
+              "w-5 h-5 transition-all duration-300",
               isMarked ? "text-red-700" : "text-gray-500"
             )}
           />

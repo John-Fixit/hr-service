@@ -15,6 +15,7 @@ import QuizBuilderModal from "./QuizBuiderModal";
 import { errorToast } from "../../../../../utils/toastMsgPop";
 import { uploadFileData } from "../../../../../utils/uploadfile";
 import useCurrentUser from "../../../../../hooks/useCurrentUser";
+import clsx from "clsx";
 
 const AddCurriculum = (props) => {
   const [isOpenQuizModal, setIsOpenQuizModal] = useState({
@@ -99,17 +100,6 @@ const AddCurriculum = (props) => {
                     Lesson {index + 1}
                   </p>
                   <div className="flex gap-2">
-                    {curriculumValues?.[index]?.has_quiz && (
-                      <Button
-                        className="font-outfit px-2 flex gap-1"
-                        size="sm"
-                        onPress={() => handleOpenQuizModal(index)}
-                      >
-                        <IoCreateOutline size={16} />
-                        Set Quiz
-                      </Button>
-                    )}
-
                     {fields.length > 1 && (
                       <div className="">
                         <Button
@@ -221,18 +211,37 @@ const AddCurriculum = (props) => {
                         Has Quiz?
                       </span>
                     </div>
-                    <Controller
-                      name={`curriculum[${index}].has_quiz`}
-                      control={control}
-                      render={({ field }) => (
-                        <>
-                          <Switch
-                            isSelected={field.value}
-                            onChange={(e) => field.onChange(e.target.checked)}
-                          />
-                        </>
-                      )}
-                    />
+                    <div className="flex gap2 items-center">
+                      <div
+                        className={clsx(
+                          "transition-all duration-300 ease-in-out overflow-hidden",
+                          curriculumValues?.[index]?.has_quiz
+                            ? "max-w-[200px] opacity-100 mr-2"
+                            : "max-w-0 opacity-0 mr-0"
+                        )}
+                      >
+                        <Button
+                          className="font-outfit px-2 flex gap-1"
+                          size="sm"
+                          onPress={() => handleOpenQuizModal(index)}
+                        >
+                          <IoCreateOutline size={16} />
+                          Set Quiz
+                        </Button>
+                      </div>
+                      <Controller
+                        name={`curriculum[${index}].has_quiz`}
+                        control={control}
+                        render={({ field }) => (
+                          <>
+                            <Switch
+                              isSelected={field.value}
+                              onChange={(e) => field.onChange(e.target.checked)}
+                            />
+                          </>
+                        )}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -245,7 +254,7 @@ const AddCurriculum = (props) => {
             className="mt-6 font-outfit"
             onPress={() => append(curriculumDefaultRows)}
           >
-            <GoPlus size={20} /> Add Lesson
+            <GoPlus size={20} /> More Lesson
           </Button>
           <div className="flex justify-between gap-2 items-center border-t border-gray-200 py-4 mt-6">
             <Button

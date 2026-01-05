@@ -68,10 +68,10 @@ const QuestionNavigator = ({
         className="space-y-2 text-sm border-t pt-4"
         style={{ fontFamily: "Outfit, sans-serif" }}
       >
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-blue-600"></div>
           <span className="text-gray-700">Current</span>
-        </div>
+        </div> */}
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-green-600"></div>
           <span className="text-gray-700">Answered</span>

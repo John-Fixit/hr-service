@@ -6,7 +6,7 @@ const ExamHeader = ({ timeLeft }) => {
   const seconds = timeLeft % 60;
 
   return (
-    <div className="bg-white border-b border-gray-200 px-8 pb-4 flex justify-between items-center">
+    <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-8 pb-4 flex justify-between items-center">
       <h1 className="text-2xl font-semibold text-gray-800 font-outfit">
         Online Test - CBT Preparation
       </h1>
