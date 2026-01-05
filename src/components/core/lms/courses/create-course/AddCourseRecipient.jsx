@@ -8,7 +8,7 @@ import { Button } from "@nextui-org/react";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 
 const AddCourseRecipient = (props) => {
-  const { control, watch, handlePrev, handleNext } = props;
+  const { control, watch, handlePrev, handleNext, isCreatingCourse } = props;
 
   const recipientTypes = [
     { label: "Staffs", value: "staff" },
@@ -141,6 +141,7 @@ const AddCourseRecipient = (props) => {
               className="mt-6 font-outfit"
               radius="sm"
               onPress={handlePublish}
+              isLoading={isCreatingCourse}
             >
               Publish <IoChevronForward />
             </Button>
@@ -157,6 +158,7 @@ AddCourseRecipient.propTypes = {
   curriculumDefaultRows: PropTypes.any,
   handlePrev: PropTypes.func,
   handleNext: PropTypes.func,
+  isCreatingCourse: PropTypes.bool,
 };
 
 export default AddCourseRecipient;

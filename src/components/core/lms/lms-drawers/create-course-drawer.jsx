@@ -5,6 +5,9 @@ import { useCourseStore } from "../../../../hooks/useCourseStore";
 import { useForm } from "react-hook-form";
 import AddCurriculum from "../courses/create-course/AddCurriculum";
 import AddCourseRecipient from "../courses/create-course/AddCourseRecipient";
+import useCurrentUser from "../../../../hooks/useCurrentUser";
+import { useCreateCourse } from "../../../../API/lms-apis/course";
+import { errorToast, successToast } from "../../../../utils/toastMsgPop";
 
 const curriculumDefaultRows = {
   lesson_title: "",
@@ -19,6 +22,11 @@ const CreateCourseDrawer = () => {
   const { isOpen, closeCourseDrawer } = useCourseStore();
   const [selectedTab, setSelectedTab] = useState(0);
 
+  const { userData } = useCurrentUser();
+
+  const { mutateAsync: mutateCreateCourse, isPending: isCreatingCourse } =
+    useCreateCourse();
+
   const handleNext = () => {
     setSelectedTab(selectedTab + 1);
   };
@@ -32,7 +40,7 @@ const CreateCourseDrawer = () => {
     },
   });
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // eslint-disable-next-line no-unused-vars
     const { course_thumbnail_file, curriculum, ...rest } =
       hook_form_props.getValues();
@@ -43,23 +51,72 @@ const CreateCourseDrawer = () => {
         document_url,
         has_quiz,
         quiz,
-        quizString,
+        // quizString,
       } = crcl;
 
-      console.log(quizString);
+      const quiz_config = quiz?.config;
+
+      const formattedQuizQuestions = quiz?.questions?.map((q) => {
+        return {
+          question: q?.question,
+          answer: q?.options?.find((opt) => opt.key === q?.correct_answer)
+            ?.value,
+          options: q?.options?.map((opt) => opt.value),
+        };
+      });
+
       return {
-        lesson_title,
-        lesson_description,
-        document_url,
-        has_quiz,
-        quiz,
+        TITLE: lesson_title,
+        DESCRIPTION: lesson_description,
+        MEDIA_ATTACHMENT: document_url,
+        HAS_QUIZ: has_quiz,
+        QUIZ_DESCRIPTION: quiz_config?.quiz_description,
+        ATTEMPTS_ALLOWED: quiz_config?.allowed_attempt,
+        DURATION: quiz_config?.time_limit,
+        TOTAL_QUIZ_SCORE: quiz_config?.total_grade,
+        lesson_quiz: {
+          questions: formattedQuizQuestions,
+        },
       };
     });
+
     const json = {
-      ...rest,
-      curriculum: formattedCurriculum,
+      COURSE_CATEGORY: rest?.course_category,
+      COMPANY_ID: userData?.data?.COMPANY_ID,
+      COURSE_TITLE: rest?.course_title,
+      COURSE_OBJECTIVE: rest?.course_objective,
+      COURSE_DESCRIPTION: rest?.course_description,
+      USE_AS_APPRAISAL: true,
+      START_DATE: rest?.start_date,
+      END_DATE: rest?.end_date,
+      CREATOR: userData?.data?.STAFF_ID,
+      PERFORMANCE_CYCLE_ID: 12,
+      HAS_LINE_MANAGER: false,
+      COURSE_PREVIEW_IMAGE: rest?.course_thumbnail_url,
+      course_lessons: formattedCurriculum,
+
+      course_recipients: [
+        {
+          COURSE_ID: 101,
+          STAFF_ID: 5002,
+          PROGRESS_SCORE: 85.5,
+          COURSE_SCORE: 90,
+          APPRAISED_BY: 1001,
+          DATE_APPRAISED: "2026-01-05T14:30:00Z",
+        },
+      ],
     };
-    console.log(json);
+    // console.log(json);
+    try {
+      const response = await mutateCreateCourse(json);
+      console.log(response);
+      successToast(response?.data?.message || "Course created successfully");
+      closeCourseDrawer();
+    } catch (err) {
+      errorToast(
+        err?.response?.data?.message || err?.message || "Error creating course"
+      );
+    }
   };
 
   const sideTabs = [
@@ -86,6 +143,7 @@ const CreateCourseDrawer = () => {
           curriculumDefaultRows={curriculumDefaultRows}
           handlePrev={handlePrev}
           handleNext={handleSubmit}
+          isCreatingCourse={isCreatingCourse}
         />
       ),
     },

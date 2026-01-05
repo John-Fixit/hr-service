@@ -382,6 +382,20 @@ const QuizBuilderModal = ({ isOpen, handleClose, setValue, lessonIndex }) => {
               </h3>
               <div className="grid grid-cols-2 gap-6">
                 {/* Allowed Attempts */}
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1 font-outfit">
+                    Quiz Description
+                  </label>
+                  <Input.TextArea
+                    placeholder="Quiz description..."
+                    size="large"
+                    value={quizData.config.quiz_description}
+                    onChange={(e) =>
+                      updateConfig("quiz_description", e.target.value)
+                    }
+                    autoSize={{ minRows: 2 }}
+                  />
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1 font-outfit">
                     Number of Attempts Allowed

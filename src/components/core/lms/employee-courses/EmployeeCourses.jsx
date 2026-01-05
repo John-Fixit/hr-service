@@ -2,8 +2,8 @@ import { BsClockHistory } from "react-icons/bs";
 import PropTypes from "prop-types";
 import { useCourseStore } from "../../../../hooks/useCourseStore";
 
-const EmployeeCourse = () => {
-  const courses = [
+const EmployeeCourse = ({ courses }) => {
+  const course = [
     {
       id: 1,
       title: "UX/UI Design Essentials: Designing User-Centered Interfaces",
@@ -89,7 +89,7 @@ const EmployeeCourse = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        {courses.map((course) => (
+        {[...course].map((course) => (
           <CourseCard key={course.id} course={course} />
         ))}
       </div>

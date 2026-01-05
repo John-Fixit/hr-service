@@ -5,6 +5,8 @@ import { SlDiamond } from "react-icons/sl";
 import CoursesTable from "../../components/core/lms/staff-dashboard/courses/CoursesTable";
 import EmployeeCourse from "../../components/core/lms/employee-courses/EmployeeCourses";
 import { useCourseStore } from "../../hooks/useCourseStore";
+import { useGetCourses } from "../../API/lms-apis/course";
+import { useMemo } from "react";
 
 const employeeStatData = [
   {
@@ -66,6 +68,9 @@ export default function StaffDashboard() {
 
   const currentView = location === "/lms/staff" ? "staff" : "employee";
 
+  const { data: get_courses, isLoading: isLoadingCourses } = useGetCourses();
+  const allCourses = useMemo(() => get_courses?.data || [], [get_courses]);
+
   return (
     <div className=" bg-gray-50 p-6 font-sans">
       <div className="mb-6 flex justify-between items-center gap-3">
@@ -113,7 +118,11 @@ export default function StaffDashboard() {
           )
         )}
       </div>
-      {currentView === "staff" ? <CoursesTable /> : <EmployeeCourse />}
+      {currentView === "staff" ? (
+        <CoursesTable />
+      ) : (
+        <EmployeeCourse courses={allCourses} />
+      )}
     </div>
   );
 }

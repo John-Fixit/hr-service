@@ -46,7 +46,6 @@ const AddCurriculum = (props) => {
     );
     const allHasQuiz = allLessonWithRequiredQuiz.every((l) => l.quiz);
 
-    console.log(allHasQuiz, allLessonWithRequiredQuiz);
     if (!allHasQuiz) {
       return ["Please set quiz for all lessons said to have quiz"];
     }
@@ -80,7 +79,6 @@ const AddCurriculum = (props) => {
     });
   };
 
-  console.log(curriculumValues);
   return (
     <>
       <main>
