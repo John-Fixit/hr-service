@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import moment from "moment";
 
 export const debounce = (func, delay) => {
@@ -361,4 +362,37 @@ export const formatNaira = (amount) => {
     currency: "NGN",
     minimumFractionDigits: 2,
   }).format(parseFloat(amount));
+};
+
+export const dayDifference = (startDate, endDate) => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const diff = end - start;
+  const oneDay = 1000 * 60 * 60 * 24;
+  return Math.round(diff / oneDay);
+};
+
+export const formatTimeFromMin = (time) => {
+  const minutes = Number(time) / 60;
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return `${hours}h ${remainingMinutes}m`;
+};
+
+export const courseDuration = ({ start_date, end_date }) => {
+  const diff = dayjs(end_date).diff(dayjs(start_date), "day");
+
+  let result;
+
+  if (diff < 7) {
+    result = diff + " days";
+  } else if (diff < 30) {
+    result = (diff / 7).toFixed(1) + " weeks";
+  } else if (diff < 365) {
+    result = (diff / 30).toFixed(1) + " months";
+  } else {
+    result = (diff / 365).toFixed(1) + " years";
+  }
+
+  return result;
 };

@@ -5,8 +5,10 @@ import { SlDiamond } from "react-icons/sl";
 import CoursesTable from "../../components/core/lms/staff-dashboard/courses/CoursesTable";
 import EmployeeCourse from "../../components/core/lms/employee-courses/EmployeeCourses";
 import { useCourseStore } from "../../hooks/useCourseStore";
-import { useGetCourses } from "../../API/lms-apis/course";
-import { useMemo } from "react";
+import { useGetStaffCourses } from "../../API/lms-apis/course";
+import { useMemo, useState } from "react";
+import useCurrentUser from "../../hooks/useCurrentUser";
+import { Tab, Tabs } from "@nextui-org/react";
 
 const employeeStatData = [
   {
@@ -66,10 +68,22 @@ export default function StaffDashboard() {
   const { openCourseDrawer } = useCourseStore();
   const location = useLocation().pathname;
 
+  //=================react hooks============
+const [courseView, setCourseView] = useState("all-courses");
+
+
+  //========================
+
   const currentView = location === "/lms/staff" ? "staff" : "employee";
 
-  const { data: get_courses, isLoading: isLoadingCourses } = useGetCourses();
+  const { userData } = useCurrentUser();
+
+  const { data: get_courses, isPending: isLoadingCourses } = useGetStaffCourses(
+    userData?.data?.STAFF_ID
+  );
   const allCourses = useMemo(() => get_courses?.data || [], [get_courses]);
+
+  const isStaff = currentView === "staff";
 
   return (
     <div className=" bg-gray-50 p-6 font-sans">
@@ -82,7 +96,7 @@ export default function StaffDashboard() {
             Manage and create performance review templates
           </p>
         </div>
-        {currentView === "staff" && (
+        {isStaff && (
           <div>
             <button
               className="cursor-pointer py-3 px-4 rounded-full bg-blue-900 hover:bg-white border border-blue-900 transition-all text-white hover:text-blue-900 font-outfit font-medium duration-300 text-base flex gap-2 items-center"
@@ -95,7 +109,7 @@ export default function StaffDashboard() {
         )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {(currentView === "staff" ? staffStatData : employeeStatData).map(
+        {(isStaff ? staffStatData : employeeStatData).map(
           (stat, index) => (
             <div
               key={index}
@@ -118,10 +132,19 @@ export default function StaffDashboard() {
           )
         )}
       </div>
-      {currentView === "staff" ? (
+      {
+        isStaff &&
+      <div className="my-4 flex justify-end">
+<Tabs aria-label="Tabs sizes" size={"sm"} color="primary" variant="bordered" selectedKey={courseView} onSelectionChange={setCourseView}>
+          <Tab key="all-courses" title="All Courses" />
+          <Tab key="my-courses" title="My Courses" />
+        </Tabs>
+      </div>
+      }
+      {isStaff && courseView === "my-courses" ? (
         <CoursesTable />
       ) : (
-        <EmployeeCourse courses={allCourses} />
+        <EmployeeCourse courses={allCourses} isLoading={isLoadingCourses} />
       )}
     </div>
   );

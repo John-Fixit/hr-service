@@ -81,7 +81,7 @@ const CreateTemplateDrawer = () => {
             <div className="space-y-4 pt-4">
               <div>
                 <label className="block font-medium text-gray-700 mb-2 text-lg">
-                  Performance Title
+                  Form Title
                 </label>
                 <Input
                   size="large"

@@ -11,11 +11,15 @@ const CbtExamDrawer = () => {
         open={isOpen}
         onClose={closeCourseDrawer}
         maskClosable={false}
+        closeIcon={false}
         classNames={{
           content: "p-0 m-0",
         }}
       >
+        {
+          isOpen &&
         <CbtTestView />
+        }
       </Drawer>
     </>
   );

@@ -5,28 +5,36 @@ import { CiFlag1 } from "react-icons/ci";
 import { HiOutlineUsers } from "react-icons/hi";
 import { IoGameControllerOutline } from "react-icons/io5";
 import { SlBadge } from "react-icons/sl";
+import { courseDuration } from "../../../../../utils/utitlities";
+import PropTypes from "prop-types";
 
-const CourseFeatures = () => {
+const CourseFeatures = ({ course }) => {
   const features = [
     {
       icon: HiOutlineUsers,
       title: "Student Enrolled",
-      value: "1740",
+      value: course?.course_recipients?.length || "1740",
     },
     {
       icon: Video,
       title: "Lectures",
-      value: "10",
+      value: course?.course_lessons?.length || "12",
     },
     {
       icon: IoGameControllerOutline,
       title: "Quizzes",
-      value: "4",
+      value:
+        course?.course_lessons?.filter((lesson) => lesson.HAS_QUIZ)?.length ||
+        "5",
     },
     {
       icon: BsClockHistory,
       title: "Duration",
-      value: "60h 40min",
+      value:
+        courseDuration({
+          start_date: course?.START_DATE,
+          end_date: course?.END_DATE,
+        }) || "10h 50m",
     },
     {
       icon: AiOutlineTags,
@@ -72,3 +80,7 @@ const CourseFeatures = () => {
 };
 
 export default CourseFeatures;
+
+CourseFeatures.propTypes = {
+  course: PropTypes.object.isRequired,
+};

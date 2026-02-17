@@ -25,7 +25,7 @@ export const useGetActivePerformance = (company_id) => {
     queryKey: ["get_active_performance"],
     queryFn: async () => {
       const res = await API.get(
-        `performance/get_active_performance_year/${company_id}`
+        `performance/get_active_performance_year/${company_id}`,
       );
       return res?.data?.data;
     },
@@ -50,7 +50,7 @@ export const useCreateAper = (updateDraft) => {
         updateDraft
           ? "performance/update_aper_draft"
           : "performance/create_aper",
-        payload
+        payload,
       );
     },
     onSuccess: () => {
@@ -70,7 +70,7 @@ export const useUpdateAper = (updateDraft) => {
         updateDraft
           ? "performance/update_aper_draft"
           : "performance/create_aper",
-        payload
+        payload,
       );
     },
     onSuccess: () => {
@@ -203,7 +203,7 @@ export const useGetPerformanceListing = (payload) => {
   return useQuery({
     queryKey: [`list_${payload.status}_performances`, payload],
     queryFn: async () => {
-      const res = await API.post(`pms/list_${payload.status}_performances`, {
+      const res = await API.post(`forms/list_${payload.status}_performances`, {
         staff_id: payload?.staff_id,
         company_id: payload?.company_id,
       });

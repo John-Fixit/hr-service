@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import PropTypes from "prop-types";
 import { Button } from "@nextui-org/react";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
+import { useGetDesignation, useGetRegions } from "../../../../../API/officials";
 
 const AddCourseRecipient = (props) => {
   const { control, watch, handlePrev, handleNext, isCreatingCourse } = props;
@@ -28,14 +29,39 @@ const AddCourseRecipient = (props) => {
       recipient_type: recipientType,
     });
 
-  const recipientOptions = useMemo(
+  const { data: getRegion } = useGetRegions(userData?.data?.COMPANY_ID);
+
+  const { data: getOrgDesignation } = useGetDesignation();
+  const orgDesignation = useMemo(
     () =>
-      get_recipients?.map((recipient) => ({
-        label: recipient?.NAME,
-        value: recipient?.ID,
+      getOrgDesignation?.data?.data?.map((item) => ({
+        ...item,
+        label: item?.DESIGNATION_NAME,
+        value: item?.DESIGNATION_ID,
       })),
-    [get_recipients]
+    [getOrgDesignation?.data?.data]
   );
+
+  const regions = useMemo(
+    () =>
+      getRegion?.data?.data?.map((item) => ({
+        ...item,
+        value: item?.REGION_ID,
+        label: item?.REGION_NAME,
+      })),
+    [getRegion]
+  );
+
+  const recipientOptions = useMemo(() => {
+    return recipientType === "region"
+      ? regions
+      : recipientType === "designation"
+      ? orgDesignation
+      : get_recipients?.map((recipient) => ({
+          label: recipient?.NAME,
+          value: recipient?.ID,
+        }));
+  }, [get_recipients, orgDesignation, recipientType, regions]);
 
   const handlePublish = () => {
     //submit course here

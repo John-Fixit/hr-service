@@ -820,7 +820,7 @@ const HRISPerformance = () => {
             appraisalSubHeader: formData.appraisalSubHeader,
           }}
           sections={formData.allSection}
-          //   onSubmit={handleSubmit}
+          onSubmit={handleSubmit}
           mode="fill"
         />
       </main>

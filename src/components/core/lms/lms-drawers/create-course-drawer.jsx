@@ -58,22 +58,22 @@ const CreateCourseDrawer = () => {
 
       const formattedQuizQuestions = quiz?.questions?.map((q) => {
         return {
-          question: q?.question,
-          answer: q?.options?.find((opt) => opt.key === q?.correct_answer)
+          QUIZ_QUESTION: q?.question,
+          QUIZ_ANSWER: q?.options?.find((opt) => opt.key === q?.correct_answer)
             ?.value,
-          options: q?.options?.map((opt) => opt.value),
+          QUIZ_OPTIONS: q?.options?.map((opt) => opt.value),
         };
       });
 
       return {
-        TITLE: lesson_title,
-        DESCRIPTION: lesson_description,
-        MEDIA_ATTACHMENT: document_url,
-        HAS_QUIZ: has_quiz,
-        QUIZ_DESCRIPTION: quiz_config?.quiz_description,
-        ATTEMPTS_ALLOWED: quiz_config?.allowed_attempt,
-        DURATION: quiz_config?.time_limit,
-        TOTAL_QUIZ_SCORE: quiz_config?.total_grade,
+        TITLE: lesson_title || "",
+        DESCRIPTION: lesson_description || "",
+        MEDIA_ATTACHMENT: document_url || "",
+        HAS_QUIZ: has_quiz || null,
+        QUIZ_DESCRIPTION: quiz_config?.quiz_description || "",
+        ATTEMPTS_ALLOWED: quiz_config?.allowed_attempt || "",
+        DURATION: quiz_config?.time_limit || "",
+        TOTAL_QUIZ_SCORE: quiz_config?.total_grade || "",
         lesson_quiz: {
           questions: formattedQuizQuestions,
         },
@@ -94,22 +94,13 @@ const CreateCourseDrawer = () => {
       HAS_LINE_MANAGER: false,
       COURSE_PREVIEW_IMAGE: rest?.course_thumbnail_url,
       course_lessons: formattedCurriculum,
-
-      course_recipients: [
-        {
-          COURSE_ID: 101,
-          STAFF_ID: 5002,
-          PROGRESS_SCORE: 85.5,
-          COURSE_SCORE: 90,
-          APPRAISED_BY: 1001,
-          DATE_APPRAISED: "2026-01-05T14:30:00Z",
-        },
-      ],
+      course_recipients: {
+        recipient_type: rest?.recipientType,
+        STAFF_IDS: rest?.recipients,
+      },
     };
-    // console.log(json);
     try {
       const response = await mutateCreateCourse(json);
-      console.log(response);
       successToast(response?.data?.message || "Course created successfully");
       closeCourseDrawer();
     } catch (err) {

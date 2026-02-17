@@ -169,7 +169,10 @@ const AddCurriculum = (props) => {
                     Upload Media Content
                   </label>
                   <div>
-                    <label htmlFor="media_content_file" className="mt-1">
+                    <label
+                      htmlFor={`media_content_file_${index}`}
+                      className="mt-1"
+                    >
                       <div className="border rounded flex">
                         <p className="bg-gray-100 px-3 font-medium font-outfit flex items-center">
                           Choose File
@@ -186,7 +189,7 @@ const AddCurriculum = (props) => {
                         type="file"
                         accept=".png,.jpg,.jpeg,.pdf,.doc,.docx,.ppt,.pptx,.txt,.xls,.xlsx,.zip,.mp4"
                         className="hidden"
-                        id="media_content_file"
+                        id={`media_content_file_${index}`}
                         onChange={async (e) => {
                           const file = e.target.files[0];
                           setValue(`curriculum[${index}].document_file`, file);

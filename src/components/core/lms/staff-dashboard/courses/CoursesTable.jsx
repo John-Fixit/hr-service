@@ -50,7 +50,7 @@ const CoursesTable = () => {
       <div className="bg-white border rounded-xl shadow-sm">
         <div className="flex justify-between items-center px-6 pb-4 pt-4 border-b">
           <h2 className="text-base tracking-wide font-semibold text-[#003384] font-outfit">
-            Recent Selling Courses
+            My Recent Courses
           </h2>
           <button className="text-[#6c829e] text-sm font-medium hover:text-[#6c829e] text-[15px] transition-all font-outfit">
             View All

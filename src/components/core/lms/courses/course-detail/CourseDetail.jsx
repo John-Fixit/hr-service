@@ -3,7 +3,7 @@ import CourseCurriculum from "./CourseCurriculum";
 import { Check } from "lucide-react";
 import CourseFeatures from "./CourseFeatures";
 import { useCourseStore } from "../../../../../hooks/useCourseStore";
-import dayjs from "dayjs";
+import { courseDuration } from "../../../../../utils/utitlities";
 
 const couDetail = {
   course_category: "techinal",
@@ -64,40 +64,13 @@ const couDetail = {
 };
 
 const CourseDetail = () => {
-  const enrollmentList = [
-    "Beginners interested in starting a career in web design",
-    "Developers looking to expand their skills into design",
-    "Anyone wanting to create their own websites or improve existing ones",
-    "Students pursuing careers in tech, design, or media",
-    "Freelancers who want to expand their service offerings",
-    "Graphic designers looking to transition into UI/UX or web design",
-    "Entrepreneurs and business owners who want to build or maintain their own websites",
-  ];
-
   const {
     // eslint-disable-next-line no-unused-vars
     data: { courseDetail },
   } = useCourseStore();
 
-  const durationDiff = ({ start_date, end_date }) => {
-    const diff = dayjs(end_date).diff(dayjs(start_date), "day");
 
-    let result;
-
-    if (diff < 7) {
-      result = diff + " days";
-    } else if (diff < 30) {
-      result = (diff / 7).toFixed(1) + " weeks";
-    } else if (diff < 365) {
-      result = (diff / 30).toFixed(1) + " months";
-    } else {
-      result = (diff / 365).toFixed(1) + " years";
-    }
-
-    return result;
-  };
-
-  console.log(couDetail);
+  const maxVisibleRecipient = 6
 
   return (
     <>
@@ -105,7 +78,7 @@ const CourseDetail = () => {
         <header
           className="relative bg-cover bg-center min-h-80 flex items-center rounded-xl"
           style={{
-            backgroundImage: `linear-gradient(rgba(15, 35, 65, 0.7), rgba(15, 35, 65, 0.7)), url("${couDetail?.course_thumbnail_url}")`,
+            backgroundImage: `linear-gradient(rgba(15, 35, 65, 0.7), rgba(15, 35, 65, 0.7)), url("${courseDetail?.COURSE_PREVIEW_IMAGE}")`,
           }}
         >
           <div className="container mx-auto px-6 lg:px-12 my-10">
@@ -119,7 +92,7 @@ const CourseDetail = () => {
               </span>
             </div>
             <h1 className="text-white text-4xl lg:text-5xl font-outfit font-bold mb-4 line-clamp-1">
-              {couDetail?.course_title}
+              {courseDetail?.COURSE_TITLE}
             </h1>
             <div className="flex flex-wrap items-center gap-6 text-white mb-5">
               <div className="flex items-center gap-2">
@@ -137,9 +110,9 @@ const CourseDetail = () => {
                   />
                 </svg>
                 <span className="font-outfit text-sm">
-                  {durationDiff({
-                    start_date: couDetail?.start_date,
-                    end_date: couDetail?.end_date,
+                  {courseDuration({
+                    start_date: courseDetail?.START_DATE,
+                    end_date: courseDetail?.END_DATE,
                   })}
                 </span>
               </div>
@@ -158,7 +131,7 @@ const CourseDetail = () => {
                   />
                 </svg>
                 <span className="font-outfit text-sm">
-                  {couDetail?.curriculum?.length} Lessons
+                  {courseDetail?.course_lessons?.length} Lessons
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -177,7 +150,8 @@ const CourseDetail = () => {
                 </svg>
                 <span className="font-outfit text-sm capitalize">
                   {/* 502 Student Enrolled */}
-                  {couDetail?.recipients?.length} {couDetail?.recipientType}s
+                  {courseDetail?.course_recipients?.length}{" "}
+                  {couDetail?.recipientType}s
                 </span>
               </div>
             </div>
@@ -222,27 +196,15 @@ const CourseDetail = () => {
 
                   <div className="space-y-3 mb-5">
                     <p className="text-gray-700 text-base font-outfit leading-relaxed">
-                      {/* Learn the fundamental principles and practices of modern
-                      web design in this comprehensive course. Whether
-                      you&apos;re a beginner or looking to refresh your skills,
-                      you&apos;ll dive into HTML5, CSS3, responsive design, and
-                      more. Get hands-on experience with industry tools and
-                      create stunning websites from scratch. */}
-                      {couDetail?.course_description}
+                    
+                      {courseDetail?.COURSE_DESCRIPTION}
                     </p>
                     <h4 className="text-blue-900 text-[16px] lg:text-[16px] font-outfit font-bold">
                       Course Objective
                     </h4>
                     <p className="text-gray-700 text-base font-outfit leading-relaxed">
-                      {/* Unlock your creativity and master the art of web design
-                      with this all-in-one course. You&apos;ll start from the
-                      ground up—learning how websites work, how to structure
-                      content using HTML, style it with CSS, and make it come
-                      alive with JavaScript. This course blends theory with
-                      real-world projects to ensure you&apos;re job-ready by the
-                      end. Perfect for beginners or anyone looking to build
-                      beautiful, user-friendly websites from scratch. */}
-                      {couDetail?.course_objective}
+                     
+                      {courseDetail?.COURSE_OBJECTIVE}
                     </p>
                   </div>
 
@@ -252,7 +214,7 @@ const CourseDetail = () => {
                   </h3>
 
                   <div className="space-y-2">
-                    {couDetail?.recipients.map((item, index) => (
+                    {courseDetail?.course_recipients?.slice(0, maxVisibleRecipient).map((item, index) => (
                       <div key={index} className="flex items-center gap-3">
                         <div className="flex-shrink-0 mt-1">
                           <svg
@@ -277,16 +239,46 @@ const CourseDetail = () => {
                             />
                           </svg>
                         </div>
-
                         {/* Text */}
                         <p className="text-gray-700 text-sm font-medium font-outfit leading-relaxed">
-                          {item}
+                          {item?.FULLNAME || item?.EMAIL}
                         </p>
                       </div>
                     ))}
+                    {courseDetail?.course_recipients?.length > maxVisibleRecipient && (
+                      <div className="flex items-center gap-3">
+                        <div className="flex-shrink-0 mt-1">
+                          <svg
+                            className="w-5 h-5 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="1"
+                              fill="none"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1}
+                              d="M9 12l2 2 4-4"
+                            />
+                          </svg>
+                        </div>
+                        {/* Text */}
+                        <p className="text-gray-700 text-sm font-medium font-outfit leading-relaxed">
+                          {`and ${courseDetail?.course_recipients?.length - maxVisibleRecipient}+`}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <CourseCurriculum course={couDetail} />
+                <CourseCurriculum course={courseDetail} />
                 <CourseAuthorCard />
               </div>
             </div>
@@ -297,7 +289,7 @@ const CourseDetail = () => {
                     <div className="">
                       <CoursePricing />
                     </div>
-                    <CourseFeatures />
+                    <CourseFeatures course={courseDetail} />
                   </div>
                 </div>
               </div>

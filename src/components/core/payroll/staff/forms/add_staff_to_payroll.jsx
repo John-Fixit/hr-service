@@ -22,43 +22,42 @@ import { useGetState } from "../../../../../API/profile";
 
 const { TextArea } = Input;
 
-const UpdateStaffPayrollForm = ({handleClose}) => {
+const UpdateStaffPayrollForm = ({ handleClose }) => {
   const { userData } = useCurrentUser();
   const { data, isPending: isLoadingEmployeeType } = useGetEmploymentType();
   const { data: getOrgDesignation, isPending: isLoadingOrgDesignation } =
     useGetDesignation();
-  const { data: getPension, isPending: isLoadingPension } =
-    useGetPension();
-    const { data: getDepartments, isLoading: departmentLoading } =
-      useGetDepartment(userData?.data?.COMPANY_ID);
-    const { data: getRegion, isLoading: regionLoading } = useGetRegions(
-      userData?.data?.COMPANY_ID
-    );
-    const { data: getState, isLoading: stateLoading } = useGetState(
-     11354
-    );
+  const { data: getPension, isPending: isLoadingPension } = useGetPension();
+  const { data: getDepartments, isLoading: departmentLoading } =
+    useGetDepartment(userData?.data?.COMPANY_ID);
+  const { data: getRegion, isLoading: regionLoading } = useGetRegions(
+    userData?.data?.COMPANY_ID
+  );
+  const { data: getState, isLoading: stateLoading } = useGetState(11354);
 
-  const { mutateAsync: mutateUpdateStaffPayroll, isPending: isUpdatingStaffPayroll } = useUpdateStaffPayroll();
+  const {
+    mutateAsync: mutateUpdateStaffPayroll,
+    isPending: isUpdatingStaffPayroll,
+  } = useUpdateStaffPayroll();
 
-      const {
-        control,
-        setValue,
-        getValues,
-        trigger,
-        watch,
-        reset,
-        handleSubmit,
-        formState: { errors, touchedFields },
-      } = useForm({
-        defaultValues: {
-          company_id: userData?.data?.COMPANY_ID,
-          staff_id: userData?.data?.STAFF_ID,
-        },
-      });
+  const {
+    control,
+    setValue,
+    getValues,
+    trigger,
+    watch,
+    reset,
+    handleSubmit,
+    formState: { errors, touchedFields },
+  } = useForm({
+    defaultValues: {
+      company_id: userData?.data?.COMPANY_ID,
+      staff_id: userData?.data?.STAFF_ID,
+    },
+  });
 
-
-
-  const pensions = useMemo(() =>
+  const pensions = useMemo(
+    () =>
       getPension?.data?.data?.map((pension) => ({
         ...pension,
         value: pension?.id,
@@ -67,10 +66,8 @@ const UpdateStaffPayrollForm = ({handleClose}) => {
     [getPension?.data?.data]
   );
 
-
-  console.log(getDepartments);
-  
-  const departmentData = useMemo(() =>
+  const departmentData = useMemo(
+    () =>
       getDepartments?.data?.data?.map((item) => {
         return {
           ...item,
@@ -81,7 +78,7 @@ const UpdateStaffPayrollForm = ({handleClose}) => {
     [getDepartments?.data?.data]
   );
 
-    const regions = useMemo(
+  const regions = useMemo(
     () =>
       getRegion?.data?.data?.map((item) => ({
         ...item,
@@ -91,16 +88,16 @@ const UpdateStaffPayrollForm = ({handleClose}) => {
     [getRegion]
   );
 
-    const states = useMemo(
-    () =>
-    [...(getState?.map((item) => ({
-      ...item,
-      value: item?.STATE_ID,
-      label: item?.STATE_NAME,
-    })) || [])],
+  const states = useMemo(
+    () => [
+      ...(getState?.map((item) => ({
+        ...item,
+        value: item?.STATE_ID,
+        label: item?.STATE_NAME,
+      })) || []),
+    ],
     [getState]
   );
-
 
   const departments = departmentData?.length
     ? departmentData?.map((item) => {
@@ -114,57 +111,44 @@ const UpdateStaffPayrollForm = ({handleClose}) => {
 
   const handleFinalSubmit = async () => {
     const {
-    nhf_no,
-    bank,
-    account_no,
-    designation,
-    department,
-    pfa,
-    pension_no,
-    state,
-    appointment_date,
-    tin_no,
-    region
+      nhf_no,
+      bank,
+      account_no,
+      designation,
+      department,
+      pfa,
+      pension_no,
+      state,
+      appointment_date,
+      tin_no,
+      region,
     } = getValues();
 
     const json = {
-    nhf_no,
-    bank,
-    account_no,
-    designation,
-    department,
-    pfa,
-    pension_no,
-    state,
-    appointment_date,
-    tin_no,
-    region,
-     company_id: userData?.data?.COMPANY_ID,
+      nhf_no,
+      bank,
+      account_no,
+      designation,
+      department,
+      pfa,
+      pension_no,
+      state,
+      appointment_date,
+      tin_no,
+      region,
+      company_id: userData?.data?.COMPANY_ID,
     };
 
-      try {
-        const res = await mutateUpdateStaffPayroll(json);
-        successToast(res?.data?.message);
-        reset()
-        handleClose();
-      } catch (error) {
-        const errMsg = error?.response?.data?.message || error?.message;
-        errorToast(errMsg);
-      }
+    try {
+      const res = await mutateUpdateStaffPayroll(json);
+      successToast(res?.data?.message);
+      reset();
+      handleClose();
+    } catch (error) {
+      const errMsg = error?.response?.data?.message || error?.message;
+      errorToast(errMsg);
     }
-  
-
-
-
-
-
-
-
-
-
-
-
-
+  };
 
   //<<<<<<<<<<<<<<<< Formatting the staff label >>>>>>>>>>>>>>>>>>>>>>>
   const formattedStaffLabel = useCallback(
@@ -279,7 +263,6 @@ const UpdateStaffPayrollForm = ({handleClose}) => {
     [getStaff, formattedStaffLabel]
   );
 
-
   const onChange = (value, key) => {
     setValue(key, value);
     trigger(key);
@@ -290,378 +273,323 @@ const UpdateStaffPayrollForm = ({handleClose}) => {
     trigger("commencement_date");
   };
 
-
-
-
-
   return (
-    <form onSubmit={handleSubmit(handleFinalSubmit)} >
+    <form onSubmit={handleSubmit(handleFinalSubmit)}>
       <div className="bg-white shadow-md p-5 rounded border flex justify-center flex-col gap-4">
-
         <div className="pb-2">
-          <span className="font-bold text-xl font-Helvetica ">Update Staff Payroll</span>
+          <span className="font-bold text-xl font-Helvetica ">
+            Update Staff Payroll
+          </span>
         </div>
 
-           <div className="">
-            <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
-              Pension Number
-            </h5>
-            <Controller
-              name="pension_no"
-              control={control}
-              render={({ field }) => (
-                <div>
-                  <Input
-                    aria-label="pension_no"
-                    size="large"
-                    placeholder="Enter pension number"
-                    status={
-                      touchedFields?.pension_no &&
-                      errors?.pension_no
-                        ? "error"
-                        : ""
-                    }
-                    {...field}
-                    className="w-full"
-                    onChange={(e) =>
-                      onChange(e.target.value, "pension_no")
-                    }
-                  />
-                  <span className="text-red-500">
-                    {touchedFields?.pension_no &&
-                      errors?.pension_no?.message}
-                  </span>
-                </div>
-              )}
-              rules={{ required: "This field is required" }}
-            />
-          </div>
-           <div className="">
-            <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
-              NHF Number
-            </h5>
-            <Controller
-              name="nhf_no"
-              control={control}
-              render={({ field }) => (
-                <div>
-                  <Input
-                    aria-label="nhf_no"
-                    size="large"
-                    placeholder="Enter nhf number"
-                    status={
-                      touchedFields?.nhf_no &&
-                      errors?.nhf_no
-                        ? "error"
-                        : ""
-                    }
-                    {...field}
-                    className="w-full"
-                    onChange={(e) =>
-                      onChange(e.target.value, "nhf_no")
-                    }
-                  />
-                  <span className="text-red-500">
-                    {touchedFields?.nhf_no &&
-                      errors?.nhf_no?.message}
-                  </span>
-                </div>
-              )}
-              rules={{ required: "This field is required" }}
-            />
-          </div>
-            <div className="">
-            <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
-              PFA No
-            </h5>
-            <Controller
-              name="pfa_no"
-              control={control}
-              render={({ field }) => (
-                <div>
-                  <Select
-                    aria-label="pfa_no"
-                    size="large"
-                    showSearch
-                    placeholder="Select staff type"
-                    optionFilterProp="label"
-                    options={pensions}
-                    virtual={false}
-                    loading={isLoadingPension}
-                    status={
-                      touchedFields?.pfa_no && errors?.pfa_no
-                        ? "error"
-                        : ""
-                    }
-                    {...field}
-                    className="w-full"
-                  />
-                  <span className="text-red-500">
-                    {touchedFields?.pfa_no && errors?.pfa_no?.message}
-                  </span>
-                </div>
-              )}
-              rules={{ required: "This field is required" }}
-            />
-          </div>
-          <div className="">
-            <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
-              Department
-            </h5>
-            <Controller
-              name="department"
-              control={control}
-              render={({ field }) => (
-                <div>
-                  <Select
-                    aria-label="department"
-                    size="large"
-                    showSearch
-                    placeholder="Select staff type"
-                    optionFilterProp="label"
-                    options={departmentData}
-                    virtual={false}
-                    loading={isLoadingPension}
-                    status={
-                      touchedFields?.department && errors?.department
-                        ? "error"
-                        : ""
-                    }
-                    {...field}
-                    className="w-full"
-                  />
-                  <span className="text-red-500">
-                    {touchedFields?.department && errors?.department?.message}
-                  </span>
-                </div>
-              )}
-              rules={{ required: "This field is required" }}
-            />
-          </div>
-           
-           <div className="">
-            <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
-              Designation
-            </h5>
-            <Controller
-              name="designation"
-              control={control}
-              render={({ field }) => (
-                <div>
-                  <Select
-                    aria-label="designation"
-                    size="large"
-                    showSearch
-                    placeholder="Select Designation"
-                    optionFilterProp="label"
-                    options={orgDesignation}
-                    virtual={false}
-                    loading={isLoadingOrgDesignation}
-                    status={
-                      touchedFields?.designation && errors?.designation
-                        ? "error"
-                        : ""
-                    }
-                    {...field}
-                    className="w-full"
-                  />
-                  <span className="text-red-500">
-                    {touchedFields?.designation && errors?.designation?.message}
-                  </span>
-                </div>
-              )}
-              rules={{ required: "This field is required" }}
-            />
-          </div>
-           <div className="">
-            <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
-              Region
-            </h5>
-            <Controller
-              name="region"
-              control={control}
-              render={({ field }) => (
-                <div>
-                  <Select
-                    aria-label="region"
-                    size="large"
-                    showSearch
-                    placeholder="Select Designation"
-                    optionFilterProp="label"
-                    options={regions}
-                    virtual={false}
-                    loading={isLoadingOrgDesignation}
-                    status={
-                      touchedFields?.region && errors?.region
-                        ? "error"
-                        : ""
-                    }
-                    {...field}
-                    className="w-full"
-                  />
-                  <span className="text-red-500">
-                    {touchedFields?.region && errors?.region?.message}
-                  </span>
-                </div>
-              )}
-              rules={{ required: "This field is required" }}
-            />
-          </div>
-          <div className="">
-            <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
-              State
-            </h5>
-            <Controller
-              name="state"
-              control={control}
-              render={({ field }) => (
-                <div>
-                  <Select
-                    aria-label="state"
-                    size="large"
-                    showSearch
-                    placeholder="Select Designation"
-                    optionFilterProp="label"
-                    options={states}
-                    virtual={false}
-                    loading={isLoadingOrgDesignation}
-                    status={
-                      touchedFields?.state && errors?.state
-                        ? "error"
-                        : ""
-                    }
-                    {...field}
-                    className="w-full"
-                  />
-                  <span className="text-red-500">
-                    {touchedFields?.state && errors?.state?.message}
-                  </span>
-                </div>
-              )}
-              rules={{ required: "This field is required" }}
-            />
-          </div>
-         
+        <div className="">
+          <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
+            Pension Number
+          </h5>
+          <Controller
+            name="pension_no"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <Input
+                  aria-label="pension_no"
+                  size="large"
+                  placeholder="Enter pension number"
+                  status={
+                    touchedFields?.pension_no && errors?.pension_no
+                      ? "error"
+                      : ""
+                  }
+                  {...field}
+                  className="w-full"
+                  onChange={(e) => onChange(e.target.value, "pension_no")}
+                />
+                <span className="text-red-500">
+                  {touchedFields?.pension_no && errors?.pension_no?.message}
+                </span>
+              </div>
+            )}
+            rules={{ required: "This field is required" }}
+          />
+        </div>
+        <div className="">
+          <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
+            NHF Number
+          </h5>
+          <Controller
+            name="nhf_no"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <Input
+                  aria-label="nhf_no"
+                  size="large"
+                  placeholder="Enter nhf number"
+                  status={
+                    touchedFields?.nhf_no && errors?.nhf_no ? "error" : ""
+                  }
+                  {...field}
+                  className="w-full"
+                  onChange={(e) => onChange(e.target.value, "nhf_no")}
+                />
+                <span className="text-red-500">
+                  {touchedFields?.nhf_no && errors?.nhf_no?.message}
+                </span>
+              </div>
+            )}
+            rules={{ required: "This field is required" }}
+          />
+        </div>
+        <div className="">
+          <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
+            PFA No
+          </h5>
+          <Controller
+            name="pfa_no"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <Select
+                  aria-label="pfa_no"
+                  size="large"
+                  showSearch
+                  placeholder="Select staff type"
+                  optionFilterProp="label"
+                  options={pensions}
+                  virtual={false}
+                  loading={isLoadingPension}
+                  status={
+                    touchedFields?.pfa_no && errors?.pfa_no ? "error" : ""
+                  }
+                  {...field}
+                  className="w-full"
+                />
+                <span className="text-red-500">
+                  {touchedFields?.pfa_no && errors?.pfa_no?.message}
+                </span>
+              </div>
+            )}
+            rules={{ required: "This field is required" }}
+          />
+        </div>
+        <div className="">
+          <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
+            Department
+          </h5>
+          <Controller
+            name="department"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <Select
+                  aria-label="department"
+                  size="large"
+                  showSearch
+                  placeholder="Select staff type"
+                  optionFilterProp="label"
+                  options={departmentData}
+                  virtual={false}
+                  loading={isLoadingPension}
+                  status={
+                    touchedFields?.department && errors?.department
+                      ? "error"
+                      : ""
+                  }
+                  {...field}
+                  className="w-full"
+                />
+                <span className="text-red-500">
+                  {touchedFields?.department && errors?.department?.message}
+                </span>
+              </div>
+            )}
+            rules={{ required: "This field is required" }}
+          />
+        </div>
 
-           <div className="">
-            <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
-              Bank
-            </h5>
-            <Controller
-              name="bank"
-              control={control}
-              render={({ field }) => (
-                <div>
-                  <Input
-                    aria-label="bank"
-                    size="large"
-                    placeholder="Enter pension number"
-                    status={
-                      touchedFields?.bank &&
-                      errors?.bank
-                        ? "error"
-                        : ""
-                    }
-                    {...field}
-                    className="w-full"
-                    onChange={(e) =>
-                      onChange(e.target.value, "bank")
-                    }
-                  />
-                  <span className="text-red-500">
-                    {touchedFields?.bank &&
-                      errors?.bank?.message}
-                  </span>
-                </div>
-              )}
-              rules={{ required: "This field is required" }}
-            />
-          </div>
+        <div className="">
+          <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
+            Designation
+          </h5>
+          <Controller
+            name="designation"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <Select
+                  aria-label="designation"
+                  size="large"
+                  showSearch
+                  placeholder="Select Designation"
+                  optionFilterProp="label"
+                  options={orgDesignation}
+                  virtual={false}
+                  loading={isLoadingOrgDesignation}
+                  status={
+                    touchedFields?.designation && errors?.designation
+                      ? "error"
+                      : ""
+                  }
+                  {...field}
+                  className="w-full"
+                />
+                <span className="text-red-500">
+                  {touchedFields?.designation && errors?.designation?.message}
+                </span>
+              </div>
+            )}
+            rules={{ required: "This field is required" }}
+          />
+        </div>
+        <div className="">
+          <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
+            Region
+          </h5>
+          <Controller
+            name="region"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <Select
+                  aria-label="region"
+                  size="large"
+                  showSearch
+                  placeholder="Select Designation"
+                  optionFilterProp="label"
+                  options={regions}
+                  virtual={false}
+                  loading={isLoadingOrgDesignation}
+                  status={
+                    touchedFields?.region && errors?.region ? "error" : ""
+                  }
+                  {...field}
+                  className="w-full"
+                />
+                <span className="text-red-500">
+                  {touchedFields?.region && errors?.region?.message}
+                </span>
+              </div>
+            )}
+            rules={{ required: "This field is required" }}
+          />
+        </div>
+        <div className="">
+          <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
+            State
+          </h5>
+          <Controller
+            name="state"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <Select
+                  aria-label="state"
+                  size="large"
+                  showSearch
+                  placeholder="Select Designation"
+                  optionFilterProp="label"
+                  options={states}
+                  virtual={false}
+                  loading={isLoadingOrgDesignation}
+                  status={touchedFields?.state && errors?.state ? "error" : ""}
+                  {...field}
+                  className="w-full"
+                />
+                <span className="text-red-500">
+                  {touchedFields?.state && errors?.state?.message}
+                </span>
+              </div>
+            )}
+            rules={{ required: "This field is required" }}
+          />
+        </div>
 
-           <div className="">
-            <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
-              Account Number
-            </h5>
-            <Controller
-              name="account_no"
-              control={control}
-              render={({ field }) => (
-                <div>
-                  <Input
-                    aria-label="account_no"
-                    size="large"
-                    placeholder="Enter pension number"
-                    status={
-                      touchedFields?.account_no &&
-                      errors?.account_no
-                        ? "error"
-                        : ""
-                    }
-                    {...field}
-                    className="w-full"
-                    onChange={(e) =>
-                      onChange(e.target.value, "account_no")
-                    }
-                  />
-                  <span className="text-red-500">
-                    {touchedFields?.account_no &&
-                      errors?.account_no?.message}
-                  </span>
-                </div>
-              )}
-              rules={{ required: "This field is required" }}
-            />
-          </div>
+        <div className="">
+          <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
+            Bank
+          </h5>
+          <Controller
+            name="bank"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <Input
+                  aria-label="bank"
+                  size="large"
+                  placeholder="Enter pension number"
+                  status={touchedFields?.bank && errors?.bank ? "error" : ""}
+                  {...field}
+                  className="w-full"
+                  onChange={(e) => onChange(e.target.value, "bank")}
+                />
+                <span className="text-red-500">
+                  {touchedFields?.bank && errors?.bank?.message}
+                </span>
+              </div>
+            )}
+            rules={{ required: "This field is required" }}
+          />
+        </div>
 
-           <div className="">
-            <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
-              TIN Number
-            </h5>
-            <Controller
-              name="tin_no"
-              control={control}
-              render={({ field }) => (
-                <div>
-                  <Input
-                    aria-label="tin_no"
-                    size="large"
-                    placeholder="Enter pension number"
-                    status={
-                      touchedFields?.tin_no &&
-                      errors?.tin_no
-                        ? "error"
-                        : ""
-                    }
-                    {...field}
-                    className="w-full"
-                    onChange={(e) =>
-                      onChange(e.target.value, "tin_no")
-                    }
-                  />
-                  <span className="text-red-500">
-                    {touchedFields?.tin_no &&
-                      errors?.tin_no?.message}
-                  </span>
-                </div>
-              )}
-              rules={{ required: "This field is required" }}
-            />
-          </div>
+        <div className="">
+          <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
+            Account Number
+          </h5>
+          <Controller
+            name="account_no"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <Input
+                  aria-label="account_no"
+                  size="large"
+                  placeholder="Enter pension number"
+                  status={
+                    touchedFields?.account_no && errors?.account_no
+                      ? "error"
+                      : ""
+                  }
+                  {...field}
+                  className="w-full"
+                  onChange={(e) => onChange(e.target.value, "account_no")}
+                />
+                <span className="text-red-500">
+                  {touchedFields?.account_no && errors?.account_no?.message}
+                </span>
+              </div>
+            )}
+            rules={{ required: "This field is required" }}
+          />
+        </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        <div className="">
+          <h5 className="header_h3 uppercase text-[0.825rem] font-medium leading-[1.5] tracking-[2px] ">
+            TIN Number
+          </h5>
+          <Controller
+            name="tin_no"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <Input
+                  aria-label="tin_no"
+                  size="large"
+                  placeholder="Enter pension number"
+                  status={
+                    touchedFields?.tin_no && errors?.tin_no ? "error" : ""
+                  }
+                  {...field}
+                  className="w-full"
+                  onChange={(e) => onChange(e.target.value, "tin_no")}
+                />
+                <span className="text-red-500">
+                  {touchedFields?.tin_no && errors?.tin_no?.message}
+                </span>
+              </div>
+            )}
+            rules={{ required: "This field is required" }}
+          />
+        </div>
 
         {watch("variation_name") !== "Annual" && (
           <div className="">
@@ -1028,26 +956,25 @@ const UpdateStaffPayrollForm = ({handleClose}) => {
             rules={{ required: "Start date is required" }}
           />
         </div>
-         <div className="flex justify-end py-5">
-        <ConfigProvider
-          theme={{
-            token: {
-              colorPrimary: "#00bcc2",
-            },
-          }}
-        >
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={isUpdatingStaffPayroll}
-            disabled={isUpdatingStaffPayroll}
+        <div className="flex justify-end py-5">
+          <ConfigProvider
+            theme={{
+              token: {
+                colorPrimary: "#00bcc2",
+              },
+            }}
           >
-            Submit
-          </Button>
-        </ConfigProvider>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={isUpdatingStaffPayroll}
+              disabled={isUpdatingStaffPayroll}
+            >
+              Submit
+            </Button>
+          </ConfigProvider>
+        </div>
       </div>
-      </div>
-     
     </form>
   );
 };
@@ -1055,5 +982,5 @@ const UpdateStaffPayrollForm = ({handleClose}) => {
 export default UpdateStaffPayrollForm;
 
 UpdateStaffPayrollForm.propTypes = {
-    handleClose: PropTypes.func.isRequired,
+  handleClose: PropTypes.func.isRequired,
 };

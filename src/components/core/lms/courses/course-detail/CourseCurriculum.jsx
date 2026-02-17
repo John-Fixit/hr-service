@@ -4,6 +4,12 @@ import { CiImageOn, CiVideoOn } from "react-icons/ci";
 import { FaEye, FaRegFilePdf } from "react-icons/fa";
 import PropTypes from "prop-types";
 import { useCourseStore } from "../../../../../hooks/useCourseStore";
+import { fileExtension } from "../../../../../utils/fileExtension";
+import { useMutateGetLessonQuiz } from "../../../../../API/lms-apis/course";
+import { errorToast } from "../../../../../utils/toastMsgPop";
+import { useState } from "react";
+import LessonDocModal from "../../lms-modals/lesson-doc-modal";
+import QuizConfirmModal from "../../lms-modals/QuizConfirmModal";
 
 // const curriculums = [
 //   {
@@ -33,6 +39,19 @@ import { useCourseStore } from "../../../../../hooks/useCourseStore";
 //   },
 // ];
 
+const findFileType = (file) => {
+  const extension = fileExtension(file);
+  if (["mp4", "mov", "avi", "mkv"].includes(extension)) {
+    return "video";
+  } else if (["pdf"].includes(extension)) {
+    return "pdf";
+  } else if (["jpg", "jpeg", "png", "gif", "bmp", "svg"].includes(extension)) {
+    return "image";
+  } else {
+    return "video"; // default type
+  }
+};
+
 const documentType = {
   video: CiVideoOn,
   pdf: FaRegFilePdf,
@@ -40,11 +59,43 @@ const documentType = {
 };
 
 const CourseCurriculum = ({ course }) => {
-  const { openCourseDrawer } = useCourseStore();
+  const { openCourseDrawer, updateData } = useCourseStore();
 
-  const handleAttemptQuiz = () => {
-    openCourseDrawer({
-      drawerName: "cbt-exam",
+  const { mutateAsync: mutateGetQuiz, isPending: isGettingQuiz } =
+    useMutateGetLessonQuiz();
+
+  const [selectedLesson, setSelectedLesson] = useState(null);
+
+  const openConfirmStartQuizModal=(lesson)=>{
+    updateData({
+      is_open_confirm_start_quiz: true,
+      lesson: lesson,
+    });
+  }
+
+  const handleAttemptQuiz = async (lesson) => {
+    setSelectedLesson(lesson?.LESSON_ID);
+    try {
+      const response = await mutateGetQuiz(lesson?.LESSON_ID);
+      console.log(response);
+      // openCourseDrawer({
+      //   drawerName: "cbt-exam",
+      //   quizData: response,
+      // });
+    } catch (err) {
+      errorToast(
+        err?.response?.data?.message ||
+          err.message ||
+          "Failed to fetch quiz data"
+      );
+    }
+  };
+
+  const viewLessonDoc = (lesson) => {
+    updateData({
+      filePath: lesson?.MEDIA_ATTACHMENT,
+      is_open_lesson_doc: true,
+      lesson: lesson,
     });
   };
 
@@ -62,13 +113,15 @@ const CourseCurriculum = ({ course }) => {
           }}
           isCompact
         >
-          {course?.curriculum.map((curriculum, index) => {
-            const Icon = documentType[curriculum?.document_type || "video"];
+          {course?.course_lessons?.map((curriculum, index) => {
+            const docType = findFileType(curriculum?.MEDIA_ATTACHMENT);
+            const Icon = documentType[docType || "video"];
+
             return (
               <AccordionItem
                 key={index}
-                aria-label={curriculum?.lesson_title}
-                title={curriculum?.lesson_title}
+                aria-label={curriculum?.TITLE}
+                title={curriculum?.TITLE}
                 subtitle={null}
                 indicator={({ isOpen }) =>
                   isOpen ? (
@@ -88,9 +141,7 @@ const CourseCurriculum = ({ course }) => {
                     <h3 className="text-blue-900 text-sm font-outfit font-medium mb-">
                       Description
                     </h3>
-                    <p className="font-outfit">
-                      {curriculum.lesson_description}
-                    </p>
+                    <p className="font-outfit">{curriculum.DESCRIPTION}</p>
                   </div>
                   <div>
                     <div className="flex items-center justify-between p-3 bg-gray-100 rounded-lg transition-colors mt-3">
@@ -99,7 +150,7 @@ const CourseCurriculum = ({ course }) => {
 
                         <span className="font-outfit text-slate-800">
                           {/* Web Designing Beginner */}
-                          {curriculum?.lesson_title}
+                          {curriculum?.QUIZ_DESCRIPTION}
                         </span>
                       </div>
                       <Button
@@ -107,27 +158,50 @@ const CourseCurriculum = ({ course }) => {
                         radius="full"
                         size="sm"
                         className="w-8 h-8 rounded-full bg-green-100  flex items-center justify-center"
+                        onPress={() =>
+                          viewLessonDoc(curriculum)
+                        }
                       >
                         <FaEye className="w-4 h-4 text-green-600" />
                       </Button>
                     </div>
-                    <div>
-                      <Button onClick={handleAttemptQuiz}>Attempt quiz</Button>
-                    </div>
+                    {curriculum?.HAS_QUIZ ? (
+                      <div className="mt-2">
+                        <Button
+                          onClick={() => openConfirmStartQuizModal(curriculum)}
+                          radius="sm"
+                          size="sm"
+                          isLoading={
+                            isGettingQuiz &&
+                            selectedLesson === curriculum?.LESSON_ID
+                          }
+                        >
+                          Attempt quiz
+                        </Button>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </AccordionItem>
             );
           })}
         </Accordion>
-
-        {/* <iframe
-          src="https://www.youtube.com/watch?v=NON2ujdEwS8"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        ></iframe> */}
       </div>
+
+      <LessonDocModal />
+
+      <QuizConfirmModal
+        isOpen={true}
+        // onClose={() => setOpen(false)}
+        // onConfirm={() => {
+        //   setOpen(false);
+        //   alert("Quiz started! 🚀");
+        // }}
+        // quizTitle="Chapter 4 Assessment"
+        // questionCount={20}
+        // timeLimit="30 min"
+        // attempts="1 attempt"
+      />
     </>
   );
 };
