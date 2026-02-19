@@ -1,50 +1,90 @@
 import { Trash2, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa";
-const courses = [
-  {
-    id: 1,
-    name: "Building Scalable APIs With GraphQL",
-    img: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=80&h=80&fit=crop",
-    selling: 42,
-    amount: 18432,
-    period: "06 months",
-  },
-  {
-    id: 2,
-    name: "Building Scalable APIs With GraphQL",
-    img: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=80&h=80&fit=crop",
-    selling: 36,
-    amount: 20560,
-    period: "09 months",
-  },
-  {
-    id: 3,
-    name: "Building Scalable APIs With GraphQL",
-    img: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=80&h=80&fit=crop",
-    selling: 44,
-    amount: 45550,
-    period: "12 months",
-  },
-  {
-    id: 4,
-    name: "Building Scalable APIs With GraphQL",
-    img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&h=80&fit=crop",
-    selling: 65,
-    amount: 22568,
-    period: "18 months",
-  },
-  {
-    id: 5,
-    name: "Building Scalable APIs With GraphQL",
-    img: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=80&h=80&fit=crop",
-    selling: 75,
-    amount: 36980,
-    period: "08 months",
-  },
-];
+import useCurrentUser from "../../../../../hooks/useCurrentUser";
+import { useGetCreatorCourses } from "../../../../../API/lms-apis/course";
+import dayjs from "dayjs";
+import { toStringDate } from "../../../../../utils/utitlities";
+import clsx from "clsx";
+import StarLoader from "../../../loaders/StarLoader";
+import { useCourseStore } from "../../../../../hooks/useCourseStore";
+
+function getCompoundPeriod(startDate, endDate) {
+  const start = dayjs(startDate);
+  const end = dayjs(endDate);
+
+  if (!start.isValid() || !end.isValid()) return "";
+
+  const months = end.diff(start, "month");
+  const afterMonths = start.add(months, "month");
+
+  const remainingDays = end.diff(afterMonths, "day");
+
+  const weeks = Math.floor(remainingDays / 7);
+  const days = remainingDays % 7;
+
+  const parts = [];
+
+  if (months > 0) parts.push(`${months} month${months > 1 ? "s" : ""}`);
+  if (weeks > 0 && months === 0) parts.push(`${weeks} week${weeks > 1 ? "s" : ""}`);
+  if (days > 0) parts.push(`${days} day${days > 1 ? "s" : ""}`);
+
+  return parts.join(" ");
+}
+
+const checkCourseExpiration =(end_date)=>{
+  const remaining_days = dayjs(end_date).diff(dayjs(), "day")
+  return remaining_days < 0 ? true : false
+}
+
 const CoursesTable = () => {
-  const [currentPage, setCurrentPage] = useState(2);
+
+  const { userData } = useCurrentUser();
+  const { data: get_courses, isPending: isLoadingCourses } = useGetCreatorCourses(
+    userData?.data?.STAFF_ID
+  );
+  const allCourses = useMemo(() => get_courses || [], [get_courses]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const { openCourseDrawer } = useCourseStore();
+
+  const [rowsPerPage, setRowsPerPage] = useState(10)
+
+  const [searchValue, setSearchValue] = useState("")
+ 
+  const totalPages = allCourses?.length / rowsPerPage;
+
+
+  const filteredCourses = useMemo(()=>{
+    const hasSearchFilter = Boolean(searchValue?.trim());
+
+    if(!hasSearchFilter) return allCourses;
+
+    const lowerCaseSearch = searchValue?.trim()?.toLowerCase();
+
+    return allCourses?.filter((course)=>{
+      const courseNameMatch = course?.COURSE_TITLE?.toLowerCase()?.includes(lowerCaseSearch);
+      const courseCategoryMatch = course?.COURSE_CATEGORY?.toLowerCase()?.includes(lowerCaseSearch);
+      const courseDescriptionMatch = course?.COURSE_DESCRIPTION?.toLowerCase()?.includes(lowerCaseSearch);
+      return courseNameMatch || courseCategoryMatch || courseDescriptionMatch;
+    })
+
+  }, [allCourses, searchValue])
+
+
+const paginatedCourses = useMemo(()=>{
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  return filteredCourses?.slice(startIndex, endIndex);
+}, [filteredCourses, currentPage, rowsPerPage])
+
+
+
+const handleEditCourse=(course)=>{
+  //fetch course details before proceesing
+  openCourseDrawer({ drawerName: "create-course" })
+}
+
   return (
     <>
       <div className="bg-white border rounded-xl shadow-sm">
@@ -66,13 +106,16 @@ const CoursesTable = () => {
                   Course Name
                 </th>
                 <th className="text-center py-2 px-4 font-semibold tracking-wide font-outfit">
-                  Selling
+                  Recipients
                 </th>
                 <th className="text-center py-2 px-4 font-semibold tracking-wide font-outfit">
-                  Amount
+                  Category
                 </th>
                 <th className="text-center py-2 px-4 font-semibold tracking-wide font-outfit">
                   Period
+                </th>
+                <th className="text-center py-2 px-4 font-semibold tracking-wide font-outfit">
+                  Ends At
                 </th>
                 <th className="text-center py-2 px-6 font-semibold tracking-wide font-outfit rounded-r-lg">
                   Action
@@ -80,7 +123,16 @@ const CoursesTable = () => {
               </tr>
             </thead>
             <tbody>
-              {courses.map((course, idx) => (
+              {
+              isLoadingCourses?
+              <tr>
+                <td colSpan={6}>
+                  <div className="flex h-32 items-center justify-center">
+                    <StarLoader/>
+                  </div>
+                </td>
+                </tr> :
+              paginatedCourses.map((course, idx) => (
                 <tr
                   key={course.id + idx}
                   className={`border-b border-gray-200`}
@@ -88,12 +140,12 @@ const CoursesTable = () => {
                   <td className="py-4 px-2 md:px-6">
                     <div className="flex items-center gap-4 w-56 md:w-full">
                       <img
-                        src={course.img}
-                        alt={course.name}
+                        src={course.COURSE_PREVIEW_IMAGE}
+                        alt={course.COURSE_TITLE}
                         className="w-16 h-12 rounded-lg object-cover"
                       />
                       <span className="font-semibold text-[#212529] hover:text-blue-600 cursor-pointer tracking-wide transition-all font-outfit">
-                        {course.name}
+                        {course.COURSE_TITLE}
                       </span>
                     </div>
                   </td>
@@ -101,18 +153,27 @@ const CoursesTable = () => {
                     {course.selling}
                   </td>
                   <td className="text-center py-4 px-4 text-[#6c829e] font-medium text-[14px] font-outfit">
-                    ${course.amount.toLocaleString()}
+                   {course.COURSE_CATEGORY}
                   </td>
                   <td className="text-center py-4 px-4">
                     <span className="inline-block bg-[#eef7f3] text-[#4bae83]  px-4 py-1.5 rounded-lg text-nowrap text-sm font-medium font-outfit">
-                      {course.period}
+                      {getCompoundPeriod(course.START_DATE, course.END_DATE)}
+                    </span>
+                  </td>
+                  <td className="text-center py-4 px-4">
+                    <span className={clsx("inline-block  px-4 py-1.5 rounded-lg text-nowrap text-sm font-medium font-outfit", checkCourseExpiration(course?.END_DATE) ? "text-red-400" : "")}>
+                      {toStringDate(course.END_DATE)}
                     </span>
                   </td>
                   <td className="text-center py-4 px-2 md:px-6">
-                    <div className="flex items-center justify-center gap-2">
-                      <button className="w-9 h-9 bg-[#edf1fb] rounded-lg flex items-center justify-center hover:bg-[#122a3e] hover:text-white transition-colors">
-                        <FaEdit className="w-4 h-4 " />
-                      </button>
+                    <div className="flex items-center justify-center gap-2">{
+                      !checkCourseExpiration(course.END_DATE) && (
+                        <button onClick={()=>handleEditCourse(course)} className="w-9 h-9 bg-[#edf1fb] rounded-lg flex items-center justify-center hover:bg-[#122a3e] hover:text-white transition-colors">
+                          <FaEdit className="w-4 h-4 " />
+                        </button>
+                      )
+                      }
+                     
                       <button className="w-9 h-9 bg-red-50 rounded-lg flex items-center justify-center hover:bg-red-400 text-red-400 hover:text-white transition-colors border border-red-100">
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -127,13 +188,15 @@ const CoursesTable = () => {
         {/* Pagination */}
         <div className="flex justify-between items-center p-6 pt-4">
           <p className="text-gray-400 text-sm font-outfit">
-            Showing 1 to 8 of 20 entries
+            Showing {(currentPage - 1) * rowsPerPage} to {((currentPage - 1) * rowsPerPage) + rowsPerPage} of {allCourses?.length} entries
           </p>
+          {
+            totalPages > 1 &&(
           <div className="flex items-center gap-1">
-            <button className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-[#6c829e] font-medium text-[14px]">
+            <button className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-[#6c829e] font-medium text-[14px]" disabled={currentPage===1} onClick={()=>setCurrentPage(currentPage -1)}>
               <ChevronLeft className="w-4 h-4" />
             </button>
-            {[1, 2, 3, 4, 5].map((page) => (
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
@@ -146,10 +209,12 @@ const CoursesTable = () => {
                 {page}
               </button>
             ))}
-            <button className="w-8 h-8 flex items-center justify-center text-black hover:text-[#6c829e] font-medium text-[14px]">
+            <button className="w-8 h-8 flex items-center justify-center text-black hover:text-[#6c829e] font-medium text-[14px]" disabled={currentPage===totalPages} onClick={()=>setCurrentPage(currentPage +1)}>
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
+            )
+          }
         </div>
       </div>
     </>

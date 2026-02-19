@@ -27,12 +27,19 @@ export const useGetAllCourses = () => {
 };
 export const useGetStaffCourses = (staffId) => {
   return useQuery({
-    queryKey: [`get_staff_course_${staffId}`],
+    queryKey: [`get_staff_course`],
     queryFn: async () => {
-      const res = await LMS_API.get(`/course/get-all-courses`); //await LMS_API.get(
-      // `/course/get-courses-by-staff-id/${staffId}`
-      //);
+      const res = await LMS_API.get(`/course/get-courses-by-staff-id/${staffId}`);
       return res?.data?.data;
+    },
+  });
+};
+export const useGetCreatorCourses = (staffId) => {
+  return useQuery({
+    queryKey: [`get_creator_course`],
+    queryFn: async () => {
+      const res = await LMS_API.get(`/course/get-courses-by-creator/${staffId}`);
+      return res?.data?.data?.data;
     },
   });
 };
@@ -76,6 +83,7 @@ export const useMutateGetLessonQuiz = () => {
   });
 };
 export const useUpdateCourseLesson = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload) => {
       const update_type = payload?.update_type
@@ -85,5 +93,10 @@ export const useUpdateCourseLesson = () => {
       );
       return res;
     },
+    onSuccess: ()=>{
+      queryClient.invalidateQueries({
+        queryKey: [`get_staff_course_`]
+      })
+    }
   });
 };

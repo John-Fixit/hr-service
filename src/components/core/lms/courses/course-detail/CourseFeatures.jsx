@@ -34,23 +34,23 @@ const CourseFeatures = ({ course }) => {
         courseDuration({
           start_date: course?.START_DATE,
           end_date: course?.END_DATE,
-        }) || "10h 50m",
+        }) || "",
     },
     {
       icon: AiOutlineTags,
-      title: "Skill Level",
-      value: "Beginner",
+      title: "Recipient type",
+      value: "Department (ICT)",
     },
-    {
-      icon: CiFlag1,
-      title: "Language",
-      value: "English",
-    },
-    {
-      icon: SlBadge,
-      title: "Certification",
-      value: "Yes",
-    },
+    // {
+    //   icon: CiFlag1,
+    //   title: "Language",
+    //   value: "English",
+    // },
+    // {
+    //   icon: SlBadge,
+    //   title: "Certification",
+    //   value: "Yes",
+    // },
   ];
   return (
     <div className="border rounded-lg p-6">

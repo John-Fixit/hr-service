@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useCourseStore } from "../../../../hooks/useCourseStore";
 import SubmitConfirmOverlay from "./SubmitConfirmOverlay";
 import { useUpdateCourseLesson } from "../../../../API/lms-apis/course";
-import { errorToast } from "../../../../utils/toastMsgPop";
+import { errorToast, successToast } from "../../../../utils/toastMsgPop";
 
 // Mock quiz data
 // const quizData = {
@@ -226,12 +226,13 @@ const CbtTestView = () => {
         "SCORE": score,
     "DATE_VIEWED": new Date().toISOString(),
     "DATE_SCORED": new Date().toISOString(),
-    "LESSON_RECIPIENT_ID": lesson?.LESSON_ID
+    "LESSON_ID": lesson?.LESSON_ID
 }
     }
     try{
       const res = await updateCourseLesson(payload);
       console.log(res);
+      timeLeft > 0 && successToast(res?.data?.message);
       return res;
     }catch(err){
       const errMsg = err?.response?.data?.message || "Failed to update lesson view";
@@ -250,15 +251,9 @@ const CbtTestView = () => {
     try{
       const res = await updateLessonRequest(calculateTotalScore);
       if(res){
-          //call request to update the score from here
-    
-console.log(calculateTotalScore, "Fianl test score", new Date().toDateString(), new Date().toISOString(), timeLeft);
-
-    if(timeLeft > 0){
-  closeCourseDrawer();
-    }else{
-      setShowSubmitConfirm(true);
-    }
+        //=======================
+    timeLeft > 0 ? closeCourseDrawer() : setShowSubmitConfirm(true);
+    //===================
   }
     }
     catch(err){

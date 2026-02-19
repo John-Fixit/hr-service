@@ -4,6 +4,7 @@ import { Check } from "lucide-react";
 import CourseFeatures from "./CourseFeatures";
 import { useCourseStore } from "../../../../../hooks/useCourseStore";
 import { courseDuration } from "../../../../../utils/utitlities";
+import CourseRecipientCard from "./CourseRecipientCard";
 
 const couDetail = {
   course_category: "techinal",
@@ -70,8 +71,6 @@ const CourseDetail = () => {
   } = useCourseStore();
 
 
-  const maxVisibleRecipient = 6
-
   return (
     <>
       <main>
@@ -85,10 +84,10 @@ const CourseDetail = () => {
             {/* Badge Pills */}
             <div className="flex gap-3 mb-4">
               <span className="bg-teal-500 text-white px-4 py-1.5 rounded-full text-sm font-outfit font-medium">
-                Beginner
+                Department
               </span>
               <span className="bg-orange-500 text-white px-4 py-1.5 rounded-full text-sm font-outfit font-medium">
-                Pro
+                INFORMATION, COMMUNICATION & TECHNOLOGY (ICT)
               </span>
             </div>
             <h1 className="text-white text-4xl lg:text-5xl font-outfit font-bold mb-4 line-clamp-1">
@@ -151,7 +150,7 @@ const CourseDetail = () => {
                 <span className="font-outfit text-sm capitalize">
                   {/* 502 Student Enrolled */}
                   {courseDetail?.course_recipients?.length}{" "}
-                  {couDetail?.recipientType}s
+                  {courseDetail?.recipientType || "Ddepartment"}s
                 </span>
               </div>
             </div>
@@ -189,16 +188,23 @@ const CourseDetail = () => {
           <div className="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="col-span-12 lg:col-span-8">
               <div className="space-y-6">
-                <div className="border rounded-lg p-6">
+                <div className="border rounded-lg p-6 space-y-4">
+                  {
+                    courseDetail?.COURSE_DESCRIPTION &&
+                  <div>
                   <h2 className="text-blue-900 text-[18px] lg:text-[20px] font-outfit font-bold">
                     Course Overview
                   </h2>
 
-                  <div className="space-y-3 mb-5">
-                    <p className="text-gray-700 text-base font-outfit leading-relaxed">
+                    <p className=" text-gray-700 text-base font-outfit leading-relaxed">
                     
                       {courseDetail?.COURSE_DESCRIPTION}
                     </p>
+                  </div>
+                  }
+{
+  courseDetail?.COURSE_OBJECTIVE &&
+                  <div className="space-y-3">
                     <h4 className="text-blue-900 text-[16px] lg:text-[16px] font-outfit font-bold">
                       Course Objective
                     </h4>
@@ -207,76 +213,7 @@ const CourseDetail = () => {
                       {courseDetail?.COURSE_OBJECTIVE}
                     </p>
                   </div>
-
-                  {/* Who Should Enroll Section */}
-                  <h3 className="text-blue-900 text-lg font-outfit font-bold mb-4">
-                    Who Should Enroll?
-                  </h3>
-
-                  <div className="space-y-2">
-                    {courseDetail?.course_recipients?.slice(0, maxVisibleRecipient).map((item, index) => (
-                      <div key={index} className="flex items-center gap-3">
-                        <div className="flex-shrink-0 mt-1">
-                          <svg
-                            className="w-5 h-5 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="1"
-                              fill="none"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={1}
-                              d="M9 12l2 2 4-4"
-                            />
-                          </svg>
-                        </div>
-                        {/* Text */}
-                        <p className="text-gray-700 text-sm font-medium font-outfit leading-relaxed">
-                          {item?.FULLNAME || item?.EMAIL}
-                        </p>
-                      </div>
-                    ))}
-                    {courseDetail?.course_recipients?.length > maxVisibleRecipient && (
-                      <div className="flex items-center gap-3">
-                        <div className="flex-shrink-0 mt-1">
-                          <svg
-                            className="w-5 h-5 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="1"
-                              fill="none"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={1}
-                              d="M9 12l2 2 4-4"
-                            />
-                          </svg>
-                        </div>
-                        {/* Text */}
-                        <p className="text-gray-700 text-sm font-medium font-outfit leading-relaxed">
-                          {`and ${courseDetail?.course_recipients?.length - maxVisibleRecipient}+`}
-                        </p>
-                      </div>
-                    )}
-                  </div>
+}
                 </div>
                 <CourseCurriculum course={courseDetail} />
                 <CourseAuthorCard />
@@ -287,7 +224,7 @@ const CourseDetail = () => {
                 <div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 sticky top-5">
                     <div className="">
-                      <CoursePricing />
+                      <CourseRecipientCard courseDetail={courseDetail}/>
                     </div>
                     <CourseFeatures course={courseDetail} />
                   </div>
@@ -303,108 +240,108 @@ const CourseDetail = () => {
 
 export default CourseDetail;
 
-const CoursePricing = () => {
-  return (
-    <div>
-      <div className="border rounded-lg p-3">
-        <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center">
-                  <span className="text-3xl font-bold text-gray-300">W</span>
-                </div>
-              </div>
-              <h1 className="font-outfit text-3xl font-bold text-white mb-2">
-                Woocommerce
-              </h1>
-            </div>
-            <div className="relative">
-              <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-xl border-4 border-dashed border-gray-400">
-                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                  <div className="w-0 h-0 border-t-8 border-t-transparent border-l-12 border-l-blue-600 border-b-8 border-b-transparent ml-1"></div>
-                </div>
-              </div>
-            </div>
+// const CoursePricing = () => {
+//   return (
+//     <div>
+//       <div className="border rounded-lg p-3">
+//         <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded">
+//           <div className="flex items-center justify-between">
+//             <div className="flex-1">
+//               <div className="flex items-center gap-3 mb-4">
+//                 <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center">
+//                   <span className="text-3xl font-bold text-gray-300">W</span>
+//                 </div>
+//               </div>
+//               <h1 className="font-outfit text-3xl font-bold text-white mb-2">
+//                 Woocommerce
+//               </h1>
+//             </div>
+//             <div className="relative">
+//               <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-xl border-4 border-dashed border-gray-400">
+//                 <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
+//                   <div className="w-0 h-0 border-t-8 border-t-transparent border-l-12 border-l-blue-600 border-b-8 border-b-transparent ml-1"></div>
+//                 </div>
+//               </div>
+//             </div>
 
-            <div className="flex-1 flex justify-end">
-              <img
-                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop"
-                alt="Instructor"
-                className="w-32 h-32 rounded-lg object-cover"
-              />
-            </div>
-          </div>
-        </div>
+//             <div className="flex-1 flex justify-end">
+//               <img
+//                 src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop"
+//                 alt="Instructor"
+//                 className="w-32 h-32 rounded-lg object-cover"
+//               />
+//             </div>
+//           </div>
+//         </div>
 
-        {/* Pricing Section */}
-        <div className="p-4">
-          <div className="inline-block bg-red-50 mb-1 text-red-500 px-3 py-1 rounded-full">
-            <span className="font-outfit font-medium tracking-wide">
-              25% off
-            </span>
-          </div>
+//         {/* Pricing Section */}
+//         <div className="p-4">
+//           <div className="inline-block bg-red-50 mb-1 text-red-500 px-3 py-1 rounded-full">
+//             <span className="font-outfit font-medium tracking-wide">
+//               25% off
+//             </span>
+//           </div>
 
-          <div className="mb-4">
-            <h2 className="font-outfit text-2xl font-bold text-blue-900">
-              $179.45
-            </h2>
-          </div>
+//           <div className="mb-4">
+//             <h2 className="font-outfit text-2xl font-bold text-blue-900">
+//               $179.45
+//             </h2>
+//           </div>
 
-          {/* Course Features */}
-          <div className="mb-4">
-            <h3 className="font-outfit text-base font-bold text-blue-900 mb-3">
-              Course Features
-            </h3>
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Check className="w-2 h-2 text-white" strokeWidth={3} />
-                </div>
-                <span className="font-outfit text-sm text-gray-700">
-                  Fully Programming
-                </span>
-              </div>
+//           {/* Course Features */}
+//           <div className="mb-4">
+//             <h3 className="font-outfit text-base font-bold text-blue-900 mb-3">
+//               Course Features
+//             </h3>
+//             <div className="space-y-2">
+//               <div className="flex items-center gap-3">
+//                 <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+//                   <Check className="w-2 h-2 text-white" strokeWidth={3} />
+//                 </div>
+//                 <span className="font-outfit text-sm text-gray-700">
+//                   Fully Programming
+//                 </span>
+//               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Check className="w-2 h-2 text-white" strokeWidth={3} />
-                </div>
-                <span className="font-outfit text-sm text-gray-700">
-                  Help Code to Code
-                </span>
-              </div>
+//               <div className="flex items-center gap-3">
+//                 <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+//                   <Check className="w-2 h-2 text-white" strokeWidth={3} />
+//                 </div>
+//                 <span className="font-outfit text-sm text-gray-700">
+//                   Help Code to Code
+//                 </span>
+//               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Check className="w-2 h-2 text-white" strokeWidth={3} />
-                </div>
-                <span className="font-outfit text-sm text-gray-700">
-                  Free Trial 7 Days
-                </span>
-              </div>
+//               <div className="flex items-center gap-3">
+//                 <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+//                   <Check className="w-2 h-2 text-white" strokeWidth={3} />
+//                 </div>
+//                 <span className="font-outfit text-sm text-gray-700">
+//                   Free Trial 7 Days
+//                 </span>
+//               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Check className="w-2 h-2 text-white" strokeWidth={3} />
-                </div>
-                <span className="font-outfit text-sm text-gray-700">
-                  Unlimited Videos
-                </span>
-              </div>
+//               <div className="flex items-center gap-3">
+//                 <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+//                   <Check className="w-2 h-2 text-white" strokeWidth={3} />
+//                 </div>
+//                 <span className="font-outfit text-sm text-gray-700">
+//                   Unlimited Videos
+//                 </span>
+//               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Check className="w-2 h-2 text-white" strokeWidth={3} />
-                </div>
-                <span className="font-outfit text-sm text-gray-700">
-                  24x7 Support
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+//               <div className="flex items-center gap-3">
+//                 <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+//                   <Check className="w-2 h-2 text-white" strokeWidth={3} />
+//                 </div>
+//                 <span className="font-outfit text-sm text-gray-700">
+//                   24x7 Support
+//                 </span>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };

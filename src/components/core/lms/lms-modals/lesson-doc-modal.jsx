@@ -18,7 +18,7 @@ useEffect(()=>{
       json: {
     "IS_VIEWED":true,
     "DATE_VIEWED": new Date().toISOString(),
-    "LESSON_RECIPIENT_ID": lesson?.LESSON_ID
+    "LESSON_ID": lesson?.LESSON_ID
 }
     }
     try{
