@@ -20,6 +20,7 @@ function SubmitConfirmOverlay({
   answers,
   quizData,
   confirmSubmit,
+  closeCourseDrawer
 }) {
   const [visible, setVisible] = useState(false);
 
@@ -198,7 +199,7 @@ function SubmitConfirmOverlay({
             )}
 
             <button
-              onClick={confirmSubmit}
+              onClick={isTimeUp ?closeCourseDrawer :confirmSubmit}
               className="flex-1 px-5 py-3 rounded-xl font-semibold text-sm text-white bg-blue-900 hover:bg-blue-950 active:scale-95 transition-all duration-150 shadow-md hover:shadow-lg"
             >
               {isTimeUp ? "Return to Courses" : "Submit Exam"}

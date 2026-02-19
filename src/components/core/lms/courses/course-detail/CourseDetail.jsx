@@ -1,68 +1,10 @@
 import CourseAuthorCard from "./CourseAuthorCard";
 import CourseCurriculum from "./CourseCurriculum";
-import { Check } from "lucide-react";
 import CourseFeatures from "./CourseFeatures";
 import { useCourseStore } from "../../../../../hooks/useCourseStore";
 import { courseDuration } from "../../../../../utils/utitlities";
 import CourseRecipientCard from "./CourseRecipientCard";
 
-const couDetail = {
-  course_category: "techinal",
-  course_description:
-    "Good day Learners\n\nKindly attempts the quiz within the stipulated time.\n\nBest of Luck.",
-  course_objective: "Good day Learners",
-  course_thumbnail_url:
-    "https://hr.ncaa.gov.ng/old_hr/pub/attachments/1764084568.jpeg",
-  course_title: "UX/UI Design Essentials",
-  curriculum: [
-    {
-      document_url:
-        "https://hr.ncaa.gov.ng/old_hr/pub/attachments/1764084588.pdf",
-      has_quiz: true,
-      lesson_description:
-        "Good day Learners\n\nKindly attempts the quiz within the stipulated time.\n\nBest of Luck.",
-      lesson_title: "CSC 301 QUIZ for Study Session 1",
-      quiz: {
-        config: {
-          allowed_attempt: 1,
-          total_grade: 10,
-          time_limit: 5,
-          grading_method: "highest",
-        },
-        questions: [
-          {
-            id: "e554a6d6-19a3-4f67-ae56-ab6a9e40e271",
-            question: "Have you read the material of this lesson?",
-            correct_answer: "f9e5ba75-3e06-4073-8764-aa81c3a5f6cb",
-            options: [
-              {
-                key: "f9e5ba75-3e06-4073-8764-aa81c3a5f6cb",
-                value: "Yes",
-              },
-              {
-                key: "d89a20a1-9d6a-4b2c-90d7-f885e4237f85",
-                value: "No",
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-  start_date: "2025-11-26",
-  end_date: "2025-11-27",
-  recipientType: "directorate",
-  // recipients: ["6", "7"],
-  recipients: [
-    "Beginners interested in starting a career in web design",
-    "Developers looking to expand their skills into design",
-    "Anyone wanting to create their own websites or improve existing ones",
-    "Students pursuing careers in tech, design, or media",
-    "Freelancers who want to expand their service offerings",
-    "Graphic designers looking to transition into UI/UX or web design",
-    "Entrepreneurs and business owners who want to build or maintain their own websites",
-  ],
-};
 
 const CourseDetail = () => {
   const {

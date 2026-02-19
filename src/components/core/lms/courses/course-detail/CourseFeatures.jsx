@@ -13,19 +13,19 @@ const CourseFeatures = ({ course }) => {
     {
       icon: HiOutlineUsers,
       title: "Student Enrolled",
-      value: course?.course_recipients?.length || "1740",
+      value: course?.course_recipients?.length || "",
     },
     {
       icon: Video,
       title: "Lectures",
-      value: course?.course_lessons?.length || "12",
+      value: course?.course_lessons?.length || "",
     },
     {
       icon: IoGameControllerOutline,
       title: "Quizzes",
       value:
         course?.course_lessons?.filter((lesson) => lesson.HAS_QUIZ)?.length ||
-        "5",
+        "",
     },
     {
       icon: BsClockHistory,
@@ -53,7 +53,7 @@ const CourseFeatures = ({ course }) => {
     // },
   ];
   return (
-    <div className="border rounded-lg p-6">
+    <div className="border rounded-lg p-6 bg-white">
       <h3 className="font-outfit text-lg font-bold text-blue-900 mb6">
         Course Features
       </h3>

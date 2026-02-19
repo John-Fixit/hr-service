@@ -396,3 +396,28 @@ export const courseDuration = ({ start_date, end_date }) => {
 
   return result;
 };
+
+
+export const getCompoundPeriod = (startDate, endDate) => {
+  const start = dayjs(startDate);
+  const end = dayjs(endDate);
+
+  if (!start.isValid() || !end.isValid()) return "";
+
+  const months = end.diff(start, "month");
+  const afterMonths = start.add(months, "month");
+
+  const remainingDays = end.diff(afterMonths, "day");
+
+  const weeks = Math.floor(remainingDays / 7);
+  const days = remainingDays % 7;
+
+  const parts = [];
+
+  if (months > 0) parts.push(`${months} month${months > 1 ? "s" : ""}`);
+  if (weeks > 0 && months === 0) parts.push(`${weeks} week${weeks > 1 ? "s" : ""}`);
+  if (days > 0) parts.push(`${days} day${days > 1 ? "s" : ""}`);
+  if(days === 0) parts.push("Today")
+
+  return parts.join(" ");
+}

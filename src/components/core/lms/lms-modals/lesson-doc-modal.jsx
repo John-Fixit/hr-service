@@ -4,9 +4,12 @@ import { useCourseStore } from "../../../../hooks/useCourseStore";
 import { filePrefix } from "../../../../utils/filePrefix";
 import { useUpdateCourseLesson } from "../../../../API/lms-apis/course";
 import { errorToast } from "../../../../utils/toastMsgPop";
+import useCurrentUser from "../../../../hooks/useCurrentUser";
 
 const LessonDocModal = () => {
   const { data, updateData } = useCourseStore();
+
+  const {userData} = useCurrentUser();
 
   const { is_open_lesson_doc, filePath, lesson } = data;
   const {mutateAsync: updateCourseLesson} = useUpdateCourseLesson();
@@ -18,7 +21,8 @@ useEffect(()=>{
       json: {
     "IS_VIEWED":true,
     "DATE_VIEWED": new Date().toISOString(),
-    "LESSON_ID": lesson?.LESSON_ID
+    "LESSON_RECIPIENT_ID": lesson?.LESSON_RECIPIENT_ID,
+    STAFF_ID: userData?.data?.STAFF_ID
 }
     }
     try{

@@ -8,6 +8,7 @@ import { useCourseStore } from "../../../../hooks/useCourseStore";
 import SubmitConfirmOverlay from "./SubmitConfirmOverlay";
 import { useUpdateCourseLesson } from "../../../../API/lms-apis/course";
 import { errorToast, successToast } from "../../../../utils/toastMsgPop";
+import useCurrentUser from "../../../../hooks/useCurrentUser";
 
 // Mock quiz data
 // const quizData = {
@@ -122,6 +123,8 @@ const CbtTestView = () => {
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
 
   const {mutateAsync: updateCourseLesson, isPending: isSubmitting} = useUpdateCourseLesson();
+
+  const {userData} = useCurrentUser();
   
   const {data, closeCourseDrawer } = useCourseStore();
   const quizQuestionsData = data?.quizData;
@@ -169,7 +172,7 @@ const CbtTestView = () => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          confirmSubmit();
+          confirmSubmit(0);
           return 0;
         }
         return prev - 1;
@@ -225,13 +228,12 @@ const CbtTestView = () => {
         "IS_COMPLETED": true,
         "SCORE": score,
     "DATE_SCORED": new Date().toISOString(),
-    "LESSON_ID": lesson?.LESSON_ID
+    LESSON_RECIPIENT_ID: lesson?.LESSON_RECIPIENT_ID,
+    STAFF_ID: userData?.data?.STAFF_ID
 }
     }
     try{
       const res = await updateCourseLesson(payload);
-      console.log(res);
-      timeLeft > 0 && successToast(res?.data?.message);
       return res;
     }catch(err){
       const errMsg = err?.response?.data?.message || "Failed to update lesson view";
@@ -240,7 +242,7 @@ const CbtTestView = () => {
     }
   }
 
-  const confirmSubmit =async() => {
+  const confirmSubmit =async(remainingTime) => {
     const eachQuestionMrk = quizData?.config?.total_grade / quizData?.questions?.length;
     const score = quizData.questions.reduce((total, question) => {
       return total + (answers[question.id] === question.correct_answer ? 1 : 0);
@@ -249,9 +251,10 @@ const CbtTestView = () => {
 
     try{
       const res = await updateLessonRequest(calculateTotalScore);
+      successToast(res?.data?.message);
       if(res){
         //=======================
-    timeLeft > 0 ? closeCourseDrawer() : setShowSubmitConfirm(true);
+    remainingTime === 0 ?  setShowSubmitConfirm(true):closeCourseDrawer();
     //===================
   }
     }
@@ -262,12 +265,6 @@ const CbtTestView = () => {
 
 
   };
-
-
-console.log(timeLeft)
-
-
-
 
   const handleViewPageChange = (newPage) => {
     if (newPage >= 0 && newPage < totalViewPages) {
@@ -293,51 +290,6 @@ console.log(timeLeft)
   if (showSubmitConfirm) {
     return (
       <>
-      {
-      // <div className="min-h-screen bg-gray-50 fixed inset-0 z-50 flex items-center justify-center p-4">
-      //   <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full border border-gray-200">
-      //     <div className="flex items-center gap-3 mb-4">
-      //       <AlertCircle className="text-blue-900 w-8 h-8" />
-      //       <h2
-      //         className="text-2xl font-bold text-gray-800"
-      //         style={{ fontFamily: "Outfit, sans-serif" }}
-      //       >
-      //         {/* Submit Exam? */}
-      //         Exam Submitted
-      //       </h2>
-      //     </div>
-      //     <p
-      //       className="text-gray-700 mb-6"
-      //       style={{ fontFamily: "Outfit, sans-serif" }}
-      //     >
-            
-      //       {timeLeft> 1 ? "Are you sure you want to submit your exam?" : "Your time is up, Test automatically submitted"} You have answered{" "}
-      //       <span className="font-bold">{Object.keys(answers).length}</span> out
-      //       of <span className="font-bold">{quizData.questions.length}</span>{" "}
-      //       questions.
-      //     </p>
-      //     <div className="flex gap-3">
-      //       {
-      //         timeLeft > 1 &&
-      //       <button
-      //         onClick={() => setShowSubmitConfirm(false)}
-      //         className="flex-1 px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-all"
-      //         style={{ fontFamily: "Outfit, sans-serif" }}
-      //       >
-      //         Cancel
-      //       </button>
-      //       }
-      //       <button
-      //         onClick={confirmSubmit}
-      //         className="flex-1 px-6 py-3 bg-blue-900 text-white rounded-lg font-semibold hover:bg-blue-950 transition-all"
-      //         style={{ fontFamily: "Outfit, sans-serif" }}
-      //       >
-      //         {timeLeft> 1 ? "Submit" : "Return back to courses"}
-      //       </button>
-      //     </div>
-      //   </div>
-      // </div>
-      }
 
       <SubmitConfirmOverlay
         showSubmitConfirm={showSubmitConfirm}
@@ -348,6 +300,7 @@ console.log(timeLeft)
         confirmSubmit={() => {
           confirmSubmit();
         }}
+        closeCourseDrawer={closeCourseDrawer}
       />
       
       </>

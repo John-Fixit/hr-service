@@ -5,39 +5,8 @@ import { FaEye, FaRegFilePdf } from "react-icons/fa";
 import PropTypes from "prop-types";
 import { useCourseStore } from "../../../../../hooks/useCourseStore";
 import { fileExtension } from "../../../../../utils/fileExtension";
-import { useMutateGetLessonQuiz } from "../../../../../API/lms-apis/course";
-import { errorToast } from "../../../../../utils/toastMsgPop";
-import { useState } from "react";
 import LessonDocModal from "../../lms-modals/lesson-doc-modal";
 import QuizConfirmModal from "../../lms-modals/QuizConfirmModal";
-
-// const curriculums = [
-//   {
-//     title: "Part 01: How To Learn Web Designing Step By Step",
-//     description:
-//       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-//     document_type: "video",
-//   },
-//   {
-//     title: "Part 02: Learn Web Designing In Basic Level",
-//     description:
-//       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-//     document_type: "video",
-//   },
-//   {
-//     title: "Part 03: Learn Web Designing In Advance Level",
-//     description:
-//       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-//     lectures: [],
-//     document_type: "pdf",
-//   },
-//   {
-//     title: "Part 04: How To Become Succes In Designing & Development?",
-//     description:
-//       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-//     document_type: "image",
-//   },
-// ];
 
 const findFileType = (file) => {
   const extension = fileExtension(file);
@@ -59,12 +28,7 @@ const documentType = {
 };
 
 const CourseCurriculum = ({ course }) => {
-  const { openCourseDrawer, updateData } = useCourseStore();
-
-  const { mutateAsync: mutateGetQuiz, isPending: isGettingQuiz } =
-    useMutateGetLessonQuiz();
-
-  const [selectedLesson, setSelectedLesson] = useState(null);
+  const { updateData } = useCourseStore();
 
   const openConfirmStartQuizModal=(lesson)=>{
     updateData({
@@ -72,24 +36,6 @@ const CourseCurriculum = ({ course }) => {
       lesson: lesson,
     });
   }
-
-  const handleAttemptQuiz = async (lesson) => {
-    setSelectedLesson(lesson?.LESSON_ID);
-    try {
-      const response = await mutateGetQuiz(lesson?.LESSON_ID);
-      console.log(response);
-      // openCourseDrawer({
-      //   drawerName: "cbt-exam",
-      //   quizData: response,
-      // });
-    } catch (err) {
-      errorToast(
-        err?.response?.data?.message ||
-          err.message ||
-          "Failed to fetch quiz data"
-      );
-    }
-  };
 
   const viewLessonDoc = (lesson) => {
     updateData({
@@ -171,10 +117,7 @@ const CourseCurriculum = ({ course }) => {
                           onClick={() => openConfirmStartQuizModal(curriculum)}
                           radius="sm"
                           size="sm"
-                          isLoading={
-                            isGettingQuiz &&
-                            selectedLesson === curriculum?.LESSON_ID
-                          }
+                         
                           color="primary"
                           className="font-helvetica"
                         >

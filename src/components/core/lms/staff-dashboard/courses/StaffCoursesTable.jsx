@@ -2,42 +2,23 @@ import { Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import useCurrentUser from "../../../../../hooks/useCurrentUser";
-import { useGetCreatorCourses } from "../../../../../API/lms-apis/course";
+import { useDeleteCourse, useGetCreatorCourses } from "../../../../../API/lms-apis/course";
 import dayjs from "dayjs";
-import { toStringDate } from "../../../../../utils/utitlities";
+import { getCompoundPeriod, toStringDate } from "../../../../../utils/utitlities";
 import clsx from "clsx";
 import StarLoader from "../../../loaders/StarLoader";
 import { useCourseStore } from "../../../../../hooks/useCourseStore";
+import { Modal } from "antd";
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { errorToast, successToast } from "../../../../../utils/toastMsgPop";
 
-function getCompoundPeriod(startDate, endDate) {
-  const start = dayjs(startDate);
-  const end = dayjs(endDate);
-
-  if (!start.isValid() || !end.isValid()) return "";
-
-  const months = end.diff(start, "month");
-  const afterMonths = start.add(months, "month");
-
-  const remainingDays = end.diff(afterMonths, "day");
-
-  const weeks = Math.floor(remainingDays / 7);
-  const days = remainingDays % 7;
-
-  const parts = [];
-
-  if (months > 0) parts.push(`${months} month${months > 1 ? "s" : ""}`);
-  if (weeks > 0 && months === 0) parts.push(`${weeks} week${weeks > 1 ? "s" : ""}`);
-  if (days > 0) parts.push(`${days} day${days > 1 ? "s" : ""}`);
-
-  return parts.join(" ");
-}
 
 const checkCourseExpiration =(end_date)=>{
   const remaining_days = dayjs(end_date).diff(dayjs(), "day")
   return remaining_days < 0 ? true : false
 }
 
-const CoursesTable = () => {
+const StaffCoursesTable = () => {
 
   const { userData } = useCurrentUser();
   const { data: get_courses, isPending: isLoadingCourses } = useGetCreatorCourses(
@@ -45,6 +26,8 @@ const CoursesTable = () => {
   );
   const allCourses = useMemo(() => get_courses || [], [get_courses]);
   const [currentPage, setCurrentPage] = useState(1);
+
+  const {mutateAsync: mutateDeleteCourse, isPending: isDeletingCourse} = useDeleteCourse();
 
   const { openCourseDrawer } = useCourseStore();
 
@@ -79,10 +62,41 @@ const paginatedCourses = useMemo(()=>{
 }, [filteredCourses, currentPage, rowsPerPage])
 
 
+const handleDeleteCourse=(course)=>{
+  Modal.confirm({
+    title: "Confirm",
+    icon: <ExclamationCircleOutlined />,
+    content: "Are you sure to delete this course?",
+    okText: "Confirm",
+    cancelText: "Cancel",
+    onOk: async()=>{
+      const json = {
+        courseID: course?.COURSE_ID,
+        staffID: userData?.data?.STAFF_ID
+      }
+      try{
+        await mutateDeleteCourse(json);
+      }catch(err){
+        const msg = err?.response?.data?.message;
+        errorToast(msg);
+      }
+    }
+  })
+}
+
+
 
 const handleEditCourse=(course)=>{
   //fetch course details before proceesing
   openCourseDrawer({ drawerName: "create-course" })
+}
+
+
+const handleViewCourse=(course)=>{
+   openCourseDrawer({
+        drawerName: "creator-course-detail",
+        courseDetail: { ...course },
+      });
 }
 
   return (
@@ -138,7 +152,7 @@ const handleEditCourse=(course)=>{
                   className={`border-b border-gray-200`}
                 >
                   <td className="py-4 px-2 md:px-6">
-                    <div className="flex items-center gap-4 w-56 md:w-full">
+                    <div className="flex items-center gap-4 w-56 md:w-full" onClick={()=>handleViewCourse(course)}> 
                       <img
                         src={course.COURSE_PREVIEW_IMAGE}
                         alt={course.COURSE_TITLE}
@@ -174,7 +188,7 @@ const handleEditCourse=(course)=>{
                       )
                       }
                      
-                      <button className="w-9 h-9 bg-red-50 rounded-lg flex items-center justify-center hover:bg-red-400 text-red-400 hover:text-white transition-colors border border-red-100">
+                      <button className="w-9 h-9 bg-red-50 rounded-lg flex items-center justify-center hover:bg-red-400 text-red-400 hover:text-white transition-colors border border-red-100" onClick={()=>handleDeleteCourse(course)}>
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -221,4 +235,4 @@ const handleEditCourse=(course)=>{
   );
 };
 
-export default CoursesTable;
+export default StaffCoursesTable;

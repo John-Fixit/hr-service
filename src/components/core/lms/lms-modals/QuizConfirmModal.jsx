@@ -173,11 +173,7 @@ const StatCard = ({ icon, label, value }) => (
  *   timeLimit    {string}    – e.g. "30 minutes"
  *   attempts     {string}    – e.g. "1 attempt" or "Unlimited"
  */
-const QuizConfirmModal = ({
-  isOpen = true,
-//   quizTitle = "Chapter 4 Assessment",
-  questionCount = 20,
-}) => {
+const QuizConfirmModal = () => {
     
   const [hovering, setHovering] = useState(null);
 
@@ -195,6 +191,7 @@ const QuizConfirmModal = ({
       const attempts = lesson?.ATTEMPTS_ALLOWED + " attempt(s)"
       const timeLimit = lesson?.DURATION + " min"
       const quizTitle = lesson?.QUIZ_DESCRIPTION
+const questionCount = lesson?.TOTAL_QUIZZES
 
 
 

@@ -12,6 +12,9 @@ export const useCreateCourse = () => {
       queryClient.invalidateQueries({
         queryKey: ["get_all_courses"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["get_creator_course"],
+      });
     },
   });
 };
@@ -48,6 +51,15 @@ export const useGetCourseDetail = (courseID) => {
     queryKey: [`get_course_detail_${courseID}`],
     queryFn: async () => {
       const res = await LMS_API.get(`/course/get-courses-by-id/${courseID}`);
+      return res?.data?.data;
+    },
+  });
+};
+export const useGetCreatorCourseDetail = (courseID) => {
+  return useQuery({
+    queryKey: [`get_creator_course_detail_${courseID}`],
+    queryFn: async () => {
+      const res = await LMS_API.get(`/course/get-course-by-course-id/${courseID}`);
       return res?.data?.data;
     },
   });
@@ -96,6 +108,23 @@ export const useUpdateCourseLesson = () => {
     onSuccess: ()=>{
       queryClient.invalidateQueries({
         queryKey: [`get_staff_course`]
+      })
+    }
+  });
+};
+export const useDeleteCourse = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload) => {
+      const res = await LMS_API.delete(
+        `/course/delete-course/${payload?.courseID}/${payload?.staffID}`,
+        payload?.json
+      );
+      return res;
+    },
+    onSuccess: ()=>{
+      queryClient.invalidateQueries({
+        queryKey: [`get_creator_course`]
       })
     }
   });

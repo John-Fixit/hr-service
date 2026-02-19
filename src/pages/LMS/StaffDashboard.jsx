@@ -2,7 +2,7 @@ import { useLocation } from "react-router-dom";
 import { FaPlus, FaUserGraduate } from "react-icons/fa";
 import { GrPersonalComputer } from "react-icons/gr";
 import { SlDiamond } from "react-icons/sl";
-import CoursesTable from "../../components/core/lms/staff-dashboard/courses/CoursesTable";
+import StaffCoursesTable from "../../components/core/lms/staff-dashboard/courses/StaffCoursesTable";
 import EmployeeCourse from "../../components/core/lms/employee-courses/EmployeeCourses";
 import { useCourseStore } from "../../hooks/useCourseStore";
 import { useGetStaffCourses } from "../../API/lms-apis/course";
@@ -142,7 +142,7 @@ const [courseView, setCourseView] = useState("all-courses");
       </div>
       }
       {isStaff && courseView === "my-courses" ? (
-        <CoursesTable />
+        <StaffCoursesTable />
       ) : (
         <EmployeeCourse courses={allCourses} isLoading={isLoadingCourses} />
       )}

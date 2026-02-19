@@ -1,7 +1,7 @@
 import { BsClockHistory } from "react-icons/bs";
 import PropTypes from "prop-types";
 import { useCourseStore } from "../../../../hooks/useCourseStore";
-import { dayDifference } from "../../../../utils/utitlities";
+import { dayDifference, getCompoundPeriod } from "../../../../utils/utitlities";
 import { errorToast } from "../../../../utils/toastMsgPop";
 import { useMutateCourseDetail } from "../../../../API/lms-apis/course";
 import { useMemo, useState } from "react";
@@ -83,12 +83,18 @@ const CourseCard = ({ course }) => {
     }
   };
 
+
+  const calculateProgressScore = useMemo(()=>{
+    const ps = Number(course?.COMPLETED_LESSONS) / Number(course?.TOTAL_LESSONS) * 100
+    return ps
+  }, [course?.COMPLETED_LESSONS, course?.TOTAL_LESSONS])
+
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow- border border-gray-200">
       <div className={`relative h-64 bg-gradient overflow-hidden`}>
         <div className="absolute top-4 left-4 bg-[#122a3e] text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5 font-semibold font-Outfit">
           <BsClockHistory className="h-3.5 w-3.5" />
-          {dayDifference(course.START_DATE, course.END_DATE)} Days
+          {getCompoundPeriod(course.START_DATE, course.END_DATE)}
         </div>
         <img
           src={course.COURSE_PREVIEW_IMAGE}
@@ -103,10 +109,10 @@ const CourseCard = ({ course }) => {
 
         <div className="flex justify-between items-center mb-2">
           <span className="text-[13px] font-medium font-Outfit text-[#003384]">
-            {0} Of {3} Lessons Complete
+            {course?.COMPLETED_LESSONS} Of {course?.TOTAL_LESSONS} Lessons Complete
           </span>
           <span className={`text-base font-bold text-[#003384] font-outfit`}>
-            {course.PROGRESS_SCORE || 0}%
+            {calculateProgressScore || 0}%
           </span>
         </div>
 
@@ -114,12 +120,12 @@ const CourseCard = ({ course }) => {
         <div className="h-2 bg-gray-100 rounded-full overflow-hidden mb-4">
           <div
             className={`h-full rounded-full ${
-              course.PROGRESS_SCORE === 100 ? "bg-emerald-500" : "bg-yellow-400"
+              calculateProgressScore === 100 ? "bg-emerald-500" : "bg-yellow-400"
             }`}
             style={{
-              width: `${course.PROGRESS_SCORE || 0}%`,
+              width: `${calculateProgressScore || 0}%`,
               background:
-                course.PROGRESS_SCORE === 100
+                calculateProgressScore === 100
                   ? "repeating-linear-gradient(45deg, #10b981, #10b981 10px, #059669 10px, #059669 20px)"
                   : `repeating-linear-gradient(
   45deg,
