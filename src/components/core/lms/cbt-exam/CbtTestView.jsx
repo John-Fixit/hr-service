@@ -224,7 +224,6 @@ const CbtTestView = () => {
       json: {
         "IS_COMPLETED": true,
         "SCORE": score,
-    "DATE_VIEWED": new Date().toISOString(),
     "DATE_SCORED": new Date().toISOString(),
     "LESSON_ID": lesson?.LESSON_ID
 }

@@ -95,7 +95,7 @@ export const useUpdateCourseLesson = () => {
     },
     onSuccess: ()=>{
       queryClient.invalidateQueries({
-        queryKey: [`get_staff_course_`]
+        queryKey: [`get_staff_course`]
       })
     }
   });

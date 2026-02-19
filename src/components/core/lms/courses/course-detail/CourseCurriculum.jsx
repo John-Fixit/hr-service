@@ -175,6 +175,8 @@ const CourseCurriculum = ({ course }) => {
                             isGettingQuiz &&
                             selectedLesson === curriculum?.LESSON_ID
                           }
+                          color="primary"
+                          className="font-helvetica"
                         >
                           Attempt quiz
                         </Button>
