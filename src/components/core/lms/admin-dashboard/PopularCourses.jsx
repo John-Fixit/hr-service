@@ -1,6 +1,5 @@
 import { PiDotsThreeOutlineVerticalFill } from "react-icons/pi";
 import { useGetPopularCourses } from "../../../../API/lms-apis/lms-dashboard";
-import useCurrentUser from "../../../../hooks/useCurrentUser";
 
 const colorVariants = [
   {
@@ -22,10 +21,7 @@ const colorVariants = [
 ];
 
 const PopularCourses = () => {
-  const { userData } = useCurrentUser();
-  const { data: popularCourses } = useGetPopularCourses(
-    userData?.data?.STAFF_ID,
-  );
+  const { data: popularCourses } = useGetPopularCourses();
 
   return (
     <>
