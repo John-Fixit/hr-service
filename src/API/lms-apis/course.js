@@ -32,16 +32,22 @@ export const useGetStaffCourses = (staffId) => {
   return useQuery({
     queryKey: [`get_staff_course`],
     queryFn: async () => {
-      const res = await LMS_API.get(`/course/get-courses-by-staff-id/${staffId}`);
+      const res = await LMS_API.get(
+        `/course/get-courses-by-staff-id/${staffId}`,
+      );
       return res?.data?.data;
     },
   });
 };
 export const useGetCreatorCourses = (staffId) => {
   return useQuery({
-    queryKey: [`get_creator_course`],
+    queryKey: [`get_creator_course_${staffId}`],
     queryFn: async () => {
-      const res = await LMS_API.get(`/course/get-courses-by-creator/${staffId}`);
+      const res = await LMS_API.get(`/course/get-courses-by-creator`, {
+        params: {
+          creator: staffId,
+        },
+      });
       return res?.data?.data?.data;
     },
   });
@@ -59,7 +65,9 @@ export const useGetCreatorCourseDetail = (courseID) => {
   return useQuery({
     queryKey: [`get_creator_course_detail_${courseID}`],
     queryFn: async () => {
-      const res = await LMS_API.get(`/course/get-course-by-course-id/${courseID}`);
+      const res = await LMS_API.get(
+        `/course/get-course-by-course-id/${courseID}`,
+      );
       return res?.data?.data;
     },
   });
@@ -67,7 +75,9 @@ export const useGetCreatorCourseDetail = (courseID) => {
 export const useMutateCourseDetail = (staff_id) => {
   return useMutation({
     mutationFn: async (courseID) => {
-      const res = await LMS_API.get(`/course/get-courses-by-id/${courseID}/${staff_id}`);
+      const res = await LMS_API.get(
+        `/course/get-courses-by-id/${courseID}/${staff_id}`,
+      );
       return res?.data?.data;
     },
   });
@@ -78,7 +88,7 @@ export const useGetLessonQuiz = (lessonID) => {
     queryKey: [`get_lesson_quiz_${lessonID}`],
     queryFn: async () => {
       const res = await LMS_API.get(
-        `/course/get-quiz-by-lesson-id/${lessonID}`
+        `/course/get-quiz-by-lesson-id/${lessonID}`,
       );
       return res?.data?.data;
     },
@@ -88,7 +98,7 @@ export const useMutateGetLessonQuiz = () => {
   return useMutation({
     mutationFn: async (lessonID) => {
       const res = await LMS_API.get(
-        `/course/get-quiz-by-lesson-id/${lessonID}`
+        `/course/get-quiz-by-lesson-id/${lessonID}`,
       );
       return res?.data?.data;
     },
@@ -98,18 +108,18 @@ export const useUpdateCourseLesson = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload) => {
-      const update_type = payload?.update_type
+      const update_type = payload?.update_type;
       const res = await LMS_API.put(
         `/course/update-lesson-recipient?update_type=${update_type}`,
-        payload?.json
+        payload?.json,
       );
       return res;
     },
-    onSuccess: ()=>{
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [`get_staff_course`]
-      })
-    }
+        queryKey: [`get_staff_course`],
+      });
+    },
   });
 };
 export const useDeleteCourse = () => {
@@ -118,14 +128,14 @@ export const useDeleteCourse = () => {
     mutationFn: async (payload) => {
       const res = await LMS_API.delete(
         `/course/delete-course/${payload?.courseID}/${payload?.staffID}`,
-        payload?.json
+        payload?.json,
       );
       return res;
     },
-    onSuccess: ()=>{
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [`get_creator_course`]
-      })
-    }
+        queryKey: [`get_creator_course`],
+      });
+    },
   });
 };

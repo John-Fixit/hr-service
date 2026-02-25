@@ -1,5 +1,5 @@
 import { Drawer } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CourseInfo from "../courses/create-course/CourseInfo";
 import { useCourseStore } from "../../../../hooks/useCourseStore";
 import { useForm } from "react-hook-form";
@@ -19,10 +19,14 @@ const curriculumDefaultRows = {
 };
 
 const CreateCourseDrawer = () => {
-  const { isOpen, closeCourseDrawer } = useCourseStore();
+  const { isOpen, closeCourseDrawer, data } = useCourseStore();
   const [selectedTab, setSelectedTab] = useState(0);
 
   const { userData } = useCurrentUser();
+
+  const editCourse = data?.editCourse || false;
+  const courseDetail = data?.courseDetail
+
 
   const { mutateAsync: mutateCreateCourse, isPending: isCreatingCourse } =
     useCreateCourse();
@@ -39,6 +43,28 @@ const CreateCourseDrawer = () => {
       curriculum: [curriculumDefaultRows],
     },
   });
+
+  useEffect(()=>{
+    if(editCourse){
+      hook_form_props.reset({
+        course_title: courseDetail?.COURSE_TITLE,
+        course_objective: courseDetail?.COURSE_OBJECTIVE,
+        course_description: courseDetail?.COURSE_DESCRIPTION,
+        start_date: courseDetail?.START_DATE,
+        end_date: courseDetail?.END_DATE,
+        course_category: courseDetail?.COURSE_CATEGORY,
+        course_thumbnail_url: courseDetail?.COURSE_PREVIEW_IMAGE,
+        curriculum: courseDetail?.course_lessons?.map((lesson) => ({
+          lesson_title: lesson?.TITLE,
+          lesson_description: lesson?.DESCRIPTION,
+          document_url: lesson?.MEDIA_ATTACHMENT,
+          has_quiz: lesson?.HAS_QUIZ,
+        })),
+        recipients: courseDetail?.course_recipients?.STAFF_IDS,
+        recipientType: courseDetail?.course_recipients?.recipient_type,
+      })
+    }
+  }, [])
 
   const handleSubmit = async () => {
     // eslint-disable-next-line no-unused-vars

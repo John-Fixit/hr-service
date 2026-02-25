@@ -2,102 +2,122 @@ import { Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import useCurrentUser from "../../../../../hooks/useCurrentUser";
-import { useDeleteCourse, useGetCreatorCourses } from "../../../../../API/lms-apis/course";
+import {
+  useDeleteCourse,
+  useGetCreatorCourses,
+  useMutateCourseDetail,
+} from "../../../../../API/lms-apis/course";
 import dayjs from "dayjs";
-import { getCompoundPeriod, toStringDate } from "../../../../../utils/utitlities";
+import {
+  getCompoundPeriod,
+  toStringDate,
+} from "../../../../../utils/utitlities";
 import clsx from "clsx";
 import StarLoader from "../../../loaders/StarLoader";
 import { useCourseStore } from "../../../../../hooks/useCourseStore";
 import { Modal } from "antd";
-import { ExclamationCircleOutlined } from '@ant-design/icons';
-import { errorToast, successToast } from "../../../../../utils/toastMsgPop";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { errorToast } from "../../../../../utils/toastMsgPop";
 
-
-const checkCourseExpiration =(end_date)=>{
-  const remaining_days = dayjs(end_date).diff(dayjs(), "day")
-  return remaining_days < 0 ? true : false
-}
+const checkCourseExpiration = (end_date) => {
+  const remaining_days = dayjs(end_date).diff(dayjs(), "day");
+  return remaining_days < 0 ? true : false;
+};
 
 const StaffCoursesTable = () => {
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
   const { userData } = useCurrentUser();
-  const { data: get_courses, isPending: isLoadingCourses } = useGetCreatorCourses(
-    userData?.data?.STAFF_ID
-  );
+  const { data: get_courses, isPending: isLoadingCourses } =
+    useGetCreatorCourses(userData?.data?.STAFF_ID);
+
+  const { mutateAsync: mutateCourseDetail, isPending: isLoadingCourseDetail } =
+    useMutateCourseDetail(userData?.data?.STAFF_ID);
+
   const allCourses = useMemo(() => get_courses || [], [get_courses]);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const {mutateAsync: mutateDeleteCourse, isPending: isDeletingCourse} = useDeleteCourse();
+  const { mutateAsync: mutateDeleteCourse } = useDeleteCourse();
 
   const { openCourseDrawer } = useCourseStore();
 
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [rowsPerPage] = useState(10);
 
-  const [searchValue, setSearchValue] = useState("")
- 
+  const [searchValue] = useState("");
+
   const totalPages = allCourses?.length / rowsPerPage;
 
-
-  const filteredCourses = useMemo(()=>{
+  const filteredCourses = useMemo(() => {
     const hasSearchFilter = Boolean(searchValue?.trim());
 
-    if(!hasSearchFilter) return allCourses;
+    if (!hasSearchFilter) return allCourses;
 
     const lowerCaseSearch = searchValue?.trim()?.toLowerCase();
 
-    return allCourses?.filter((course)=>{
-      const courseNameMatch = course?.COURSE_TITLE?.toLowerCase()?.includes(lowerCaseSearch);
-      const courseCategoryMatch = course?.COURSE_CATEGORY?.toLowerCase()?.includes(lowerCaseSearch);
-      const courseDescriptionMatch = course?.COURSE_DESCRIPTION?.toLowerCase()?.includes(lowerCaseSearch);
+    return allCourses?.filter((course) => {
+      const courseNameMatch =
+        course?.COURSE_TITLE?.toLowerCase()?.includes(lowerCaseSearch);
+      const courseCategoryMatch =
+        course?.COURSE_CATEGORY?.toLowerCase()?.includes(lowerCaseSearch);
+      const courseDescriptionMatch =
+        course?.COURSE_DESCRIPTION?.toLowerCase()?.includes(lowerCaseSearch);
       return courseNameMatch || courseCategoryMatch || courseDescriptionMatch;
-    })
+    });
+  }, [allCourses, searchValue]);
 
-  }, [allCourses, searchValue])
+  const paginatedCourses = useMemo(() => {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    return filteredCourses?.slice(startIndex, endIndex);
+  }, [filteredCourses, currentPage, rowsPerPage]);
 
+  const handleDeleteCourse = (course) => {
+    Modal.confirm({
+      title: "Confirm",
+      icon: <ExclamationCircleOutlined />,
+      content: "Are you sure to delete this course?",
+      okText: "Confirm",
+      cancelText: "Cancel",
+      onOk: async () => {
+        const json = {
+          courseID: course?.COURSE_ID,
+          staffID: userData?.data?.STAFF_ID,
+        };
+        try {
+          await mutateDeleteCourse(json);
+        } catch (err) {
+          const msg = err?.response?.data?.message;
+          errorToast(msg);
+        }
+      },
+    });
+  };
 
-const paginatedCourses = useMemo(()=>{
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const endIndex = startIndex + rowsPerPage;
-  return filteredCourses?.slice(startIndex, endIndex);
-}, [filteredCourses, currentPage, rowsPerPage])
-
-
-const handleDeleteCourse=(course)=>{
-  Modal.confirm({
-    title: "Confirm",
-    icon: <ExclamationCircleOutlined />,
-    content: "Are you sure to delete this course?",
-    okText: "Confirm",
-    cancelText: "Cancel",
-    onOk: async()=>{
-      const json = {
-        courseID: course?.COURSE_ID,
-        staffID: userData?.data?.STAFF_ID
-      }
-      try{
-        await mutateDeleteCourse(json);
-      }catch(err){
-        const msg = err?.response?.data?.message;
-        errorToast(msg);
-      }
-    }
-  })
-}
-
-
-
-const handleEditCourse=(course)=>{
-  //fetch course details before proceesing
-  openCourseDrawer({ drawerName: "create-course" })
-}
-
-
-const handleViewCourse=(course)=>{
-   openCourseDrawer({
-        drawerName: "creator-course-detail",
-        courseDetail: { ...course },
+  const handleEditCourse = async (course) => {
+    //fetch course details before proceesing
+    setSelectedCourse(course?.COURSE_ID);
+    try {
+      const detail_res = await mutateCourseDetail(course.COURSE_ID);
+      openCourseDrawer({
+        drawerName: "create-course",
+        editCourse: true,
+        courseDetail: { ...course, ...detail_res },
       });
-}
+    } catch (error) {
+      errorToast(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to load course details.",
+      );
+    }
+  };
+
+  const handleViewCourse = (course) => {
+    openCourseDrawer({
+      drawerName: "creator-course-detail",
+      courseDetail: { ...course },
+    });
+  };
 
   return (
     <>
@@ -137,64 +157,89 @@ const handleViewCourse=(course)=>{
               </tr>
             </thead>
             <tbody>
-              {
-              isLoadingCourses?
-              <tr>
-                <td colSpan={6}>
-                  <div className="flex h-32 items-center justify-center">
-                    <StarLoader/>
-                  </div>
-                </td>
-                </tr> :
-              paginatedCourses.map((course, idx) => (
-                <tr
-                  key={course.id + idx}
-                  className={`border-b border-gray-200`}
-                >
-                  <td className="py-4 px-2 md:px-6">
-                    <div className="flex items-center gap-4 w-56 md:w-full" onClick={()=>handleViewCourse(course)}> 
-                      <img
-                        src={course.COURSE_PREVIEW_IMAGE}
-                        alt={course.COURSE_TITLE}
-                        className="w-16 h-12 rounded-lg object-cover"
-                      />
-                      <span className="font-semibold text-[#212529] hover:text-blue-600 cursor-pointer tracking-wide transition-all font-outfit">
-                        {course.COURSE_TITLE}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="text-center py-4 px-4 text-[#6c829e] font-medium text-[14px] font-outfit">
-                    {course.selling}
-                  </td>
-                  <td className="text-center py-4 px-4 text-[#6c829e] font-medium text-[14px] font-outfit">
-                   {course.COURSE_CATEGORY}
-                  </td>
-                  <td className="text-center py-4 px-4">
-                    <span className="inline-block bg-[#eef7f3] text-[#4bae83]  px-4 py-1.5 rounded-lg text-nowrap text-sm font-medium font-outfit">
-                      {getCompoundPeriod(course.START_DATE, course.END_DATE)}
-                    </span>
-                  </td>
-                  <td className="text-center py-4 px-4">
-                    <span className={clsx("inline-block  px-4 py-1.5 rounded-lg text-nowrap text-sm font-medium font-outfit", checkCourseExpiration(course?.END_DATE) ? "text-red-400" : "")}>
-                      {toStringDate(course.END_DATE)}
-                    </span>
-                  </td>
-                  <td className="text-center py-4 px-2 md:px-6">
-                    <div className="flex items-center justify-center gap-2">{
-                      !checkCourseExpiration(course.END_DATE) && (
-                        <button onClick={()=>handleEditCourse(course)} className="w-9 h-9 bg-[#edf1fb] rounded-lg flex items-center justify-center hover:bg-[#122a3e] hover:text-white transition-colors">
-                          <FaEdit className="w-4 h-4 " />
-                        </button>
-                      )
-                      }
-                     
-                      <button className="w-9 h-9 bg-red-50 rounded-lg flex items-center justify-center hover:bg-red-400 text-red-400 hover:text-white transition-colors border border-red-100" onClick={()=>handleDeleteCourse(course)}>
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+              {isLoadingCourses ? (
+                <tr>
+                  <td colSpan={6}>
+                    <div className="flex h-32 items-center justify-center">
+                      <StarLoader />
                     </div>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                paginatedCourses.map((course, idx) => (
+                  <tr
+                    key={course.id + idx}
+                    className={`border-b border-gray-200`}
+                  >
+                    <td className="py-4 px-2 md:px-6">
+                      <div
+                        className="flex items-center gap-4 w-56 md:w-full"
+                        onClick={() => handleViewCourse(course)}
+                      >
+                        <img
+                          src={course.COURSE_PREVIEW_IMAGE}
+                          alt={course.COURSE_TITLE}
+                          className="w-16 h-12 rounded-lg object-cover"
+                        />
+                        <span className="font-semibold text-[#212529] hover:text-blue-600 cursor-pointer tracking-wide transition-all font-outfit">
+                          {course.COURSE_TITLE}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="text-center py-4 px-4 text-[#6c829e] font-medium text-[14px] font-outfit">
+                      {course.selling}
+                    </td>
+                    <td className="text-center py-4 px-4 text-[#6c829e] font-medium text-[14px] font-outfit">
+                      {course.COURSE_CATEGORY}
+                    </td>
+                    <td className="text-center py-4 px-4">
+                      <span className="inline-block bg-[#eef7f3] text-[#4bae83]  px-4 py-1.5 rounded-lg text-nowrap text-sm font-medium font-outfit">
+                        {getCompoundPeriod(course.START_DATE, course.END_DATE)}
+                      </span>
+                    </td>
+                    <td className="text-center py-4 px-4">
+                      <span
+                        className={clsx(
+                          "inline-block  px-4 py-1.5 rounded-lg text-nowrap text-sm font-medium font-outfit",
+                          checkCourseExpiration(course?.END_DATE)
+                            ? "text-red-400"
+                            : "",
+                        )}
+                      >
+                        {toStringDate(course.END_DATE)}
+                      </span>
+                    </td>
+                    <td className="text-center py-4 px-2 md:px-6">
+                      <div className="flex items-center justify-center gap-2">
+                        {!checkCourseExpiration(course.END_DATE) && (
+                          <button
+                            onClick={() => handleEditCourse(course)}
+                            disabled={
+                              selectedCourse === course?.COURSE_ID &&
+                              isLoadingCourseDetail
+                            }
+                            className="w-9 h-9 bg-[#edf1fb] rounded-lg flex items-center justify-center hover:bg-[#122a3e] hover:text-white transition-colors"
+                          >
+                            {selectedCourse === course?.COURSE_ID &&
+                            isLoadingCourseDetail ? (
+                              <StarLoader size={20} />
+                            ) : (
+                              <FaEdit className="w-4 h-4 " />
+                            )}
+                          </button>
+                        )}
+
+                        <button
+                          className="w-9 h-9 bg-red-50 rounded-lg flex items-center justify-center hover:bg-red-400 text-red-400 hover:text-white transition-colors border border-red-100"
+                          onClick={() => handleDeleteCourse(course)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -202,33 +247,43 @@ const handleViewCourse=(course)=>{
         {/* Pagination */}
         <div className="flex justify-between items-center p-6 pt-4">
           <p className="text-gray-400 text-sm font-outfit">
-            Showing {(currentPage - 1) * rowsPerPage} to {((currentPage - 1) * rowsPerPage) + rowsPerPage} of {allCourses?.length} entries
+            Showing {(currentPage - 1) * rowsPerPage} to{" "}
+            {(currentPage - 1) * rowsPerPage + rowsPerPage} of{" "}
+            {allCourses?.length} entries
           </p>
-          {
-            totalPages > 1 &&(
-          <div className="flex items-center gap-1">
-            <button className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-[#6c829e] font-medium text-[14px]" disabled={currentPage===1} onClick={()=>setCurrentPage(currentPage -1)}>
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1">
               <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-8 h-8 rounded flex items-center justify-center text-sm font-medium transition-colors font-outfit ${
-                  currentPage === page
-                    ? "bg-[#003384] text-white"
-                    : "text-gray-500 hover:bg-gray-100"
-                }`}
+                className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-[#6c829e] font-medium text-[14px]"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(currentPage - 1)}
               >
-                {page}
+                <ChevronLeft className="w-4 h-4" />
               </button>
-            ))}
-            <button className="w-8 h-8 flex items-center justify-center text-black hover:text-[#6c829e] font-medium text-[14px]" disabled={currentPage===totalPages} onClick={()=>setCurrentPage(currentPage +1)}>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-            )
-          }
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`w-8 h-8 rounded flex items-center justify-center text-sm font-medium transition-colors font-outfit ${
+                      currentPage === page
+                        ? "bg-[#003384] text-white"
+                        : "text-gray-500 hover:bg-gray-100"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ),
+              )}
+              <button
+                className="w-8 h-8 flex items-center justify-center text-black hover:text-[#6c829e] font-medium text-[14px]"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(currentPage + 1)}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>

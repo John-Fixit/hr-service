@@ -39,17 +39,12 @@ const STUDENT = [
 
 const avatarColors = ['#f47c20', '#1abc9c', '#8b5cf6', '#ef4444', '#0ea5e9', '#f59e0b', '#10b981', '#6366f1', '#ec4899', '#14b8a6', '#f97316', '#a855f7', '#334155', '#16a34a', '#dc2626', '#7c3aed', '#0369a1', '#b45309', '#047857', '#9f1239', '#1d4ed8', '#0891b2', '#92400e', '#6d28d9', '#065f46']
 
-const CURRICULUM = [
-  { id:1, title:"Primary Memory of a Computer System",   status:"done" },
-  { id:2, title:"Secondary Memory of a Computer System", status:"partial" },
-  { id:3, title:"Input & Output Devices",                status:"none" },
-];
 
 const getStatus   = s => s.lessons === 0 ? "none" : s.lessons >= s?.total_lessons ? "completed" : "progress";
 const getProgress = s => Math.round((s.lessons / s?.total_lessons) * 100);
 
 
-function calcStats(students) {
+function calcStats(students=[]) {
   const w = students.filter(s => s.score !== null);
   return {
     enrolled:    students.length,
@@ -66,15 +61,47 @@ function calcStats(students) {
 // ── Full Page ──────────────────────────────────────────────────────────────
 export default function CreatorCourseDetail() {
 
-
   const {data} = useCourseStore();
   const courseDetail = data?.courseDetail
 
 const {data: courseDetailData} = useGetCreatorCourseDetail(courseDetail?.COURSE_ID)
 
-const STUDENTS = courseDetailData?.course_recipients?.map((recipient)=>{
-  return  { name:recipient?.FULLNAME || recipient?.EMAIL?.split(".")[0] + " "+ (recipient?.EMAIL?.split("@")[0])?.split(".")[1],      email:recipient?.EMAIL,   lessons: Math.floor(Math.random() * courseDetailData?.course_lessons?.length)+1, score:recipient?.COURSE_SCORE || 0, color:avatarColors[Math.floor(Math.random() * avatarColors.length)], total_lessons: courseDetailData?.course_lessons?.length }
+const getLessonDetail=(lessonID)=>{
+  const courseLesson = courseDetailData?.course_lessons;
+  const singleLesson = courseLesson?.find(lsn=>lsn?.LESSON_ID === lessonID);
+  return singleLesson;
+}
+
+
+const refactorLessonData = (recipient)=>{
+  const lessonArray = recipient?.LESSON_RECIPIENTS;
+  const totalLessons = lessonArray?.length;
+  const completedLessons = lessonArray?.filter(lesson=>lesson?.IS_COMPLETED)?.length;
+  const score = lessonArray?.filter(lesson=>lesson?.IS_COMPLETED)?.reduce((a,s)=>a+(s?.SCORE || 0),0);
+
+  const totalQuizScore = lessonArray?.filter(lsn=>getLessonDetail(lsn?.LESSON_ID)?.HAS_QUIZ)?.reduce((a,s)=>a+(s?.TOTAL_QUIZ_SCORE || 0),0);
+
+  const totalScorePercentage = (score / totalQuizScore) * 100;
+
+  return {totalLessons,completedLessons,totalScorePercentage}
+}
+
+const STUDENTS = useMemo(()=>{
+  return courseDetailData?.course_recipients?.map((recipient)=>{
+  const name = recipient?.FULLNAME || recipient?.EMAIL?.split(".")[0] + " "+ (recipient?.EMAIL?.split("@")[0])?.split(".")[1];
+
+  const {totalLessons,completedLessons,totalScorePercentage} = refactorLessonData(recipient)
+  const color = avatarColors[Math.floor(Math.random() * avatarColors.length)];
+  return  { 
+    name, 
+    email: recipient?.EMAIL, 
+    lessons: completedLessons, 
+    score: totalScorePercentage, 
+    color,
+    total_lessons: totalLessons 
+  }
 })
+}, [courseDetailData])
 
   const stats = useMemo(() => calcStats(STUDENTS), []);
 
@@ -85,8 +112,8 @@ const STUDENTS = courseDetailData?.course_recipients?.map((recipient)=>{
       <div className="bg-[#0f1b35] relative overflow-hidden rounded-t-xl">
         {/* dot grid overlay */}
         <div
-          className="absolute inset-0 pointer-events-none opacity-[0.1]"
-          style={{ backgroundImage:"radial-gradient(#fff 1px,transparent 1px)", backgroundSize:"22px 22px" }}
+          className="absolute inset-0 pointer-events-none opacity-[0.1] bg-no-repeat h-56"
+          style={{ backgroundImage:`radial-gradient(#fff 1px,transparent 1px),`, backgroundSize:"22px 22px", backgroundPosition: "center" }}
         />
 
         <div className="relative z-10 px-10 pt-8 flex justify-between items-start gap-4 flex-wrap">
@@ -97,7 +124,7 @@ const STUDENTS = courseDetailData?.course_recipients?.map((recipient)=>{
             </div>
             <h1 className="font-bold text-white text-[26px] mb-2.5" style={{fontFamily:"Sora,sans-serif"}}>{courseDetailData?.COURSE_TITLE}</h1>
             <div className="flex gap-5 text-white/60 text-xs mb-2.5 flex-wrap">
-              <span>📅 {getCompoundPeriod({start_date:courseDetailData?.START_DATE,end_date:courseDetailData?.END_DATE})}</span>
+              <span>📅 {getCompoundPeriod(courseDetailData?.START_DATE,courseDetailData?.END_DATE)}</span>
               <span>🎬 {courseDetailData?.course_lessons?.length} Lessons</span>
               <span>🏷 Department (ICT)</span>
             </div>

@@ -15,6 +15,7 @@ const employeeStatData = [
     icon: GrPersonalComputer,
     value: "42",
     label: "Total Courses",
+    valueLabel: "totalCourses",
     bgColor: "bg-emerald-50",
     iconBg: "bg-emerald-100",
     iconColor: "text-emerald-500",
@@ -22,7 +23,8 @@ const employeeStatData = [
   {
     icon: FaUserGraduate,
     value: "38",
-    label: "Complete Lesson",
+    label: "Pending Courses",
+    valueLabel: "pendingCourses",
     bgColor: "bg-red-50",
     iconBg: "bg-red-100",
     iconColor: "text-red-500",
@@ -30,7 +32,8 @@ const employeeStatData = [
   {
     icon: SlDiamond,
     value: "04",
-    label: "Achieved Certificates",
+    label: "Completed Courses",
+    valueLabel: "completedCourses",
     bgColor: "bg-blue-50",
     iconBg: "bg-blue-100",
     iconColor: "text-blue-500",
@@ -69,8 +72,7 @@ export default function StaffDashboard() {
   const location = useLocation().pathname;
 
   //=================react hooks============
-const [courseView, setCourseView] = useState("all-courses");
-
+  const [courseView, setCourseView] = useState("all-courses");
 
   //========================
 
@@ -79,9 +81,36 @@ const [courseView, setCourseView] = useState("all-courses");
   const { userData } = useCurrentUser();
 
   const { data: get_courses, isPending: isLoadingCourses } = useGetStaffCourses(
-    userData?.data?.STAFF_ID
+    userData?.data?.STAFF_ID,
   );
   const allCourses = useMemo(() => get_courses?.data || [], [get_courses]);
+
+  const statsData = useMemo(() => {
+    const totalCourses = allCourses?.length || 0;
+    const completedCourses =
+      allCourses?.filter(
+        (course) => course?.COMPLETED_LESSONS >= course?.TOTAL_LESSONS,
+      )?.length || 0;
+    const pendingCourses =
+      allCourses?.filter(
+        (course) =>
+          course?.COMPLETED_LESSONS === 0 ||
+          course?.COMPLETED_LESSONS < course?.TOTAL_LESSONS,
+      )?.length || 0;
+    const courseInProgress =
+      allCourses?.filter(
+        (course) =>
+          course?.COMPLETED_LESSONS > 0 &&
+          course?.COMPLETED_LESSONS < course?.TOTAL_LESSONS,
+      )?.length || 0;
+
+    return {
+      totalCourses,
+      pendingCourses,
+      courseInProgress,
+      completedCourses,
+    };
+  }, [allCourses]);
 
   const isStaff = currentView === "staff";
 
@@ -109,8 +138,9 @@ const [courseView, setCourseView] = useState("all-courses");
         )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {(isStaff ? staffStatData : employeeStatData).map(
-          (stat, index) => (
+        {(isStaff ? staffStatData : employeeStatData).map((stat, index) => {
+          const value = isStaff ? stat.value : statsData[stat.valueLabel];
+          return (
             <div
               key={index}
               className="bgwhite rounded-lg p-6 flex items-center gap-4 border border-gray-300"
@@ -122,25 +152,31 @@ const [courseView, setCourseView] = useState("all-courses");
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-[#003384] font-outfit">
-                  {stat.value}
+                  {value}
                 </h2>
                 <p className="text-[#6c829e] text-sm font-medium font-outfit">
                   {stat.label}
                 </p>
               </div>
             </div>
-          )
-        )}
+          );
+        })}
       </div>
-      {
-        isStaff &&
-      <div className="my-4 flex justify-end">
-<Tabs aria-label="Tabs sizes" size={"sm"} color="primary" variant="bordered" selectedKey={courseView} onSelectionChange={setCourseView}>
-          <Tab key="all-courses" title="All Courses" />
-          <Tab key="my-courses" title="My Courses" />
-        </Tabs>
-      </div>
-      }
+      {isStaff && (
+        <div className="my-4 flex justify-end">
+          <Tabs
+            aria-label="Tabs sizes"
+            size={"sm"}
+            color="primary"
+            variant="bordered"
+            selectedKey={courseView}
+            onSelectionChange={setCourseView}
+          >
+            <Tab key="all-courses" title="All Courses" />
+            <Tab key="my-courses" title="My Courses" />
+          </Tabs>
+        </div>
+      )}
       {isStaff && courseView === "my-courses" ? (
         <StaffCoursesTable />
       ) : (

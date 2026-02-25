@@ -120,8 +120,11 @@ const CourseCurriculum = ({ course }) => {
                          
                           color="primary"
                           className="font-helvetica"
+                          isDisabled={curriculum?.IS_COMPLETED}
                         >
-                          Attempt quiz
+                          {
+                            curriculum?.IS_COMPLETED ? "Completed": "Attempt quiz"
+                          }
                         </Button>
                       </div>
                     ) : null}

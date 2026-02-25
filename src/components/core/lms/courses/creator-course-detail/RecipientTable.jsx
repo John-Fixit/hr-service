@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-
+import { FiEye } from "react-icons/fi";
+import { MdOutlineDelete } from "react-icons/md";
 
 function StatusBadge({ status }) {
   const map = {
@@ -41,7 +42,7 @@ function Avatar({ name, color, size = 32 }) {
   );
 }
 
-const RecipientTable=({ students }) => {
+const RecipientTable=({ students=[] }) => {
   const [tab,    setTab]    = useState("all");
   const [search, setSearch] = useState("");
   const [page,   setPage]   = useState(1);
@@ -88,19 +89,6 @@ const RecipientTable=({ students }) => {
               className="pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-lg outline-none w-48 focus:border-[#1abc9c]"
             />
           </div>
-          {/* <button
-            onClick={() => {}}
-            className="bg-[#0f1b35] text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer"
-            style={{fontFamily:"Sora,sans-serif"}}
-          >
-            📥 Export
-          </button> */}
-          {/* <button
-            className="bg-[#f47c20] text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer"
-            style={{fontFamily:"Sora,sans-serif"}}
-          >
-            + Enroll
-          </button> */}
         </div>
       </div>
 
@@ -154,7 +142,7 @@ const RecipientTable=({ students }) => {
                       <div className="flex items-center gap-2.5">
                         <Avatar name={s.name} color={s.color} />
                         <div>
-                          <div className="font-semibold text-[13px] text-[#0f1b35]">{s.name}</div>
+                          <div className="font-semibold text-[13px] text-[#0f1b35] capitalize">{s.name}</div>
                           <div className="text-[11px] text-slate-400">{s.email}</div>
                         </div>
                       </div>
@@ -180,10 +168,6 @@ const RecipientTable=({ students }) => {
 
                     {/* Score */}
                     <td className="px-3.5 py-3 text-center"><ScoreText score={s.score} /></td>
-
-                    {/* Last Active */}
-                    {/* <td className="px-3.5 py-3 align-middle text-slate-400 text-xs">{s.lastActive}</td> */}
-
                     {/* Status */}
                     <td className="px-3.5 py-3 align-middle"><StatusBadge status={getStatus(s)} /></td>
 
@@ -191,8 +175,8 @@ const RecipientTable=({ students }) => {
                     <td className="px-3.5 py-3 align-middle">
                       <div className="flex gap-1.5">
                         {[
-                          { icon:"👁",  action: () => setModal(s) },
-                          { icon:"🗑", action: () => {} },
+                          { icon:<FiEye/>,  action: () => setModal(s) },
+                          { icon:<MdOutlineDelete color="red"/>, action: () => {} },
                         ].map(btn => (
                           <button
                             key={btn.icon}
@@ -272,7 +256,6 @@ const RecipientTable=({ students }) => {
                 { label:"Quiz Score",   value: modal.score!==null?modal.score+"%":"—" },
                 { label:"Progress",     value: getProgress(modal)+"%" },
                 { label:"Lessons Done", value: `${modal.lessons} / ${modal?.total_lessons}` },
-                { label:"Last Active",  value: modal.lastActive },
               ].map(item => (
                 <div key={item.label} className="bg-slate-50 rounded-xl p-4">
                   <div

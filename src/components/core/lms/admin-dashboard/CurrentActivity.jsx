@@ -9,6 +9,7 @@ import {
 } from "chart.js";
 import { ArrowUpRight, Calendar, Play } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { useGetRespondedStats } from "../../../../API/lms-apis/lms-dashboard";
 
 const CurrentActivity = () => {
   return (
@@ -74,119 +75,129 @@ const CurrentActivity = () => {
 export default CurrentActivity;
 
 const ActivityChart = () => {
+  const { data: allCourses = [] } = useGetRespondedStats();
+
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
 
+  const labels = allCourses?.map((course) => course?.COURSE_TITLE);
+  const values = allCourses?.map(
+    (course) => course?.TOTAL_RECIPIENTS_COMPLETED ?? 0,
+  );
+
   useEffect(() => {
-    if (chartRef.current) {
-      const ctx = chartRef.current.getContext("2d");
+    if (!chartRef.current || !values?.length) return;
 
-      // Destroy previous chart instance if it exists
-      if (chartInstanceRef.current) {
-        chartInstanceRef.current.destroy();
-      }
+    const ctx = chartRef.current.getContext("2d");
 
-      // Register Chart.js components
-      Chart.register(
-        CategoryScale,
-        LinearScale,
-        PointElement,
-        LineElement,
-        Filler,
-        Tooltip
-      );
-
-      chartInstanceRef.current = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-          datasets: [
-            {
-              data: [0, 20, 38, 32, 62, 78],
-              borderColor: "#3b82f6",
-              backgroundColor: (context) => {
-                const ctx = context.chart.ctx;
-                const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-                gradient.addColorStop(0, "rgba(59, 130, 246, 0.3)");
-                gradient.addColorStop(1, "rgba(59, 130, 246, 0)");
-                return gradient;
-              },
-              borderWidth: 3,
-              fill: true,
-              tension: 0.4,
-              pointRadius: 0,
-              pointHoverRadius: 6,
-              pointHoverBackgroundColor: "#3b82f6",
-              pointHoverBorderColor: "#fff",
-              pointHoverBorderWidth: 2,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false,
-            },
-            tooltip: {
-              backgroundColor: "#1f2937",
-              padding: 12,
-              displayColors: false,
-              callbacks: {
-                label: (context) => `${context.parsed.y}%`,
-              },
-            },
-          },
-          scales: {
-            x: {
-              grid: {
-                display: false,
-              },
-              ticks: {
-                color: "#9ca3af",
-                font: {
-                  size: 14,
-                },
-              },
-              border: {
-                display: false,
-              },
-            },
-            y: {
-              min: 0,
-              max: 80,
-              ticks: {
-                stepSize: 20,
-                color: "#9ca3af",
-                font: {
-                  size: 14,
-                },
-                callback: (value) => `${value}%`,
-              },
-              grid: {
-                color: "#f0f0f0",
-                drawBorder: false,
-              },
-              border: {
-                display: false,
-              },
-            },
-          },
-        },
-      });
+    // Destroy previous chart
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.destroy();
     }
 
-    // Cleanup function
+    Chart.register(
+      CategoryScale,
+      LinearScale,
+      PointElement,
+      LineElement,
+      Filler,
+      Tooltip,
+    );
+
+    const maxValue = Math.max(...values);
+    const suggestedMax = maxValue === 0 ? 10 : Math.ceil(maxValue * 1.2);
+
+    chartInstanceRef.current = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels, // course titles (used in tooltip)
+        datasets: [
+          {
+            data: values,
+            borderColor: "#3b82f6",
+            backgroundColor: (context) => {
+              const ctx = context.chart.ctx;
+              const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+              gradient.addColorStop(0, "rgba(59, 130, 246, 0.3)");
+              gradient.addColorStop(1, "rgba(59, 130, 246, 0)");
+              return gradient;
+            },
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor: "#3b82f6",
+            pointHoverBorderColor: "#fff",
+            pointHoverBorderWidth: 2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            backgroundColor: "#1f2937",
+            padding: 12,
+            displayColors: false,
+            callbacks: {
+              // Full course title as tooltip title
+              title: (items) => items[0]?.label || "",
+              // Number of respondents as label
+              label: (context) =>
+                `${context.parsed.y} respondent${
+                  context.parsed.y === 1 ? "" : "s"
+                }`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: {
+              display: false,
+            },
+            ticks: {
+              display: false, // hide long labels from axis, rely on tooltip
+            },
+            border: {
+              display: false,
+            },
+          },
+          y: {
+            min: 0,
+            suggestedMax,
+            ticks: {
+              color: "#9ca3af",
+              font: {
+                size: 12,
+              },
+              stepSize: suggestedMax <= 10 ? 2 : Math.ceil(suggestedMax / 4),
+            },
+            grid: {
+              color: "#f0f0f0",
+              drawBorder: false,
+            },
+            border: {
+              display: false,
+            },
+          },
+        },
+      },
+    });
+
     return () => {
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();
       }
     };
-  }, []);
+  }, [labels, values]);
 
   return (
-    <div className="h-40">
+    <div className="h-52">
       <canvas ref={chartRef}></canvas>
     </div>
   );

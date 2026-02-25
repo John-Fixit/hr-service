@@ -10,7 +10,6 @@ import StarLoader from "../../loaders/StarLoader";
 import useCurrentUser from "../../../../hooks/useCurrentUser";
 
 const EmployeeCourse = ({ courses, isLoading }) => {
-
   const [currentPage, setCurrentPage] = useState(1);
   const totalPerPage = 9;
 
@@ -19,7 +18,7 @@ const EmployeeCourse = ({ courses, isLoading }) => {
   const visibleCourses = useMemo(() => {
     return courses.slice(
       (currentPage - 1) * totalPerPage,
-      currentPage * totalPerPage
+      currentPage * totalPerPage,
     );
   }, [courses, currentPage]);
 
@@ -60,7 +59,7 @@ const EmployeeCourse = ({ courses, isLoading }) => {
 export default EmployeeCourse;
 
 const CourseCard = ({ course }) => {
-  const {userData} = useCurrentUser();
+  const { userData } = useCurrentUser();
   const { openCourseDrawer } = useCourseStore();
   const [selectedCourse, setSelectedCourse] = useState(null);
   const { mutateAsync: mutateCourseDetail, isPending: isGettingDetail } =
@@ -78,16 +77,16 @@ const CourseCard = ({ course }) => {
       errorToast(
         error?.response?.data?.message ||
           error?.message ||
-          "Failed to load course details."
+          "Failed to load course details.",
       );
     }
   };
 
-
-  const calculateProgressScore = useMemo(()=>{
-    const ps = Number(course?.COMPLETED_LESSONS) / Number(course?.TOTAL_LESSONS) * 100
-    return ps
-  }, [course?.COMPLETED_LESSONS, course?.TOTAL_LESSONS])
+  const calculateProgressScore = useMemo(() => {
+    const ps =
+      (Number(course?.COMPLETED_LESSONS) / Number(course?.TOTAL_LESSONS)) * 100;
+    return ps;
+  }, [course?.COMPLETED_LESSONS, course?.TOTAL_LESSONS]);
 
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow- border border-gray-200">
@@ -109,7 +108,8 @@ const CourseCard = ({ course }) => {
 
         <div className="flex justify-between items-center mb-2">
           <span className="text-[13px] font-medium font-Outfit text-[#003384]">
-            {course?.COMPLETED_LESSONS} Of {course?.TOTAL_LESSONS} Lessons Complete
+            {course?.COMPLETED_LESSONS} Of {course?.TOTAL_LESSONS} Lessons
+            Complete
           </span>
           <span className={`text-base font-bold text-[#003384] font-outfit`}>
             {calculateProgressScore || 0}%
@@ -120,12 +120,12 @@ const CourseCard = ({ course }) => {
         <div className="h-2 bg-gray-100 rounded-full overflow-hidden mb-4">
           <div
             className={`h-full rounded-full ${
-              calculateProgressScore === 100 ? "bg-emerald-500" : "bg-yellow-400"
+              calculateProgressScore >= 100 ? "bg-emerald-500" : "bg-yellow-400"
             }`}
             style={{
               width: `${calculateProgressScore || 0}%`,
               background:
-                calculateProgressScore === 100
+                calculateProgressScore >= 100
                   ? "repeating-linear-gradient(45deg, #10b981, #10b981 10px, #059669 10px, #059669 20px)"
                   : `repeating-linear-gradient(
   45deg,

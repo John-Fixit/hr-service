@@ -2,9 +2,30 @@ import { Button, ConfigProvider } from "antd";
 import { FaGraduationCap, FaUserAlt } from "react-icons/fa";
 import { MdAdd } from "react-icons/md";
 import { useCourseStore } from "../../../../hooks/useCourseStore";
+import { useMemo } from "react";
+import { useGetCreatorCourses } from "../../../../API/lms-apis/course";
+import moment from "moment";
 
 const AdminDashboardHeader = () => {
   const { openCourseDrawer } = useCourseStore();
+
+  const { data: get_courses } = useGetCreatorCourses();
+  const allCourses = useMemo(() => get_courses || [], [get_courses]);
+
+  const statsData = useMemo(() => {
+    const totalCourses = allCourses?.length || 0;
+    const courseInProgress =
+      allCourses?.filter((course) => moment().isSameOrBefore(course?.END_DATE))
+        ?.length || 0;
+
+    return {
+      totalCourses,
+      courseInProgress,
+    };
+  }, [allCourses]);
+
+  console.log(statsData);
+
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
@@ -91,15 +112,19 @@ const AdminDashboardHeader = () => {
                   Courses in progress
                 </p>
                 <div className="px-14 py-6 bg-white rounded text-center">
-                  <h1 className="text-[2.5rem] font-outfit">5</h1>
+                  <h1 className="text-[2.5rem] font-outfit">
+                    {statsData?.courseInProgress}
+                  </h1>
                 </div>
               </div>
               <div>
                 <p className="bg-blue-900/10 text-xs font-medium tracking-wide text-blue-900 px-3 py-1 rounded font-outfit">
-                  Forum Discussion
+                  Total courses
                 </p>
                 <div className="px-14 py-6 bg-white rounded text-center">
-                  <h1 className="text-[2.5rem] font-outfit">25</h1>
+                  <h1 className="text-[2.5rem] font-outfit">
+                    {statsData?.totalCourses}
+                  </h1>
                 </div>
               </div>
             </div>
