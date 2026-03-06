@@ -8,13 +8,13 @@ const CourseCompletion = () => {
     { label: "Completed", percentage: 20, users: 74, color: "#22c55e" },
   ];
   return (
-    <div className="bg-white rounded-xl shadow-md p-8 w-full max-w-md">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl text-slate-800 font-normal font-outfit">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 w-full">
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="text-lg font-semibold text-[rgb(10,31,52)] font-outfit">
           Course completion
-        </h1>
-        <button className="bg-cyan-500 text-white hover:text-cyan-500 text-sm font-medium px-3 py-1 rounded-full border border-cyan-500 hover:bg-cyan-50 transition-colors font-outfit">
-          View All
+        </h3>
+        <button className="bg-btnColor/10 text-btnColor hover:bg-btnColor/20 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors font-outfit">
+          View all
         </button>
       </div>
 

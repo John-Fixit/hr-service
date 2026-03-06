@@ -16,17 +16,17 @@ export default function OverallPassPercentage() {
       Chart.ArcElement,
       Chart.DoughnutController,
       Chart.Legend,
-      Chart.Tooltip
+      Chart.Tooltip,
     );
 
     chartInstance.current = new Chart.Chart(ctx, {
       type: "doughnut",
       data: {
-        labels: ["Boys", "Girls"],
+        // labels: ["Boys", "Girls"],
         datasets: [
           {
             data: [45, 55],
-            backgroundColor: ["#22d3ee", "#8b5cf6"],
+            backgroundColor: ["#00bcc2", "rgb(10,31,52)"],
             borderWidth: 0,
             cutout: "65%",
             spacing: 2,
@@ -67,14 +67,12 @@ export default function OverallPassPercentage() {
   }, []);
 
   return (
-    <div>
-      <div className="bg-white rounded-md shadow-sm p-8 w-full max-w-md">
-        <h1 className="text-xl text-slate-800 mb-4 font-[400] font-outfit">
-          Overall Pass Percentage
-        </h1>
-        <div className="relative h-72">
-          <canvas ref={chartRef}></canvas>
-        </div>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 w-full">
+      <h3 className="text-lg font-semibold text-[rgb(10,31,52)] font-outfit mb-4">
+        Overall pass rate
+      </h3>
+      <div className="relative h-72">
+        <canvas ref={chartRef}></canvas>
       </div>
     </div>
   );

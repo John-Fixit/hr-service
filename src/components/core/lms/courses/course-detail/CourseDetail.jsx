@@ -5,13 +5,11 @@ import { useCourseStore } from "../../../../../hooks/useCourseStore";
 import { courseDuration } from "../../../../../utils/utitlities";
 import CourseRecipientCard from "./CourseRecipientCard";
 
-
 const CourseDetail = () => {
   const {
     // eslint-disable-next-line no-unused-vars
     data: { courseDetail },
   } = useCourseStore();
-
 
   return (
     <>
@@ -98,14 +96,15 @@ const CourseDetail = () => {
             </div>
             {/* Course Description */}
             <p className="text-white text-base font-outfit leading-relaxed max-w-4xl mb-5">
-              Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+              {/* Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
               officia deserunt mollit anim id est laborum, accusantium
               doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo
               inventore. veritatis et quasi architecto beatae vitae dicta sunt
-              explicabo.
+              explicabo. */}
+              {courseDetail?.COURSE_DESCRIPTION}
             </p>
             {/* Rating */}
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <svg
@@ -123,7 +122,7 @@ const CourseDetail = () => {
               <span className="text-white/80 font-outfit text-sm">
                 (2.24k Reviews)
               </span>
-            </div>
+            </div> */}
           </div>
         </header>
         <section className="container mx-auto px-6 relative">
@@ -131,34 +130,30 @@ const CourseDetail = () => {
             <div className="col-span-12 lg:col-span-8">
               <div className="space-y-6">
                 <div className="border rounded-lg p-6 space-y-4">
-                  {
-                    courseDetail?.COURSE_DESCRIPTION &&
-                  <div>
-                  <h2 className="text-blue-900 text-[18px] lg:text-[20px] font-outfit font-bold">
-                    Course Overview
-                  </h2>
+                  {courseDetail?.COURSE_DESCRIPTION && (
+                    <div>
+                      <h2 className="text-blue-900 text-[18px] lg:text-[20px] font-outfit font-bold">
+                        Course Overview
+                      </h2>
 
-                    <p className=" text-gray-700 text-base font-outfit leading-relaxed">
-                    
-                      {courseDetail?.COURSE_DESCRIPTION}
-                    </p>
-                  </div>
-                  }
-{
-  courseDetail?.COURSE_OBJECTIVE &&
-                  <div className="space-y-3">
-                    <h4 className="text-blue-900 text-[16px] lg:text-[16px] font-outfit font-bold">
-                      Course Objective
-                    </h4>
-                    <p className="text-gray-700 text-base font-outfit leading-relaxed">
-                     
-                      {courseDetail?.COURSE_OBJECTIVE}
-                    </p>
-                  </div>
-}
+                      <p className=" text-gray-700 text-base font-outfit leading-relaxed">
+                        {courseDetail?.COURSE_DESCRIPTION}
+                      </p>
+                    </div>
+                  )}
+                  {courseDetail?.COURSE_OBJECTIVE && (
+                    <div className="space-y-3">
+                      <h4 className="text-blue-900 text-[16px] lg:text-[16px] font-outfit font-bold">
+                        Course Objective
+                      </h4>
+                      <p className="text-gray-700 text-base font-outfit leading-relaxed">
+                        {courseDetail?.COURSE_OBJECTIVE}
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <CourseCurriculum course={courseDetail} />
-                <CourseAuthorCard />
+                {/* <CourseAuthorCard /> */}
               </div>
             </div>
             <div className="col-span-12 lg:col-span-4">
@@ -166,7 +161,7 @@ const CourseDetail = () => {
                 <div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 sticky top-5">
                     <div className="">
-                      <CourseRecipientCard courseDetail={courseDetail}/>
+                      <CourseRecipientCard courseDetail={courseDetail} />
                     </div>
                     <CourseFeatures course={courseDetail} />
                   </div>

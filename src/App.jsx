@@ -288,6 +288,7 @@ const App = () => {
 
           <Route path="/lms" element={<LMSLayoutOutlet />}>
             <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="learning" element={<StaffDashboard />} />
             <Route path="employee" element={<StaffDashboard />} />
             <Route path="staff" element={<StaffDashboard />} />
           </Route>

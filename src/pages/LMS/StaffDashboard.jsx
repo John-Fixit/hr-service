@@ -16,27 +16,27 @@ const employeeStatData = [
     value: "42",
     label: "Total Courses",
     valueLabel: "totalCourses",
-    bgColor: "bg-emerald-50",
-    iconBg: "bg-emerald-100",
-    iconColor: "text-emerald-500",
+    bgColor: "bg-[#00bcc2]/10",
+    iconBg: "bg-[#00bcc2]/15",
+    iconColor: "text-btnColor",
   },
   {
     icon: FaUserGraduate,
     value: "38",
-    label: "Pending Courses",
+    label: "Pending",
     valueLabel: "pendingCourses",
-    bgColor: "bg-red-50",
-    iconBg: "bg-red-100",
-    iconColor: "text-red-500",
+    bgColor: "bg-amber-500/10",
+    iconBg: "bg-amber-500/15",
+    iconColor: "text-amber-600",
   },
   {
     icon: SlDiamond,
     value: "04",
-    label: "Completed Courses",
+    label: "Completed",
     valueLabel: "completedCourses",
-    bgColor: "bg-blue-50",
-    iconBg: "bg-blue-100",
-    iconColor: "text-blue-500",
+    bgColor: "bg-emerald-500/10",
+    iconBg: "bg-emerald-500/15",
+    iconColor: "text-emerald-600",
   },
 ];
 
@@ -44,26 +44,26 @@ const staffStatData = [
   {
     icon: GrPersonalComputer,
     value: "42",
-    label: "Total Courses",
-    bgColor: "bg-emerald-50",
-    iconBg: "bg-emerald-100",
-    iconColor: "text-emerald-500",
+    label: "Courses Created",
+    bgColor: "bg-[#00bcc2]/10",
+    iconBg: "bg-[#00bcc2]/15",
+    iconColor: "text-btnColor",
   },
   {
     icon: FaUserGraduate,
     value: "44k",
-    label: "Total Students",
-    bgColor: "bg-red-50",
-    iconBg: "bg-red-100",
-    iconColor: "text-red-500",
+    label: "Total Enrolled",
+    bgColor: "bg-amber-500/10",
+    iconBg: "bg-amber-500/15",
+    iconColor: "text-amber-600",
   },
   {
     icon: SlDiamond,
     value: "17k",
-    label: "Enrolled Stidents",
-    bgColor: "bg-blue-50",
-    iconBg: "bg-blue-100",
-    iconColor: "text-blue-500",
+    label: "Enrolled Students",
+    bgColor: "bg-emerald-500/10",
+    iconBg: "bg-emerald-500/15",
+    iconColor: "text-emerald-600",
   },
 ];
 
@@ -71,12 +71,11 @@ export default function StaffDashboard() {
   const { openCourseDrawer } = useCourseStore();
   const location = useLocation().pathname;
 
-  //=================react hooks============
-  const [courseView, setCourseView] = useState("all-courses");
+  const [courseView, setCourseView] = useState("assigned");
 
-  //========================
-
-  const currentView = location === "/lms/staff" ? "staff" : "employee";
+  const isLearningRoute = location === "/lms/learning";
+  const isStaffRoute = location === "/lms/staff";
+  const showCreatorFeatures = isLearningRoute || isStaffRoute;
 
   const { userData } = useCurrentUser();
 
@@ -112,76 +111,95 @@ export default function StaffDashboard() {
     };
   }, [allCourses]);
 
-  const isStaff = currentView === "staff";
+  const pageTitle = isLearningRoute
+    ? "My Learning"
+    : isStaffRoute
+      ? "Staff Dashboard"
+      : "Employee Dashboard";
+  const pageDescription = isLearningRoute
+    ? "Courses assigned to you and courses you create. Track progress and manage your content."
+    : isStaffRoute
+      ? "Create courses and manage the ones you’ve created. View enrollees and performance."
+      : "Browse and complete courses assigned to you. Track your progress here.";
+
+  const statSource = showCreatorFeatures ? staffStatData : employeeStatData;
+  const displayValues = showCreatorFeatures
+    ? statSource.map((s) => s.value)
+    : statSource.map((s) => statsData[s.valueLabel]);
 
   return (
-    <div className=" bg-gray-50 p-6 font-sans">
-      <div className="mb-6 flex justify-between items-center gap-3">
-        <div>
-          <h1 className="text-3xl font-semibold text-gray-900 font-outfit tracking-wide capitalize">
-            {currentView} Dashboard
-          </h1>
-          <p className="text-gray-600 font-outfit">
-            Manage and create performance review templates
-          </p>
-        </div>
-        {isStaff && (
+    <div className="min-h-screen bg-lighten font-outfit">
+      <main className="px-6 md:px-4 lg:px-6 py-6 max-w-7xl mx-auto">
+        <div className="mb-8 flex flex-wrap justify-between items-start gap-4">
           <div>
+            <h1 className="text-2xl md:text-3xl font-semibold text-[rgb(10,31,52)] font-outfit tracking-tight">
+              {pageTitle}
+            </h1>
+            <p className="text-main-text-color text-sm md:text-base mt-1 font-outfit max-w-xl">
+              {pageDescription}
+            </p>
+          </div>
+          {showCreatorFeatures && (
             <button
-              className="cursor-pointer py-3 px-4 rounded-full bg-blue-900 hover:bg-white border border-blue-900 transition-all text-white hover:text-blue-900 font-outfit font-medium duration-300 text-base flex gap-2 items-center"
+              className="cursor-pointer py-2.5 px-5 rounded-lg bg-btnColor hover:opacity-90 text-white font-outfit font-medium text-sm flex gap-2 items-center shadow-sm transition-opacity"
               onClick={() => openCourseDrawer({ drawerName: "create-course" })}
             >
-              <FaPlus />
+              <FaPlus className="w-4 h-4" />
               Create Course
             </button>
-          </div>
-        )}
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {(isStaff ? staffStatData : employeeStatData).map((stat, index) => {
-          const value = isStaff ? stat.value : statsData[stat.valueLabel];
-          return (
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+          {statSource.map((stat, index) => (
             <div
               key={index}
-              className="bgwhite rounded-lg p-6 flex items-center gap-4 border border-gray-300"
+              className="bg-white rounded-xl p-5 flex items-center gap-4 border border-gray-100 shadow-sm"
             >
               <div
-                className={`w-14 h-14 rounded-full ${stat.iconBg} flex items-center justify-center`}
+                className={`w-12 h-12 md:w-14 md:h-14 rounded-xl ${stat.iconBg} flex items-center justify-center flex-shrink-0`}
               >
-                <stat.icon className={`w-7 h-7 ${stat.iconColor}`} />
+                <stat.icon className={`w-6 h-6 md:w-7 md:h-7 ${stat.iconColor}`} />
               </div>
-              <div>
-                <h2 className="text-2xl font-bold text-[#003384] font-outfit">
-                  {value}
-                </h2>
-                <p className="text-[#6c829e] text-sm font-medium font-outfit">
+              <div className="min-w-0">
+                <p className="text-2xl font-bold text-[rgb(10,31,52)] font-outfit tabular-nums">
+                  {showCreatorFeatures ? stat.value : displayValues[index]}
+                </p>
+                <p className="text-main-text-color text-sm font-medium font-outfit">
                   {stat.label}
                 </p>
               </div>
             </div>
-          );
-        })}
-      </div>
-      {isStaff && (
-        <div className="my-4 flex justify-end">
-          <Tabs
-            aria-label="Tabs sizes"
-            size={"sm"}
-            color="primary"
-            variant="bordered"
-            selectedKey={courseView}
-            onSelectionChange={setCourseView}
-          >
-            <Tab key="all-courses" title="All Courses" />
-            <Tab key="my-courses" title="My Courses" />
-          </Tabs>
+          ))}
         </div>
-      )}
-      {isStaff && courseView === "my-courses" ? (
-        <StaffCoursesTable />
-      ) : (
-        <EmployeeCourse courses={allCourses} isLoading={isLoadingCourses} />
-      )}
+
+        {showCreatorFeatures && (
+          <div className="mb-6">
+            <Tabs
+              aria-label="Course views"
+              size="sm"
+              color="primary"
+              variant="bordered"
+              selectedKey={courseView}
+              onSelectionChange={setCourseView}
+              classNames={{
+                tabList: "gap-1",
+                cursor: "bg-btnColor",
+                tab: "font-outfit",
+              }}
+            >
+              <Tab key="assigned" title="Assigned to Me" />
+              <Tab key="my-courses" title="Courses I Create" />
+            </Tabs>
+          </div>
+        )}
+
+        {showCreatorFeatures && courseView === "my-courses" ? (
+          <StaffCoursesTable />
+        ) : (
+          <EmployeeCourse courses={allCourses} isLoading={isLoadingCourses} />
+        )}
+      </main>
     </div>
   );
 }

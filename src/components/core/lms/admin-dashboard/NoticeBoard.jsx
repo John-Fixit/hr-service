@@ -46,11 +46,10 @@ const NoticeBoard = () => {
     },
   ];
   return (
-    <>
-      <div className="bg-white rounded-2xl shadow-sm p-6 w-full max-w-md">
-        <h1 className="text-xl text-slate-800 font-normal font-outfit mb-6">
-          Notice board
-        </h1>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 w-full">
+      <h3 className="text-lg font-semibold text-[rgb(10,31,52)] font-outfit mb-4">
+        Notice board
+      </h3>
 
         <div className="space-y-4">
           {notices.map((notice) => {
@@ -79,11 +78,10 @@ const NoticeBoard = () => {
           })}
         </div>
 
-        <button className="w-full mt-6 py-2 bg-[#e2f4fc] text-[#049ff8] font-medium rounded-md hover:bg-[#049ff8] hover:text-white transition-colors font-outfit">
-          View all
-        </button>
-      </div>
-    </>
+      <button className="w-full mt-5 py-2.5 bg-btnColor/10 text-btnColor font-medium rounded-lg hover:bg-btnColor hover:text-white transition-colors font-outfit text-sm">
+        View all
+      </button>
+    </div>
   );
 };
 

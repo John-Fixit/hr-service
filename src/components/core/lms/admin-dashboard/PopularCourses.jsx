@@ -2,90 +2,77 @@ import { PiDotsThreeOutlineVerticalFill } from "react-icons/pi";
 import { useGetPopularCourses } from "../../../../API/lms-apis/lms-dashboard";
 
 const colorVariants = [
-  {
-    bgColor: "bg-yellow-400",
-    buttonColor: "bg-yellow-50 text-yellow-600 hover:bg-yellow-100",
-  },
-  {
-    bgColor: "bg-pink-500",
-    buttonColor: "bg-pink-50 text-pink-600 hover:bg-pink-100",
-  },
-  {
-    bgColor: "bg-teal-400",
-    buttonColor: "bg-teal-50 text-teal-600 hover:bg-teal-100",
-  },
-  {
-    bgColor: "bg-blue-500",
-    buttonColor: "bg-blue-50 text-blue-600 hover:bg-blue-100",
-  },
+  { bgColor: "bg-btnColor", buttonColor: "bg-btnColor/10 text-btnColor hover:bg-btnColor/20 font-outfit" },
+  { bgColor: "bg-[rgb(10,31,52)]", buttonColor: "bg-[rgb(10,31,52)]/10 text-[rgb(10,31,52)] hover:bg-[rgb(10,31,52)]/20 font-outfit" },
+  { bgColor: "bg-amber-500", buttonColor: "bg-amber-50 text-amber-700 hover:bg-amber-100 font-outfit" },
+  { bgColor: "bg-emerald-500", buttonColor: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-outfit" },
 ];
 
 const PopularCourses = () => {
   const { data: popularCourses } = useGetPopularCourses();
 
   return (
-    <>
-      <div>
-        <div className="flex justify-between items-center gap-3 mb-4">
-          <h3 className="font-medium text-[1.3rem] font-outfit">
-            Popular Courses
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="p-5 border-b border-gray-100 flex justify-between items-center">
+        <div>
+          <h3 className="text-lg font-semibold text-[rgb(10,31,52)] font-outfit">
+            Popular by category
           </h3>
-          <p className="cursor-pointer text-gray-500 text-sm px-3 py-1 hover:bg-gray-200 rounded-lg font-outfit">
-            All courses
+          <p className="text-sm text-main-text-color font-outfit mt-0.5">
+            Course count per category
           </p>
         </div>
-        <div>
-          <div className="max-w-4xl mx-auto space-y-4">
-            {popularCourses?.length ? (
-              popularCourses.map((item, index) => {
-                const variant = colorVariants[index % colorVariants.length];
-
-                const name = item.COURSE_CATEGORY || "Unknown";
-                const abbreviation = name?.[0]?.toUpperCase() || "?";
-
-                return (
-                  <div
-                    key={`${name}-${index}`}
-                    className="bg-white rounded-lg shadow-sm py-4 px-5 flex justify-between items-center gap-5"
-                  >
-                    <div className="flex gap-4 items-center">
-                      <div
-                        className={`h-14 w-14 flex items-center justify-center ${variant.bgColor} rounded font-semibold uppercase text-white text-xl font-outfit`}
-                      >
-                        {abbreviation}
-                      </div>
-                      <div>
-                        <h3 className="text-base font-medium text-gray-900 font-outfit">
-                          {name}
-                        </h3>
-                        <span className="text-sm font-medium text-gray-400 font-outfit">
-                          {item.TOTAL_COURSES} Courses
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <button
-                        className={`px-4 py-2 rounded font-medium text-sm transition-colors font-outfit ${variant.buttonColor}`}
-                      >
-                        View Courses
-                      </button>
-                      <button className="p-2 hover:bg-gray-100 rounded transition-colors">
-                        <PiDotsThreeOutlineVerticalFill className="w-5 h-5 text-gray-600" />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <p className="text-sm text-gray-500 font-outfit">
-                No popular courses found.
-              </p>
-            )}
-          </div>
-        </div>
+        <button className="text-sm font-medium text-btnColor hover:underline font-outfit">
+          All courses
+        </button>
       </div>
-    </>
+      <div className="p-4 space-y-3">
+        {popularCourses?.length ? (
+          popularCourses.map((item, index) => {
+            const variant = colorVariants[index % colorVariants.length];
+            const name = item.COURSE_CATEGORY || "Unknown";
+            const abbreviation = name?.[0]?.toUpperCase() || "?";
+
+            return (
+              <div
+                key={`${name}-${index}`}
+                className="bg-gray-50/80 rounded-lg py-3 px-4 flex justify-between items-center gap-4 border border-gray-100"
+              >
+                <div className="flex gap-3 items-center min-w-0">
+                  <div
+                    className={`h-12 w-12 flex items-center justify-center ${variant.bgColor} rounded-lg font-semibold uppercase text-white text-lg font-outfit flex-shrink-0`}
+                  >
+                    {abbreviation}
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-medium text-gray-900 font-outfit truncate">
+                      {name}
+                    </h3>
+                    <span className="text-xs font-medium text-main-text-color font-outfit">
+                      {item.TOTAL_COURSES} courses
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${variant.buttonColor}`}
+                  >
+                    View
+                  </button>
+                  <button className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors">
+                    <PiDotsThreeOutlineVerticalFill className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <p className="text-sm text-main-text-color font-outfit py-4 text-center">
+            No categories yet.
+          </p>
+        )}
+      </div>
+    </div>
   );
 };
 

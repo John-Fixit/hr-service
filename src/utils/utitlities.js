@@ -103,7 +103,7 @@ export function formatDate() {
   const ordinalSuffix = getOrdinalSuffix(day);
   const formatted = formattedDateString?.replace(
     /\b\d{1,2}\b/,
-    `$&${ordinalSuffix}`
+    `$&${ordinalSuffix}`,
   );
   return formatted;
 }
@@ -129,12 +129,12 @@ export const removeHTMLTagsAndStyles = (html) => {
 export const convertBase64ToFile = (
   base64String,
   fileName = "image.png",
-  fileType = "image/png"
+  fileType = "image/png",
 ) => {
   // Remove the data URL prefix if present
   const base64WithoutPrefix = base64String.replace(
     /^data:image\/\w+;base64,/,
-    ""
+    "",
   );
 
   // Convert base64 to binary
@@ -383,7 +383,7 @@ export const courseDuration = ({ start_date, end_date }) => {
   const diff = dayjs(end_date).diff(dayjs(start_date), "day");
 
   let result;
-
+  if (diff === 0) return "Expired";
   if (diff < 7) {
     result = diff + " days";
   } else if (diff < 30) {
@@ -396,7 +396,6 @@ export const courseDuration = ({ start_date, end_date }) => {
 
   return result;
 };
-
 
 export const getCompoundPeriod = (startDate, endDate) => {
   const start = dayjs(startDate);
@@ -415,9 +414,10 @@ export const getCompoundPeriod = (startDate, endDate) => {
   const parts = [];
 
   if (months > 0) parts.push(`${months} month${months > 1 ? "s" : ""}`);
-  if (weeks > 0 && months === 0) parts.push(`${weeks} week${weeks > 1 ? "s" : ""}`);
+  if (weeks > 0 && months === 0)
+    parts.push(`${weeks} week${weeks > 1 ? "s" : ""}`);
   if (days > 0) parts.push(`${days} day${days > 1 ? "s" : ""}`);
-  if(days === 0) parts.push("Today")
+  if (days === 0) parts.push("Today");
 
   return parts.join(" ");
-}
+};

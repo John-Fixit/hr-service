@@ -357,19 +357,11 @@ export const LMSSectionMenus = [
     enabled: true,
   },
   {
-    title: "Employee",
-    name: "Employee Dashboard",
-    route: "/lms/employee",
+    title: "My Learning",
+    name: "My Learning",
+    route: "/lms/learning",
     withSubMenu: false,
-    icon: MdDashboard,
-    enabled: true,
-  },
-  {
-    title: "",
-    name: "Staff Dashboard",
-    route: "/lms/staff",
-    withSubMenu: false,
-    icon: MdSpaceDashboard,
+    icon: FaGraduationCap,
     enabled: true,
   },
 

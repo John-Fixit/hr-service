@@ -51,23 +51,21 @@ const UpcomingLessons = () => {
     );
   };
   return (
-    <>
-      <div className="bgwhite rounded-2xl shadow-sm py-6 w-full max-w-2xl">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-xl text-slate-800 font-normal font-outfit">
-            Upcoming Lessons
-          </h1>
-          <button className="bg-cyan-500 text-white hover:text-cyan-500 text-sm font-medium px-3 py-1 rounded-full border border-cyan-500 hover:bg-cyan-50 transition-colors font-outfit">
-            View All
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          {lessons.map((lesson) => (
-            <div
-              key={lesson.id}
-              className="bg-white rounded p-4 flex items-center justify-between cursor-pointer hover:shadow-lg hover:translate-y-1 transition-all duration-300"
-            >
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="p-5 border-b border-gray-100 flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-[rgb(10,31,52)] font-outfit">
+          Upcoming lessons
+        </h3>
+        <button className="text-sm font-medium text-btnColor hover:underline font-outfit">
+          View all
+        </button>
+      </div>
+      <div className="p-4 space-y-3">
+        {lessons.map((lesson) => (
+          <div
+            key={lesson.id}
+            className="bg-gray-50/80 rounded-lg p-4 flex items-center justify-between cursor-pointer hover:bg-gray-100/80 border border-gray-100 transition-colors"
+          >
               <div className="flex items-center gap-4">
                 {getIcon(lesson.icon, lesson.color)}
                 <div>
@@ -79,12 +77,11 @@ const UpcomingLessons = () => {
                   </p>
                 </div>
               </div>
-              <ChevronRight className="w-5 h-5 text-slate-400" />
-            </div>
-          ))}
-        </div>
+            <ChevronRight className="w-5 h-5 text-gray-400" />
+          </div>
+        ))}
       </div>
-    </>
+    </div>
   );
 };
 

@@ -7,6 +7,7 @@ import { IoGameControllerOutline } from "react-icons/io5";
 import { SlBadge } from "react-icons/sl";
 import { courseDuration } from "../../../../../utils/utitlities";
 import PropTypes from "prop-types";
+import { FaUser } from "react-icons/fa";
 
 const CourseFeatures = ({ course }) => {
   const features = [
@@ -40,6 +41,11 @@ const CourseFeatures = ({ course }) => {
       icon: AiOutlineTags,
       title: "Recipient type",
       value: "Department (ICT)",
+    },
+    {
+      icon: FaUser,
+      title: "Course Creator",
+      value: course?.CREATOR_EMAIL,
     },
     // {
     //   icon: CiFlag1,

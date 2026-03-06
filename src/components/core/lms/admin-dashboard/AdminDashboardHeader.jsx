@@ -3,135 +3,133 @@ import { FaGraduationCap, FaUserAlt } from "react-icons/fa";
 import { MdAdd } from "react-icons/md";
 import { useCourseStore } from "../../../../hooks/useCourseStore";
 import { useMemo } from "react";
-import { useGetCreatorCourses } from "../../../../API/lms-apis/course";
+import { useGetAllCourses } from "../../../../API/lms-apis/course";
 import moment from "moment";
+import StarLoader from "../../loaders/StarLoader";
 
 const AdminDashboardHeader = () => {
   const { openCourseDrawer } = useCourseStore();
 
-  const { data: get_courses } = useGetCreatorCourses();
-  const allCourses = useMemo(() => get_courses || [], [get_courses]);
+  const { data: allCoursesRaw, isPending: isLoadingCourses } =
+    useGetAllCourses();
+  const allCourses = useMemo(
+    () => allCoursesRaw?.data || [],
+    [allCoursesRaw?.data],
+  );
 
   const statsData = useMemo(() => {
     const totalCourses = allCourses?.length || 0;
     const courseInProgress =
       allCourses?.filter((course) => moment().isSameOrBefore(course?.END_DATE))
         ?.length || 0;
-
-    return {
-      totalCourses,
-      courseInProgress,
-    };
+    return { totalCourses, courseInProgress };
   }, [allCourses]);
 
-  console.log(statsData);
-
   return (
-    <>
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div className="col-span-12 lg:col-span-9">
-          <div className="rounded bg-[#58baab] h-full">
-            <div className="flex justify-between flex-wrap gap-3">
-              <div className="flex-1 h-full px-8 py-8">
-                <div className="flex flex-col justify-between gap-12 text-white h-full">
-                  <div className="space-y-1">
-                    <h2 className="text-3xl font-bold font-outfit tracking-wide">
-                      Learn Effectively With Us!
-                    </h2>
-                    <p className="text-lg font-medium text-gray-200 font-outfit">
-                      Get 30% off every course on january.
-                    </p>
-                  </div>
-                  <div className="flex gap-6">
-                    <div className="flex gap-2 items-center">
-                      <div className="rounded-full border border-white bg-[#f2426d] p-3">
-                        <FaGraduationCap size={23} className="text-white" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="font-semibold tracking-wide text-xl text-white font-outfit">
-                          Students
-                        </span>
-                        <span className="text-sm text-gray-200 font-outfit font-medium">
-                          75,000+
-                        </span>
-                      </div>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="col-span-12 lg:col-span-9">
+        <div className="rounded-xl bg-[rgb(10,31,52)] overflow-hidden shadow-sm">
+          <div className="flex justify-between flex-wrap gap-4">
+            <div className="flex-1 min-w-0 px-6 md:px-8 py-6 md:py-8">
+              <div className="flex flex-col justify-between gap-8 text-white">
+                <div className="space-y-1">
+                  <h2 className="text-2xl md:text-3xl font-bold font-outfit tracking-tight">
+                    LMS Overview
+                  </h2>
+                  <p className="text-base text-gray-300 font-outfit">
+                    Organization-wide course and learning analytics.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-6">
+                  <div className="flex gap-3 items-center">
+                    <div className="rounded-xl bg-btnColor/20 border border-btnColor/40 p-3">
+                      <FaGraduationCap size={22} className="text-white" />
                     </div>
-                    <div className="flex gap-2 items-center">
-                      <div className="rounded-full border border-white bg-yellow-400 p-3">
-                        <FaUserAlt size={23} className="text-white" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="font-semibold tracking-wide text-xl text-white font-outfit">
-                          Expert Members
-                        </span>
-                        <span className="text-sm text-gray-200 font-outfit font-medium">
-                          200+
-                        </span>
-                      </div>
+                    <div>
+                      <span className="font-semibold text-white font-outfit block">
+                        Total Courses
+                      </span>
+                      <span className="text-sm text-gray-300 font-outfit">
+                        {isLoadingCourses ? (
+                          <StarLoader size={20} />
+                        ) : (
+                          statsData?.totalCourses
+                        )}{" "}
+                        in catalog
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 items-center">
+                    <div className="rounded-xl bg-btnColor/20 border border-btnColor/40 p-3">
+                      <FaUserAlt size={22} className="text-white" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-white font-outfit block">
+                        Active
+                      </span>
+                      <span className="text-sm text-gray-300 font-outfit">
+                        {statsData?.courseInProgress} in progress
+                      </span>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="h-full mx-auto">
-                <img
-                  src="https://edulearn-lms-admin-template.multipurposethemes.com/images/svg-icon/color-svg/custom-30.svg"
-                  alt=""
-                  className="object-cover w-full"
-                />
               </div>
             </div>
-          </div>
-        </div>
-        <div className="col-span-12 lg:col-span-3 h-full my-auto mx-auto">
-          <div className="text-center space-y-4">
-            <h3 className="text-[1.3rem] font-medium text-gray-600 font-outfit">
-              Have More knoledge to share?
-            </h3>
-            <ConfigProvider
-              theme={{
-                token: {
-                  colorPrimary: "#1e3a8a",
-                },
-              }}
-            >
-              <Button
-                type="primary"
-                className="w-full font-outfit font-medium"
-                size="large"
-                onClick={() =>
-                  openCourseDrawer({ drawerName: "create-course" })
-                }
-              >
-                <MdAdd size={22} />
-                <span className="font-outfit">Create New Course</span>
-              </Button>
-            </ConfigProvider>
-            <div className="flex gap-4 justify-between">
-              <div>
-                <p className="bg-blue-900/10 text-xs font-medium tracking-wide text-blue-900 px-3 py-1 rounded font-outfit">
-                  Courses in progress
-                </p>
-                <div className="px-14 py-6 bg-white rounded text-center">
-                  <h1 className="text-[2.5rem] font-outfit">
-                    {statsData?.courseInProgress}
-                  </h1>
-                </div>
-              </div>
-              <div>
-                <p className="bg-blue-900/10 text-xs font-medium tracking-wide text-blue-900 px-3 py-1 rounded font-outfit">
-                  Total courses
-                </p>
-                <div className="px-14 py-6 bg-white rounded text-center">
-                  <h1 className="text-[2.5rem] font-outfit">
-                    {statsData?.totalCourses}
-                  </h1>
-                </div>
-              </div>
+            <div className="hidden lg:block self-center pr-6">
+              <img
+                src="https://edulearn-lms-admin-template.multipurposethemes.com/images/svg-icon/color-svg/custom-30.svg"
+                alt=""
+                className="object-contain w-40 h-32 opacity-90"
+              />
             </div>
           </div>
         </div>
       </div>
-    </>
+      <div className="col-span-12 lg:col-span-3 flex flex-col gap-4">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 text-center">
+          <h3 className="text-base font-medium text-[rgb(10,31,52)] font-outfit mb-3">
+            Quick actions
+          </h3>
+          <ConfigProvider theme={{ token: { colorPrimary: "#00bcc2" } }}>
+            <Button
+              type="primary"
+              className="w-full font-outfit font-medium"
+              size="large"
+              onClick={() => openCourseDrawer({ drawerName: "create-course" })}
+            >
+              <MdAdd size={20} />
+              <span className="font-outfit">Create New Course</span>
+            </Button>
+          </ConfigProvider>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 text-center">
+            <p className="text-xs font-medium text-main-text-color font-outfit mb-1">
+              In progress
+            </p>
+            <p className="text-2xl font-bold text-[rgb(10,31,52)] font-outfit tabular-nums">
+              {isLoadingCourses ? (
+                <StarLoader size={20} />
+              ) : (
+                statsData?.courseInProgress
+              )}
+            </p>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 text-center">
+            <p className="text-xs font-medium text-main-text-color font-outfit mb-1">
+              Total courses
+            </p>
+            <p className="text-2xl font-bold text-[rgb(10,31,52)] font-outfit tabular-nums">
+              {isLoadingCourses ? (
+                <StarLoader size={20} />
+              ) : (
+                statsData?.totalCourses
+              )}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

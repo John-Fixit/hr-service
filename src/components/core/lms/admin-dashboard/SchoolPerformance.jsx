@@ -1,9 +1,19 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as Chart from "chart.js";
+import { useGetAllCourses } from "../../../../API/lms-apis/course";
+import StarLoader from "../../loaders/StarLoader";
+
+const COLORS = ["#00bcc2", "rgb(10,31,52)", "#0d9488", "#64748b", "#f59e0b"];
 
 const SchoolPerformanceCard = () => {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
+
+  const { data: coursesData, isPending: isLoadingCourses } = useGetAllCourses();
+  const courses = useMemo(
+    () => coursesData?.data?.slice(0, 8) || [],
+    [coursesData?.data],
+  );
 
   useEffect(() => {
     if (chartInstance.current) {
@@ -18,29 +28,19 @@ const SchoolPerformanceCard = () => {
       Chart.BarController,
       Chart.BarElement,
       Chart.Legend,
-      Chart.Tooltip
+      Chart.Tooltip,
     );
+
+    const maxRecipients = Math.max(...courses.map((c) => c.TOTAL_RECIPIENTS));
 
     chartInstance.current = new Chart.Chart(ctx, {
       type: "bar",
       data: {
-        labels: [
-          "Mauris dictum",
-          "Etiam vitae",
-          "Praesent non",
-          "Duis eget",
-          "Mauris et arcu",
-        ],
+        labels: courses.map((c) => c.COURSE_TITLE),
         datasets: [
           {
-            data: [94, 79, 75, 67, 54],
-            backgroundColor: [
-              "#22d3ee",
-              "#8b5cf6",
-              "#2dd4bf",
-              "#db2777",
-              "#fbbf24",
-            ],
+            data: courses.map((c) => c.TOTAL_RECIPIENTS),
+            backgroundColor: COLORS,
             borderRadius: 1,
             borderSkipped: false,
             barThickness: 50,
@@ -76,7 +76,7 @@ const SchoolPerformanceCard = () => {
           },
           tooltip: {
             callbacks: {
-              label: (ctx) => ctx.parsed.y + "%",
+              label: (ctx) => `${ctx.parsed.y} recipients`,
             },
           },
         },
@@ -90,10 +90,10 @@ const SchoolPerformanceCard = () => {
           y: {
             display: true,
             min: 0,
-            max: 100,
+            max: Math.ceil(maxRecipients / 100) * 100,
             ticks: {
-              stepSize: 20,
-              callback: (val) => val + "%",
+              stepSize: Math.ceil(maxRecipients / 5 / 50) * 50,
+              callback: (val) => val,
               color: "#94a3b8",
               font: { size: 12 },
             },
@@ -109,17 +109,19 @@ const SchoolPerformanceCard = () => {
         chartInstance.current.destroy();
       }
     };
-  }, []);
+  }, [courses]);
 
   return (
-    <div>
-      <div className="bg-white rounded-xl shadow-sm p-8 w-full max-w-3xl">
-        <h1 className="text-xl text-slate-800 mb-4 font-[400] font-outfit">
-          Top 5 School Performance
-        </h1>
-        <div className="relative h-80 font-outfit">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 w-full">
+      <h3 className="text-lg font-semibold text-[rgb(10,31,52)] mb-4">
+        Top Course Performance
+      </h3>
+      <div className="relative h-80">
+        {isLoadingCourses ? (
+          <StarLoader size={20} />
+        ) : (
           <canvas ref={chartRef}></canvas>
-        </div>
+        )}
       </div>
     </div>
   );

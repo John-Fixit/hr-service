@@ -13,62 +13,52 @@ import { useGetRespondedStats } from "../../../../API/lms-apis/lms-dashboard";
 
 const CurrentActivity = () => {
   return (
-    <>
-      <div>
-        <div className="flex justify-between items-center gap-3 mb-4">
-          <h3 className="font-medium text-[1.3rem] font-outfit">
-            Current Activity
-          </h3>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="p-5 border-b border-gray-100">
+        <h3 className="text-lg font-semibold text-[rgb(10,31,52)] font-outfit">
+          Course response
+        </h3>
+        <p className="text-sm text-main-text-color font-outfit mt-0.5">
+          Respondents per course (hover for course title)
+        </p>
+      </div>
+      <div className="p-4">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <p className="text-sm font-medium text-gray-700 font-outfit">
+              Respondents by course
+            </p>
+            <p className="text-xs text-gray-500 font-outfit">
+              Number of employees who completed or engaged per course
+            </p>
+          </div>
+          <div className="bg-btnColor/10 rounded-lg p-2">
+            <Calendar className="w-4 h-4 text-btnColor" />
+          </div>
         </div>
-        <div>
-          <div className="max-w-5xl mx-auto">
-            {/* Main Progress Card */}
-            <div className="bg-white rounded shadow p-4 mb-6">
-              <div className="flex justify-between items-start mb-8">
-                <div>
-                  <h1 className="text-base font-medium text-gray-900 font-outfit">
-                    Monthly Progress
-                  </h1>
-                  <p className="text-gray-400 font-outfit">
-                    This is the latest Improvement
-                  </p>
-                </div>
-                <div className="bg-blue-100 rounded-full p-2 cursor-pointer">
-                  <Calendar className="w-4 h-4 text-blue-500" />
-                </div>
-              </div>
-              <ActivityChart />
+        <ActivityChart />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+          <div className="rounded-lg bg-[rgb(10,31,52)] text-white py-3 px-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium text-gray-300 font-outfit">
+                Completed
+              </p>
+              <p className="text-lg font-bold font-outfit">—</p>
             </div>
-
-            {/* Bottom Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Yellow Card */}
-              <div className="bg-yellow-400 rounded py-2 px-5 md:px-3 relative overflow-hidden">
-                <h2 className="text-xl font-bold text-white">450K+</h2>
-                <p className=" text-white mb-6 font-outfit">Completed Course</p>
-                <p className="text-white text-sm mb4 font-outfit">
-                  This is the latest Data
-                </p>
-                <div className="absolute bottom-3 right-3 bg-white rounded-full p-1 cursor-pointer shadow-lg">
-                  <ArrowUpRight className="w-5 h-5 text-yellow-400" />
-                </div>
-              </div>
-              {/* Pink Card */}
-              <div className="bg-pink-500 rounded py-2 px-5 md:px-3 relative overflow-hidden">
-                <h2 className="text-xl font-bold text-white">200K+</h2>
-                <p className="font-semibold text-white mb-6 font-outfit">
-                  Video Course
-                </p>
-
-                <div className="absolute bottom-3 right-4 bg-white rounded-full p-1 cursor-pointer shadow-lg">
-                  <Play className="w-5 h-5 text-pink-500 fill-current" />
-                </div>
-              </div>
+            <ArrowUpRight className="w-5 h-5 text-btnColor" />
+          </div>
+          <div className="rounded-lg bg-btnColor text-white py-3 px-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium text-white/80 font-outfit">
+                Engaged
+              </p>
+              <p className="text-lg font-bold font-outfit">—</p>
             </div>
+            <Play className="w-5 h-5 text-white" />
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
@@ -114,12 +104,12 @@ const ActivityChart = () => {
         datasets: [
           {
             data: values,
-            borderColor: "#3b82f6",
+            borderColor: "#00bcc2",
             backgroundColor: (context) => {
               const ctx = context.chart.ctx;
               const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-              gradient.addColorStop(0, "rgba(59, 130, 246, 0.3)");
-              gradient.addColorStop(1, "rgba(59, 130, 246, 0)");
+              gradient.addColorStop(0, "rgba(0, 188, 194, 0.25)");
+              gradient.addColorStop(1, "rgba(0, 188, 194, 0)");
               return gradient;
             },
             borderWidth: 3,
@@ -127,7 +117,7 @@ const ActivityChart = () => {
             tension: 0.4,
             pointRadius: 3,
             pointHoverRadius: 6,
-            pointHoverBackgroundColor: "#3b82f6",
+            pointHoverBackgroundColor: "#00bcc2",
             pointHoverBorderColor: "#fff",
             pointHoverBorderWidth: 2,
           },
