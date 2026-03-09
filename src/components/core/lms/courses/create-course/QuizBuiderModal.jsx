@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { X, Plus, Trash2, Check } from "lucide-react";
 import PropTypes from "prop-types";
 import { ConfigProvider, Input, InputNumber, Select } from "antd";
 import { Button } from "@nextui-org/react";
 import { errorToast } from "../../../../../utils/toastMsgPop";
 
-const QuizBuilderModal = ({ isOpen, handleClose, setValue, lessonIndex }) => {
-  const [currentStep, setCurrentStep] = useState("questions"); // 'questions' or 'config'
-
-  const [quizData, setQuizData] = useState({
+const buildInitialQuiz = (incomingQuizData) => {
+  if (incomingQuizData?.questions?.length) {
+    return incomingQuizData;
+  }
+  return {
     questions: [
       {
         id: crypto.randomUUID(),
@@ -25,10 +26,37 @@ const QuizBuilderModal = ({ isOpen, handleClose, setValue, lessonIndex }) => {
       total_grade: "",
       time_limit: "",
       grading_method: "highest",
+      quiz_description: "",
     },
-  });
+  };
+};
+
+const QuizBuilderModal = ({
+  isOpen,
+  handleClose,
+  setValue,
+  lessonIndex,
+  targetPath,
+  initialQuizData,
+  title = "Create Quiz",
+}) => {
+  const [currentStep, setCurrentStep] = useState("questions"); // 'questions' or 'config'
+
+  const resolvedPath = useMemo(
+    () => targetPath || `curriculum[${lessonIndex}].quiz`,
+    [targetPath, lessonIndex]
+  );
+  const [quizData, setQuizData] = useState(buildInitialQuiz(initialQuizData));
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentStep("questions");
+      setCurrentQuestionIndex(0);
+      setQuizData(buildInitialQuiz(initialQuizData));
+    }
+  }, [isOpen, initialQuizData]);
 
   const addOption = (questionIndex) => {
     const newQuestions = [...quizData.questions];
@@ -140,8 +168,8 @@ const QuizBuilderModal = ({ isOpen, handleClose, setValue, lessonIndex }) => {
       errorToast(validateErrors.join("\n"));
     } else {
       const quizDataString = JSON.stringify(quizData, null, 2);
-      setValue(`curriculum[${lessonIndex}].quiz`, quizData);
-      setValue(`curriculum[${lessonIndex}].quizString`, quizDataString);
+      setValue(resolvedPath, quizData);
+      setValue(`${resolvedPath}String`, quizDataString);
 
       handleClose();
     }
@@ -158,7 +186,7 @@ const QuizBuilderModal = ({ isOpen, handleClose, setValue, lessonIndex }) => {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-2xl font-semibold text-gray-800 font-outfit">
-            Create Quiz
+            {title}
           </h2>
           <button
             onClick={handleClose}
@@ -529,6 +557,9 @@ QuizBuilderModal.propTypes = {
   handleClose: PropTypes.func,
   setValue: PropTypes.func,
   lessonIndex: PropTypes.number,
+  targetPath: PropTypes.string,
+  initialQuizData: PropTypes.object,
+  title: PropTypes.string,
 };
 
 export default QuizBuilderModal;

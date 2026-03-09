@@ -2,14 +2,15 @@ import { ConfigProvider, Radio, Select } from "antd";
 import { Controller } from "react-hook-form";
 import { useGetTemplateRecipient } from "../../../../../API/performance";
 import useCurrentUser from "../../../../../hooks/useCurrentUser";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 import { Button } from "@nextui-org/react";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { useGetDesignation, useGetRegions } from "../../../../../API/officials";
 
 const AddCourseRecipient = (props) => {
-  const { control, watch, handlePrev, handleNext, isCreatingCourse } = props;
+  const { control, watch, setValue, handlePrev, handleNext, isCreatingCourse } =
+    props;
 
   const recipientTypes = [
     { label: "Staffs", value: "staff" },
@@ -22,6 +23,12 @@ const AddCourseRecipient = (props) => {
   const { userData } = useCurrentUser();
 
   const recipientType = watch("recipientType");
+
+  useEffect(() => {
+    if (!recipientType) {
+      setValue("recipientType", "staff");
+    }
+  }, [recipientType, setValue]);
 
   const { data: get_recipients, isPending: isLoadingRecipient } =
     useGetTemplateRecipient({
@@ -181,6 +188,7 @@ const AddCourseRecipient = (props) => {
 AddCourseRecipient.propTypes = {
   control: PropTypes.any,
   watch: PropTypes.any,
+  setValue: PropTypes.func,
   curriculumDefaultRows: PropTypes.any,
   handlePrev: PropTypes.func,
   handleNext: PropTypes.func,

@@ -20,7 +20,7 @@ const SchoolPerformanceCard = () => {
       chartInstance.current.destroy();
     }
 
-    const ctx = chartRef.current.getContext("2d");
+    const ctx = chartRef?.current?.getContext("2d");
 
     Chart.Chart.register(
       Chart.CategoryScale,

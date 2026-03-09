@@ -11,6 +11,8 @@ import {
 import { useState } from "react";
 import { useMutateGetLessonQuiz } from "../../../../API/lms-apis/course";
 import { errorToast } from "../../../../utils/toastMsgPop";
+import useQuizAttemptStore from "../../../../hooks/useQuizAttemptStore";
+import { FaClipboardList, FaHourglassHalf, FaRedoAlt } from "react-icons/fa";
 
 
 
@@ -179,28 +181,57 @@ const QuizConfirmModal = () => {
 
 
     const {data, updateData, openCourseDrawer } = useCourseStore();
+    const upsertAttempt = useQuizAttemptStore((state) => state.upsertAttempt);
 
       const { mutateAsync: mutateGetQuiz, isPending: isGettingQuiz } =
         useMutateGetLessonQuiz();
 
       const lesson = data?.lesson
+      const quizScope = data?.quizScope || "lesson";
+      const generalQuizData = data?.generalQuizData;
 
       const is_open_confirm_start_quiz = data?.is_open_confirm_start_quiz
 
 
       const attempts = lesson?.ATTEMPTS_ALLOWED + " attempt(s)"
       const timeLimit = lesson?.DURATION + " min"
-      const quizTitle = lesson?.QUIZ_DESCRIPTION
+      const quizTitle = lesson?.QUIZ_DESCRIPTION || (quizScope === "general" ? "General Quiz" : "Lesson Quiz")
 const questionCount = lesson?.TOTAL_QUIZZES
 
 
 
        const handleAttemptQuiz = async () => {
           try {
-            const response = await mutateGetQuiz(lesson?.LESSON_ID);
+            const response =
+              quizScope === "general"
+                ? generalQuizData || []
+                : await mutateGetQuiz(lesson?.LESSON_ID);
+            const durationMins = Number(lesson?.DURATION || 0);
+            const startAt = Date.now();
+            const endAt = startAt + durationMins * 60 * 1000;
+            const attemptKey =
+              quizScope === "general"
+                ? `general_${lesson?.COURSE_ID || lesson?.LESSON_ID || "quiz"}`
+                : `lesson_${lesson?.LESSON_RECIPIENT_ID || lesson?.LESSON_ID}`;
+
+            upsertAttempt(attemptKey, {
+              attemptKey,
+              lesson,
+              quizData: response,
+              quizScope,
+              startAt,
+              endAt,
+              answers: {},
+              markedForReview: [],
+              currentViewPage: 0,
+              isSubmitted: false,
+            });
+
             openCourseDrawer({
               drawerName: "cbt-exam",
               quizData: response,
+              quizScope,
+              restoreAttemptKey: attemptKey,
             });
             onClose()
           } catch (err) {
@@ -250,9 +281,9 @@ const questionCount = lesson?.TOTAL_QUIZZES
 
             {/* Stats row */}
             <div style={styles.statsRow}>
-              <StatCard icon="📝" label="Questions" value={questionCount} />
-              <StatCard icon="⏱" label="Time Limit" value={timeLimit} />
-              <StatCard icon="🔁" label="Attempts" value={attempts} />
+              <StatCard icon={<FaClipboardList />} label="Questions" value={questionCount} />
+              <StatCard icon={<FaHourglassHalf />} label="Time Limit" value={timeLimit} />
+              <StatCard icon={<FaRedoAlt />} label="Attempts" value={attempts} />
             </div>
 
             {/* Warning */}

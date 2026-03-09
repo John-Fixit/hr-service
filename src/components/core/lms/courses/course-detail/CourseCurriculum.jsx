@@ -2,11 +2,14 @@ import { Accordion, AccordionItem, Button } from "@nextui-org/react";
 import { BsDashCircleDotted, BsPlusCircleDotted } from "react-icons/bs";
 import { CiImageOn, CiVideoOn } from "react-icons/ci";
 import { FaEye, FaRegFilePdf } from "react-icons/fa";
+import { FiDownloadCloud, FiUploadCloud } from "react-icons/fi";
 import PropTypes from "prop-types";
 import { useCourseStore } from "../../../../../hooks/useCourseStore";
 import { fileExtension } from "../../../../../utils/fileExtension";
 import LessonDocModal from "../../lms-modals/lesson-doc-modal";
 import QuizConfirmModal from "../../lms-modals/QuizConfirmModal";
+import { uploadFileData } from "../../../../../utils/uploadfile";
+import useCurrentUser from "../../../../../hooks/useCurrentUser";
 
 const findFileType = (file) => {
   const extension = fileExtension(file);
@@ -29,13 +32,16 @@ const documentType = {
 
 const CourseCurriculum = ({ course }) => {
   const { updateData } = useCourseStore();
+  const { userData } = useCurrentUser();
 
-  const openConfirmStartQuizModal=(lesson)=>{
+  const openConfirmStartQuizModal = (lesson, quizScope = "lesson", generalQuizData = null) => {
     updateData({
       is_open_confirm_start_quiz: true,
       lesson: lesson,
+      quizScope,
+      generalQuizData,
     });
-  }
+  };
 
   const viewLessonDoc = (lesson) => {
     updateData({
@@ -44,6 +50,19 @@ const CourseCurriculum = ({ course }) => {
       lesson: lesson,
     });
   };
+
+  const handleUploadQuizAnswer = async (lesson, file) => {
+    if (!file) return;
+    const uploaded = await uploadFileData(file, userData?.token);
+    const key = lesson?.LESSON_ID || `general_${course?.COURSE_ID}`;
+    updateData({
+      [`quiz_answer_upload_${key}`]: uploaded?.file_url,
+    });
+  };
+
+  const generalQuiz = course?.general_quiz || course?.GENERAL_QUIZ;
+  const hasGeneralQuiz =
+    course?.HAS_GENERAL_QUIZ || ["general", "both"].includes(course?.QUIZ_STRATEGY);
 
   return (
     <>
@@ -104,28 +123,56 @@ const CourseCurriculum = ({ course }) => {
                         radius="full"
                         size="sm"
                         className="w-8 h-8 rounded-full bg-green-100  flex items-center justify-center"
-                        onPress={() =>
-                          viewLessonDoc(curriculum)
-                        }
+                        onPress={() => viewLessonDoc(curriculum)}
                       >
                         <FaEye className="w-4 h-4 text-green-600" />
                       </Button>
                     </div>
                     {curriculum?.HAS_QUIZ ? (
                       <div className="mt-2">
-                        <Button
-                          onClick={() => openConfirmStartQuizModal(curriculum)}
-                          radius="sm"
-                          size="sm"
-                         
-                          color="primary"
-                          className="font-helvetica"
-                          isDisabled={curriculum?.IS_COMPLETED}
-                        >
-                          {
-                            curriculum?.IS_COMPLETED ? "Completed": "Attempt quiz"
-                          }
-                        </Button>
+                        {(curriculum?.QUIZ_TYPE || "manual") === "manual" ? (
+                          <Button
+                            onClick={() => openConfirmStartQuizModal(curriculum)}
+                            radius="sm"
+                            size="sm"
+                            color="primary"
+                            className="font-helvetica"
+                          >
+                            Attempt Quiz
+                          </Button>
+                        ) : (
+                          <div className="flex flex-wrap gap-2">
+                            <a
+                              href={curriculum?.QUIZ_UPLOAD_FILE_URL}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              <Button size="sm" variant="bordered" className="font-outfit">
+                                <FiDownloadCloud />
+                                Download Quiz
+                              </Button>
+                            </a>
+                            <label htmlFor={`quiz_answer_${curriculum?.LESSON_ID}`}>
+                              <Button
+                                as="span"
+                                size="sm"
+                                color="primary"
+                                className="font-outfit"
+                              >
+                                <FiUploadCloud />
+                                Upload Answer
+                              </Button>
+                            </label>
+                            <input
+                              id={`quiz_answer_${curriculum?.LESSON_ID}`}
+                              type="file"
+                              className="hidden"
+                              onChange={(e) =>
+                                handleUploadQuizAnswer(curriculum, e.target.files?.[0])
+                              }
+                            />
+                          </div>
+                        )}
                       </div>
                     ) : null}
                   </div>
@@ -134,6 +181,61 @@ const CourseCurriculum = ({ course }) => {
             );
           })}
         </Accordion>
+        {hasGeneralQuiz ? (
+          <div className="mt-4 border rounded-lg p-4 bg-slate-50">
+            <h3 className="font-outfit text-blue-900 font-semibold">General Quiz</h3>
+            <p className="font-outfit text-sm text-slate-600 mt-1">
+              {generalQuiz?.QUIZ_DESCRIPTION || "Course-level assessment"}
+            </p>
+            <div className="mt-3">
+              {(generalQuiz?.QUIZ_TYPE || "manual") === "manual" ? (
+                <Button
+                  color="primary"
+                  size="sm"
+                  onClick={() =>
+                    openConfirmStartQuizModal(
+                      {
+                        ...generalQuiz,
+                        LESSON_ID: `general-${course?.COURSE_ID}`,
+                        COURSE_ID: course?.COURSE_ID,
+                        QUIZ_DESCRIPTION: generalQuiz?.QUIZ_DESCRIPTION || "General Quiz",
+                        DURATION: generalQuiz?.DURATION || 0,
+                        ATTEMPTS_ALLOWED: generalQuiz?.ATTEMPTS_ALLOWED || 1,
+                        TOTAL_QUIZZES: generalQuiz?.questions?.length || 0,
+                        TOTAL_QUIZ_SCORE: generalQuiz?.TOTAL_QUIZ_SCORE || 0,
+                      },
+                      "general",
+                      generalQuiz?.questions || []
+                    )
+                  }
+                >
+                  Attempt General Quiz
+                </Button>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  <a href={generalQuiz?.QUIZ_UPLOAD_FILE_URL} target="_blank" rel="noreferrer">
+                    <Button size="sm" variant="bordered" className="font-outfit">
+                      <FiDownloadCloud />
+                      Download Quiz
+                    </Button>
+                  </a>
+                  <label htmlFor={`general_quiz_answer_${course?.COURSE_ID}`}>
+                    <Button as="span" size="sm" color="primary" className="font-outfit">
+                      <FiUploadCloud />
+                      Upload Answer
+                    </Button>
+                  </label>
+                  <input
+                    id={`general_quiz_answer_${course?.COURSE_ID}`}
+                    type="file"
+                    className="hidden"
+                    onChange={(e) => handleUploadQuizAnswer(generalQuiz, e.target.files?.[0])}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <LessonDocModal />

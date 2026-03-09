@@ -5,6 +5,13 @@ import RecipientTable from "./RecipientTable";
 import CourseFeatures from "../course-detail/CourseFeatures";
 import { getCompoundPeriod } from "../../../../../utils/utitlities";
 import StarLoader from "../../../loaders/StarLoader";
+import {
+  FiBell,
+  FiBookOpen,
+  FiDownload,
+  FiFileText,
+  FiClipboard,
+} from "react-icons/fi";
 
 const avatarColors = [
   "#f47c20",
@@ -127,9 +134,40 @@ export default function CreatorCourseDetail() {
         score: totalScorePercentage,
         color,
         total_lessons: totalLessons,
+        lessonBreakdown:
+          recipient?.LESSON_RECIPIENTS?.map((lessonRecipient) => {
+            const lessonInfo = getLessonDetail(lessonRecipient?.LESSON_ID);
+            return {
+              lessonId: lessonRecipient?.LESSON_ID,
+              lessonTitle: lessonInfo?.TITLE,
+              hasQuiz: lessonInfo?.HAS_QUIZ,
+              quizType: lessonInfo?.QUIZ_TYPE || "manual",
+              score: lessonRecipient?.SCORE,
+              totalQuizScore: lessonInfo?.TOTAL_QUIZ_SCORE || 0,
+              isCompleted: lessonRecipient?.IS_COMPLETED,
+              uploadedAnswerUrl:
+                lessonRecipient?.UPLOADED_ANSWER_FILE_URL ||
+                lessonRecipient?.QUIZ_UPLOAD_ANSWER_URL ||
+                lessonRecipient?.ANSWER_FILE_URL ||
+                "",
+            };
+          }) || [],
+        generalQuiz: {
+          quizType: courseDetailData?.general_quiz?.QUIZ_TYPE || "manual",
+          score:
+            recipient?.GENERAL_QUIZ_SCORE ??
+            recipient?.COURSE_QUIZ_SCORE ??
+            recipient?.TOTAL_GENERAL_SCORE ??
+            null,
+          total: courseDetailData?.general_quiz?.TOTAL_QUIZ_SCORE || 0,
+          uploadedAnswerUrl:
+            recipient?.GENERAL_QUIZ_UPLOAD_ANSWER_URL ||
+            recipient?.GENERAL_ANSWER_FILE_URL ||
+            "",
+        },
       };
     });
-  }, [courseDetailData?.course_recipients, refactorLessonData]);
+  }, [courseDetailData?.course_recipients, courseDetailData?.general_quiz, getLessonDetail, refactorLessonData]);
 
   const stats = useMemo(() => calcStats(STUDENTS), [STUDENTS]);
 
@@ -308,10 +346,10 @@ export default function CreatorCourseDetail() {
             </div>
             <div className="grid grid-cols-2 gap-2.5">
               {[
-                { icon: "📝", label: "Add Quiz" },
-                { icon: "📚", label: "Add Lesson" },
-                { icon: "📣", label: "Announce" },
-                { icon: "📥", label: "Export" },
+                { icon: <FiClipboard />, label: "Add Quiz" },
+                { icon: <FiBookOpen />, label: "Add Lesson" },
+                { icon: <FiBell />, label: "Announce" },
+                { icon: <FiDownload />, label: "Export" },
               ].map((a) => (
                 <button
                   key={a.label}
@@ -323,6 +361,19 @@ export default function CreatorCourseDetail() {
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-slate-200 p-5">
+            <div
+              className="font-bold text-blue-800 text-sm mb-4 flex items-center gap-2"
+              style={{ fontFamily: "Sora,sans-serif" }}
+            >
+              <FiFileText />
+              Manual Grading Queue
+            </div>
+            <p className="text-xs text-slate-500">
+              Uploaded quiz answers appear here when API fields are available.
+            </p>
           </div>
 
           {/* Course Features */}

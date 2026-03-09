@@ -2,10 +2,25 @@ import { PiDotsThreeOutlineVerticalFill } from "react-icons/pi";
 import { useGetPopularCourses } from "../../../../API/lms-apis/lms-dashboard";
 
 const colorVariants = [
-  { bgColor: "bg-btnColor", buttonColor: "bg-btnColor/10 text-btnColor hover:bg-btnColor/20 font-outfit" },
-  { bgColor: "bg-[rgb(10,31,52)]", buttonColor: "bg-[rgb(10,31,52)]/10 text-[rgb(10,31,52)] hover:bg-[rgb(10,31,52)]/20 font-outfit" },
-  { bgColor: "bg-amber-500", buttonColor: "bg-amber-50 text-amber-700 hover:bg-amber-100 font-outfit" },
-  { bgColor: "bg-emerald-500", buttonColor: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-outfit" },
+  {
+    bgColor: "bg-btnColor",
+    buttonColor:
+      "bg-btnColor/10 text-btnColor hover:bg-btnColor/20 font-outfit",
+  },
+  {
+    bgColor: "bg-[rgb(10,31,52)]",
+    buttonColor:
+      "bg-[rgb(10,31,52)]/10 text-[rgb(10,31,52)] hover:bg-[rgb(10,31,52)]/20 font-outfit",
+  },
+  {
+    bgColor: "bg-amber-500",
+    buttonColor: "bg-amber-50 text-amber-700 hover:bg-amber-100 font-outfit",
+  },
+  {
+    bgColor: "bg-emerald-500",
+    buttonColor:
+      "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-outfit",
+  },
 ];
 
 const PopularCourses = () => {
@@ -28,7 +43,7 @@ const PopularCourses = () => {
       </div>
       <div className="p-4 space-y-3">
         {popularCourses?.length ? (
-          popularCourses.map((item, index) => {
+          popularCourses?.slice(0, 5)?.map((item, index) => {
             const variant = colorVariants[index % colorVariants.length];
             const name = item.COURSE_CATEGORY || "Unknown";
             const abbreviation = name?.[0]?.toUpperCase() || "?";
@@ -53,7 +68,7 @@ const PopularCourses = () => {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                {/* <div className="flex items-center gap-2 flex-shrink-0">
                   <button
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${variant.buttonColor}`}
                   >
@@ -62,7 +77,7 @@ const PopularCourses = () => {
                   <button className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors">
                     <PiDotsThreeOutlineVerticalFill className="w-5 h-5 text-gray-500" />
                   </button>
-                </div>
+                </div> */}
               </div>
             );
           })

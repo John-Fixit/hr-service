@@ -3,6 +3,8 @@ import { Controller } from "react-hook-form";
 import PropTypes from "prop-types";
 import { Button } from "@nextui-org/react";
 import { IoChevronForward } from "react-icons/io5";
+import { MdChecklistRtl, MdOutlineLibraryBooks } from "react-icons/md";
+import { PiSelectionPlusBold } from "react-icons/pi";
 import useCurrentUser from "../../../../../hooks/useCurrentUser";
 import { uploadFileData } from "../../../../../utils/uploadfile";
 import dayjs from "dayjs";
@@ -29,6 +31,62 @@ const CourseInfo = (props) => {
           Fill basic information regarding your course.
         </p>
         <div className="mt-6 space-y-4">
+          <div>
+            <label htmlFor="" className="font-outfit">
+              Quiz Strategy
+            </label>
+            <Controller
+              control={control}
+              name="quiz_strategy"
+              rules={{
+                required: "Please choose quiz strategy",
+              }}
+              render={({ field, fieldState: { error } }) => (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-1">
+                    {[
+                      {
+                        value: "lesson",
+                        label: "Quiz Per Lesson",
+                        icon: <MdOutlineLibraryBooks className="w-5 h-5" />,
+                      },
+                      {
+                        value: "general",
+                        label: "General Quiz Only",
+                        icon: <MdChecklistRtl className="w-5 h-5" />,
+                      },
+                      {
+                        value: "both",
+                        label: "Both Lesson + General",
+                        icon: <PiSelectionPlusBold className="w-5 h-5" />,
+                      },
+                    ].map((option) => (
+                      <button
+                        type="button"
+                        key={option.value}
+                        className={`border rounded-lg p-3 text-left transition-colors ${
+                          field.value === option.value
+                            ? "border-blue-900 bg-blue-50 text-blue-900"
+                            : "border-gray-200 bg-white text-slate-700"
+                        }`}
+                        onClick={() => field.onChange(option.value)}
+                      >
+                        <span className="flex items-center gap-2 font-outfit text-sm font-medium">
+                          {option.icon}
+                          {option.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  {!!error?.message && (
+                    <span className="text-red-400 font-outfit text-sm px-1">
+                      {error?.message}
+                    </span>
+                  )}
+                </>
+              )}
+            />
+          </div>
           <div>
             <label htmlFor="" className="font-outfit">
               Course Category

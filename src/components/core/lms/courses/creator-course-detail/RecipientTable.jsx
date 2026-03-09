@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { FiEye } from "react-icons/fi";
+import { FiEye, FiSearch } from "react-icons/fi";
 import { MdOutlineDelete } from "react-icons/md";
+import { IoCheckmarkDoneCircleOutline } from "react-icons/io5";
 
 function StatusBadge({ status }) {
   const map = {
@@ -81,7 +82,9 @@ const RecipientTable=({ students=[] }) => {
         </div>
         <div className="flex gap-2 flex-wrap items-center">
           <div className="relative">
-            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs">🔍</span>
+            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-500">
+              <FiSearch />
+            </span>
             <input
               value={search}
               onChange={e => { setSearch(e.target.value); setPage(1); }}
@@ -175,11 +178,11 @@ const RecipientTable=({ students=[] }) => {
                     <td className="px-3.5 py-3 align-middle">
                       <div className="flex gap-1.5">
                         {[
-                          { icon:<FiEye/>,  action: () => setModal(s) },
-                          { icon:<MdOutlineDelete color="red"/>, action: () => {} },
+                          { id: "view", icon:<FiEye/>,  action: () => setModal(s) },
+                          { id: "delete", icon:<MdOutlineDelete color="red"/>, action: () => {} },
                         ].map(btn => (
                           <button
-                            key={btn.icon}
+                            key={btn.id}
                             onClick={btn.action}
                             className="w-7 h-7 rounded-lg border border-slate-200 bg-white cursor-pointer text-[13px] flex items-center justify-center hover:border-[#1abc9c] transition-colors duration-200"
                           >
@@ -237,7 +240,7 @@ const RecipientTable=({ students=[] }) => {
           onClick={e => e.target===e.currentTarget && setModal(null)}
           className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
         >
-          <div className="bg-white rounded-2xl w-full max-w-[420px] shadow-2xl">
+          <div className="bg-white rounded-2xl w-full max-w-[760px] shadow-2xl max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
               <div className="flex items-center gap-3">
                 <Avatar name={modal.name} color={modal.color} size={40} />
@@ -269,15 +272,92 @@ const RecipientTable=({ students=[] }) => {
                 </div>
               ))}
             </div>
-            <div className="flex gap-2.5 px-6 pb-6">
-              <button
-                className="flex-1 bg-[#1abc9c] text-white border-none rounded-xl py-2.5 text-xs font-semibold cursor-pointer"
-                style={{fontFamily:"Sora,sans-serif"}}
-              >💬 Message</button>
-              <button
-                className="flex-1 bg-white text-red-500 border border-red-200 rounded-xl py-2.5 text-xs font-semibold cursor-pointer"
-                style={{fontFamily:"Sora,sans-serif"}}
-              >🗑 Remove</button>
+            <div className="px-6 pb-2">
+              <div className="font-semibold text-sm text-[#0f1b35] mb-2">
+                Lesson-by-lesson breakdown
+              </div>
+              <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+                {(modal.lessonBreakdown || []).map((lesson) => (
+                  <div
+                    key={lesson.lessonId}
+                    className="border border-slate-200 rounded-lg p-3 text-xs"
+                  >
+                    <div className="flex justify-between gap-2">
+                      <span className="font-semibold text-slate-700">
+                        {lesson.lessonTitle || "Untitled lesson"}
+                      </span>
+                      <span className="text-slate-500">
+                        {lesson.isCompleted ? (
+                          <span className="inline-flex items-center gap-1 text-green-600">
+                            <IoCheckmarkDoneCircleOutline /> Completed
+                          </span>
+                        ) : (
+                          "Not completed"
+                        )}
+                      </span>
+                    </div>
+                    <div className="mt-1 text-slate-500">
+                      Score: {lesson.score ?? "—"} / {lesson.totalQuizScore || "—"} | Quiz:{" "}
+                      {lesson.quizType}
+                    </div>
+                    {lesson.uploadedAnswerUrl ? (
+                      <a
+                        href={lesson.uploadedAnswerUrl}
+                        className="text-blue-700 underline"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        View uploaded answer
+                      </a>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            </div>
+            {modal.generalQuiz ? (
+              <div className="px-6 pb-2">
+                <div className="font-semibold text-sm text-[#0f1b35] mb-2">
+                  General quiz
+                </div>
+                <div className="border border-slate-200 rounded-lg p-3 text-xs text-slate-600">
+                  Type: {modal.generalQuiz.quizType} | Score:{" "}
+                  {modal.generalQuiz.score ?? "—"} / {modal.generalQuiz.total || "—"}
+                  {modal.generalQuiz.uploadedAnswerUrl ? (
+                    <div className="mt-1">
+                      <a
+                        href={modal.generalQuiz.uploadedAnswerUrl}
+                        className="text-blue-700 underline"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        View uploaded answer
+                      </a>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
+            <div className="px-6 pb-6">
+              <div className="font-semibold text-sm text-[#0f1b35] mb-2">
+                Manual grading (uploaded quizzes)
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  placeholder="Enter score"
+                  className="border border-slate-200 rounded-lg px-3 py-2 text-xs"
+                />
+                <button
+                  className="bg-[#1abc9c] text-white border-none rounded-lg py-2 text-xs font-semibold cursor-pointer"
+                  style={{fontFamily:"Sora,sans-serif"}}
+                >
+                  Save Grade
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-2">
+                Hook this action to your grading API when available.
+              </p>
             </div>
           </div>
         </div>

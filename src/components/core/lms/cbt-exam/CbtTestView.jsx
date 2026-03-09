@@ -1,14 +1,14 @@
-import { AlertCircle } from "lucide-react";
 import ExamControls from "./ExamControls";
 import ExamHeader from "./ExamHeader";
 import QuestionCard from "./QuestionCard";
 import QuestionNavigator from "./QuestionNavigator";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useCourseStore } from "../../../../hooks/useCourseStore";
 import SubmitConfirmOverlay from "./SubmitConfirmOverlay";
 import { useUpdateCourseLesson } from "../../../../API/lms-apis/course";
 import { errorToast, successToast } from "../../../../utils/toastMsgPop";
 import useCurrentUser from "../../../../hooks/useCurrentUser";
+import useQuizAttemptStore from "../../../../hooks/useQuizAttemptStore";
 
 // Mock quiz data
 // const quizData = {
@@ -117,62 +117,139 @@ import useCurrentUser from "../../../../hooks/useCurrentUser";
 const QUESTIONS_PER_VIEW = 2;
 
 const CbtTestView = () => {
-  const [currentViewPage, setCurrentViewPage] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [markedForReview, setMarkedForReview] = useState([]);
+  const { data, closeCourseDrawer } = useCourseStore();
+  const lesson = data?.lesson;
+  const quizScope = data?.quizScope || "lesson";
+  const attemptKey =
+    data?.restoreAttemptKey ||
+    (quizScope === "general"
+      ? `general_${lesson?.COURSE_ID || lesson?.LESSON_ID || "quiz"}`
+      : `lesson_${lesson?.LESSON_RECIPIENT_ID || lesson?.LESSON_ID}`);
+  const attempts = useQuizAttemptStore((state) => state.attempts);
+  const upsertAttempt = useQuizAttemptStore((state) => state.upsertAttempt);
+  const clearAttempt = useQuizAttemptStore((state) => state.clearAttempt);
+  const storedAttempt = attempts?.[attemptKey];
+
+  const [currentViewPage, setCurrentViewPage] = useState(
+    storedAttempt?.currentViewPage || 0,
+  );
+  const [answers, setAnswers] = useState(storedAttempt?.answers || {});
+  const [markedForReview, setMarkedForReview] = useState(
+    storedAttempt?.markedForReview || [],
+  );
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
 
-  const {mutateAsync: updateCourseLesson, isPending: isSubmitting} = useUpdateCourseLesson();
+  const { mutateAsync: updateCourseLesson, isPending: isSubmitting } =
+    useUpdateCourseLesson();
 
-  const {userData} = useCurrentUser();
-  
-  const {data, closeCourseDrawer } = useCourseStore();
+  const { userData } = useCurrentUser();
   const quizQuestionsData = data?.quizData;
-  const lesson = data?.lesson
 
+  const quizData = useMemo(
+    () => ({
+      config: {
+        allowed_attempt: lesson?.ATTEMPTS_ALLOWED,
+        total_grade: lesson?.TOTAL_QUIZ_SCORE,
+        time_limit: lesson?.DURATION,
+        // grading_method: lesson?.grading_method,
+      },
+      questions:
+        quizQuestionsData?.map((quiz) => ({
+          id: quiz?.QUIZ_ID,
+          question: quiz?.QUIZ_QUESTION,
+          correct_answer: quiz?.QUIZ_ANSWER,
+          options: quiz?.QUIZ_OPTIONS?.map((option) => ({
+            key: option,
+            value: option,
+          })),
+        })) || [],
+    }),
+    [
+      lesson?.ATTEMPTS_ALLOWED,
+      lesson?.DURATION,
+      lesson?.TOTAL_QUIZ_SCORE,
+      quizQuestionsData,
+    ],
+  );
 
-  const quizData = {
-    config: {
-      allowed_attempt: lesson?.ATTEMPTS_ALLOWED,
-      total_grade: lesson?.TOTAL_QUIZ_SCORE,
-      time_limit: lesson?.DURATION,
-      // grading_method: lesson?.grading_method,
-    },
-    questions: quizQuestionsData?.map((quiz)=>({
-    
-      id: quiz?.QUIZ_ID,
-      question: quiz?.QUIZ_QUESTION,
-      correct_answer: quiz?.QUIZ_ANSWER,
-      options: quiz?.QUIZ_OPTIONS?.map((option)=>({
-        key: option,
-        value: option,
-      })),
-    
-  }))
-}
-
-  const [timeLeft, setTimeLeft] = useState(quizData?.config?.time_limit * 60);
+  const [timeLeft, setTimeLeft] = useState(() => {
+    if (storedAttempt?.endAt) {
+      return Math.max(0, Math.ceil((storedAttempt.endAt - Date.now()) / 1000));
+    }
+    return Number(quizData?.config?.time_limit || 0) * 60;
+  });
 
   const topViewRef = useRef(null);
+  const confirmSubmitRef = useRef(null);
+  const hasAutoSubmittedRef = useRef(false);
+  const submissionInProgressRef = useRef(false);
+  const submissionCompletedRef = useRef(false);
 
   const totalViewPages = Math.ceil(
-    quizData?.questions?.length / QUESTIONS_PER_VIEW
+    quizData?.questions?.length / QUESTIONS_PER_VIEW,
   );
 
   // Calculate which questions to display
   const startIndex = currentViewPage * QUESTIONS_PER_VIEW;
   const endIndex = Math.min(
     startIndex + QUESTIONS_PER_VIEW,
-    quizData.questions.length
+    quizData.questions.length,
   );
   const questionsToDisplay = quizData.questions.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    if (submissionCompletedRef.current || showSubmitConfirm) return;
+    if (!attemptKey) return;
+    const durationMins = Number(quizData?.config?.time_limit || 0);
+    const startAt = storedAttempt?.startAt || Date.now();
+    const endAt =
+      storedAttempt?.endAt || startAt + Math.max(0, durationMins) * 60 * 1000;
+    upsertAttempt(attemptKey, {
+      attemptKey,
+      lesson,
+      quizData: quizQuestionsData,
+      quizScope,
+      startAt,
+      endAt,
+      answers,
+      markedForReview,
+      currentViewPage,
+      isSubmitted: false,
+    });
+  }, [
+    answers,
+    attemptKey,
+    currentViewPage,
+    lesson,
+    markedForReview,
+    quizQuestionsData,
+    quizScope,
+    quizData?.config?.time_limit,
+    showSubmitConfirm,
+    storedAttempt?.endAt,
+    storedAttempt?.startAt,
+    upsertAttempt,
+  ]);
+
+  useEffect(() => {
+    hasAutoSubmittedRef.current = false;
+    submissionInProgressRef.current = false;
+    submissionCompletedRef.current = false;
+  }, [attemptKey]);
+
+  useEffect(() => {
+    if (timeLeft > 0 || hasAutoSubmittedRef.current) return;
+    hasAutoSubmittedRef.current = true;
+    confirmSubmitRef.current?.(0);
+  }, [timeLeft]);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          confirmSubmit(0);
+          hasAutoSubmittedRef.current = true;
+          confirmSubmitRef.current?.(0);
           return 0;
         }
         return prev - 1;
@@ -180,7 +257,7 @@ const CbtTestView = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [attemptKey]);
 
   const handleSelectAnswer = (questionId, answerKey) => {
     setAnswers({
@@ -219,52 +296,65 @@ const CbtTestView = () => {
     setShowSubmitConfirm(true);
   };
 
-
-
-  const updateLessonRequest=async(score)=>{
-     const payload = {
+  const updateLessonRequest = async (score) => {
+    if (quizScope === "general") {
+      return {
+        data: {
+          message: "General quiz submitted. Backend integration pending.",
+        },
+      };
+    }
+    const payload = {
       update_type: "iscompleted",
       json: {
-        "IS_COMPLETED": true,
-        "SCORE": score,
-    "DATE_SCORED": new Date().toISOString(),
-    LESSON_RECIPIENT_ID: lesson?.LESSON_RECIPIENT_ID,
-    STAFF_ID: userData?.data?.STAFF_ID
-}
-    }
-    try{
+        IS_COMPLETED: true,
+        SCORE: score,
+        DATE_SCORED: new Date().toISOString(),
+        LESSON_RECIPIENT_ID: lesson?.LESSON_RECIPIENT_ID,
+        STAFF_ID: userData?.data?.STAFF_ID,
+      },
+    };
+    try {
       const res = await updateCourseLesson(payload);
       return res;
-    }catch(err){
-      const errMsg = err?.response?.data?.message || "Failed to update lesson view";
+    } catch (err) {
+      const errMsg =
+        err?.response?.data?.message || "Failed to update lesson view";
       errorToast(errMsg);
-
     }
-  }
+  };
 
-  const confirmSubmit =async(remainingTime) => {
-    const eachQuestionMrk = quizData?.config?.total_grade / quizData?.questions?.length;
+  async function confirmSubmit(remainingTime) {
+    if (submissionInProgressRef.current || submissionCompletedRef.current) {
+      return;
+    }
+    submissionInProgressRef.current = true;
+
+    const eachQuestionMrk =
+      quizData?.config?.total_grade / quizData?.questions?.length;
     const score = quizData.questions.reduce((total, question) => {
       return total + (answers[question.id] === question.correct_answer ? 1 : 0);
     }, 0);
-    const calculateTotalScore = (score * eachQuestionMrk);
+    const calculateTotalScore = score * eachQuestionMrk;
 
-    try{
+    try {
       const res = await updateLessonRequest(calculateTotalScore);
       successToast(res?.data?.message);
-      if(res){
+      if (res) {
+        submissionCompletedRef.current = true;
+        clearAttempt(attemptKey);
         //=======================
-    remainingTime === 0 ?  setShowSubmitConfirm(true):closeCourseDrawer();
-    //===================
-  }
-    }
-    catch(err){
-         const errMsg = err?.response?.data?.message || "Failed to update lesson view";
+        remainingTime === 0 ? setShowSubmitConfirm(true) : closeCourseDrawer();
+        //===================
+      }
+    } catch (err) {
+      submissionInProgressRef.current = false;
+      const errMsg =
+        err?.response?.data?.message || "Failed to update lesson view";
       errorToast(errMsg);
     }
-
-
-  };
+  }
+  confirmSubmitRef.current = confirmSubmit;
 
   const handleViewPageChange = (newPage) => {
     if (newPage >= 0 && newPage < totalViewPages) {
@@ -272,37 +362,30 @@ const CbtTestView = () => {
     }
   };
 
-
-
-  if(isSubmitting){
+  if (isSubmitting) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-     
-<div class="flex-col gap-4 w-full flex items-center justify-center">
-  <div class="w-28 h-28 border-8 text-blue-400 text-4xl animate-spin border-gray-300 flex items-center justify-center border-t-blue-400 rounded-full">
-  
-  </div>
-</div>
+        <div className="flex-col gap-4 w-full flex items-center justify-center">
+          <div className="w-28 h-28 border-8 text-blue-400 text-4xl animate-spin border-gray-300 flex items-center justify-center border-t-blue-400 rounded-full" />
+        </div>
       </div>
-    )
+    );
   }
 
   if (showSubmitConfirm) {
     return (
       <>
-
-      <SubmitConfirmOverlay
-        showSubmitConfirm={showSubmitConfirm}
-        setShowSubmitConfirm={setShowSubmitConfirm}
-        timeLeft={timeLeft}
-        answers={answers}
-        quizData={quizData}
-        confirmSubmit={() => {
-          confirmSubmit();
-        }}
-        closeCourseDrawer={closeCourseDrawer}
-      />
-      
+        <SubmitConfirmOverlay
+          showSubmitConfirm={showSubmitConfirm}
+          setShowSubmitConfirm={setShowSubmitConfirm}
+          timeLeft={timeLeft}
+          answers={answers}
+          quizData={quizData}
+          confirmSubmit={() => {
+            confirmSubmit();
+          }}
+          closeCourseDrawer={closeCourseDrawer}
+        />
       </>
     );
   }
@@ -312,12 +395,11 @@ const CbtTestView = () => {
       <div className="min-h-screen flex flex-col">
         <ExamHeader timeLeft={timeLeft} />
 
-                  <div ref={topViewRef}></div>
+        <div ref={topViewRef}></div>
         <div className="flex-1 container mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-
           <div className="lg:col-span-2 space-y-6">
             {/* Display multiple questions */}
-    
+
             {questionsToDisplay.map((question, index) => {
               const actualIndex = startIndex + index;
               return (

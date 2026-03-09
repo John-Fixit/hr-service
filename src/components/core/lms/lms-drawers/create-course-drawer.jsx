@@ -5,6 +5,7 @@ import { useCourseStore } from "../../../../hooks/useCourseStore";
 import { useForm } from "react-hook-form";
 import AddCurriculum from "../courses/create-course/AddCurriculum";
 import AddCourseRecipient from "../courses/create-course/AddCourseRecipient";
+import GeneralQuizConfig from "../courses/create-course/GeneralQuizConfig";
 import useCurrentUser from "../../../../hooks/useCurrentUser";
 import { useCreateCourse } from "../../../../API/lms-apis/course";
 import { errorToast, successToast } from "../../../../utils/toastMsgPop";
@@ -16,6 +17,10 @@ const curriculumDefaultRows = {
   document_url: "",
   document_file: null,
   has_quiz: false,
+  quiz_type: "manual",
+  quiz_upload_file: null,
+  quiz_upload_file_url: "",
+  quiz_upload_instruction: "",
 };
 
 const CreateCourseDrawer = () => {
@@ -41,8 +46,14 @@ const CreateCourseDrawer = () => {
   const hook_form_props = useForm({
     defaultValues: {
       curriculum: [curriculumDefaultRows],
+      recipientType: "staff",
+      quiz_strategy: "lesson",
+      general_quiz: null,
     },
   });
+
+  const quizStrategy = hook_form_props.watch("quiz_strategy");
+  const hasGeneralQuiz = ["general", "both"].includes(quizStrategy);
 
   useEffect(()=>{
     if(editCourse){
@@ -61,10 +72,12 @@ const CreateCourseDrawer = () => {
           has_quiz: lesson?.HAS_QUIZ,
         })),
         recipients: courseDetail?.course_recipients?.STAFF_IDS,
-        recipientType: courseDetail?.course_recipients?.recipient_type,
+        recipientType: courseDetail?.course_recipients?.recipient_type || "staff",
+        quiz_strategy: courseDetail?.QUIZ_STRATEGY || "lesson",
+        general_quiz: courseDetail?.general_quiz || null,
       })
     }
-  }, [])
+  }, [courseDetail, editCourse, hook_form_props])
 
   const handleSubmit = async () => {
     // eslint-disable-next-line no-unused-vars
@@ -77,6 +90,9 @@ const CreateCourseDrawer = () => {
         document_url,
         has_quiz,
         quiz,
+        quiz_type,
+        quiz_upload_file_url,
+        quiz_upload_instruction,
         // quizString,
       } = crcl;
 
@@ -96,6 +112,9 @@ const CreateCourseDrawer = () => {
         DESCRIPTION: lesson_description || "",
         MEDIA_ATTACHMENT: document_url || "",
         HAS_QUIZ: has_quiz || null,
+        QUIZ_TYPE: has_quiz ? quiz_type || "manual" : null,
+        QUIZ_UPLOAD_FILE_URL: quiz_upload_file_url || "",
+        QUIZ_UPLOAD_INSTRUCTION: quiz_upload_instruction || "",
         QUIZ_DESCRIPTION: quiz_config?.quiz_description || "",
         ATTEMPTS_ALLOWED: quiz_config?.allowed_attempt || "",
         DURATION: quiz_config?.time_limit || "",
@@ -105,6 +124,14 @@ const CreateCourseDrawer = () => {
         },
       };
     });
+
+    const generalQuiz = hook_form_props.getValues("general_quiz");
+    const formattedGeneralQuestions = generalQuiz?.questions?.map((q) => ({
+      QUIZ_QUESTION: q?.question,
+      QUIZ_ANSWER: q?.options?.find((opt) => opt.key === q?.correct_answer)
+        ?.value,
+      QUIZ_OPTIONS: q?.options?.map((opt) => opt.value),
+    }));
 
     const json = {
       COURSE_CATEGORY: rest?.course_category,
@@ -118,6 +145,21 @@ const CreateCourseDrawer = () => {
       CREATOR: userData?.data?.STAFF_ID,
       PERFORMANCE_CYCLE_ID: 12,
       HAS_LINE_MANAGER: false,
+      QUIZ_STRATEGY: rest?.quiz_strategy || "lesson",
+      HAS_GENERAL_QUIZ: hasGeneralQuiz,
+      general_quiz:
+        hasGeneralQuiz && generalQuiz
+          ? {
+              QUIZ_TYPE: generalQuiz?.quiz_type || "manual",
+              QUIZ_UPLOAD_FILE_URL: generalQuiz?.quiz_upload_file_url || "",
+              QUIZ_UPLOAD_INSTRUCTION: generalQuiz?.quiz_upload_instruction || "",
+              QUIZ_DESCRIPTION: generalQuiz?.config?.quiz_description || "",
+              ATTEMPTS_ALLOWED: generalQuiz?.config?.allowed_attempt || "",
+              DURATION: generalQuiz?.config?.time_limit || "",
+              TOTAL_QUIZ_SCORE: generalQuiz?.config?.total_grade || "",
+              questions: formattedGeneralQuestions,
+            }
+          : null,
       COURSE_PREVIEW_IMAGE: rest?.course_thumbnail_url,
       course_lessons: formattedCurriculum,
       course_recipients: {
@@ -152,6 +194,20 @@ const CreateCourseDrawer = () => {
         />
       ),
     },
+    ...(hasGeneralQuiz
+      ? [
+          {
+            title: "General Quiz",
+            content: (
+              <GeneralQuizConfig
+                {...hook_form_props}
+                handlePrev={handlePrev}
+                handleNext={handleNext}
+              />
+            ),
+          },
+        ]
+      : []),
     {
       title: "Recipient",
       content: (
@@ -165,6 +221,12 @@ const CreateCourseDrawer = () => {
       ),
     },
   ];
+
+  useEffect(() => {
+    if (selectedTab > sideTabs.length - 1) {
+      setSelectedTab(sideTabs.length - 1);
+    }
+  }, [selectedTab, sideTabs.length]);
 
   return (
     <Drawer

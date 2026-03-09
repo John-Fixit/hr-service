@@ -12,6 +12,16 @@ import { useEffect, useRef } from "react";
 import { useGetRespondedStats } from "../../../../API/lms-apis/lms-dashboard";
 
 const CurrentActivity = () => {
+  const { data: allCourses = [] } = useGetRespondedStats();
+  const values = allCourses?.map(
+    (course) => course?.TOTAL_RECIPIENTS_COMPLETED ?? 0,
+  );
+  const engagedValues = values?.filter((value) => value > 0);
+  const completedValues = allCourses?.filter(
+    (course) =>
+      course?.TOTAL_LESSONS > 0 &&
+      course?.TOTAL_LESSONS === course?.TOTAL_RECIPIENTS_COMPLETED,
+  );
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="p-5 border-b border-gray-100">
@@ -43,7 +53,9 @@ const CurrentActivity = () => {
               <p className="text-xs font-medium text-gray-300 font-outfit">
                 Completed
               </p>
-              <p className="text-lg font-bold font-outfit">—</p>
+              <p className="text-lg font-bold font-outfit">
+                {completedValues?.length || 0}
+              </p>
             </div>
             <ArrowUpRight className="w-5 h-5 text-btnColor" />
           </div>
@@ -52,7 +64,9 @@ const CurrentActivity = () => {
               <p className="text-xs font-medium text-white/80 font-outfit">
                 Engaged
               </p>
-              <p className="text-lg font-bold font-outfit">—</p>
+              <p className="text-lg font-bold font-outfit">
+                {engagedValues?.length || 0}
+              </p>
             </div>
             <Play className="w-5 h-5 text-white" />
           </div>
