@@ -34,7 +34,11 @@ const CourseCurriculum = ({ course }) => {
   const { updateData } = useCourseStore();
   const { userData } = useCurrentUser();
 
-  const openConfirmStartQuizModal = (lesson, quizScope = "lesson", generalQuizData = null) => {
+  const openConfirmStartQuizModal = (
+    lesson,
+    quizScope = "lesson",
+    generalQuizData = null,
+  ) => {
     updateData({
       is_open_confirm_start_quiz: true,
       lesson: lesson,
@@ -62,7 +66,8 @@ const CourseCurriculum = ({ course }) => {
 
   const generalQuiz = course?.general_quiz || course?.GENERAL_QUIZ;
   const hasGeneralQuiz =
-    course?.HAS_GENERAL_QUIZ || ["general", "both"].includes(course?.QUIZ_STRATEGY);
+    course?.HAS_GENERAL_QUIZ ||
+    ["general", "both"].includes(course?.QUIZ_STRATEGY);
 
   return (
     <>
@@ -132,11 +137,14 @@ const CourseCurriculum = ({ course }) => {
                       <div className="mt-2">
                         {(curriculum?.QUIZ_TYPE || "manual") === "manual" ? (
                           <Button
-                            onClick={() => openConfirmStartQuizModal(curriculum)}
+                            onClick={() =>
+                              openConfirmStartQuizModal(curriculum)
+                            }
                             radius="sm"
                             size="sm"
                             color="primary"
                             className="font-helvetica"
+                            isDisabled={curriculum?.IS_COMPLETED}
                           >
                             Attempt Quiz
                           </Button>
@@ -147,12 +155,18 @@ const CourseCurriculum = ({ course }) => {
                               target="_blank"
                               rel="noreferrer"
                             >
-                              <Button size="sm" variant="bordered" className="font-outfit">
+                              <Button
+                                size="sm"
+                                variant="bordered"
+                                className="font-outfit"
+                              >
                                 <FiDownloadCloud />
                                 Download Quiz
                               </Button>
                             </a>
-                            <label htmlFor={`quiz_answer_${curriculum?.LESSON_ID}`}>
+                            <label
+                              htmlFor={`quiz_answer_${curriculum?.LESSON_ID}`}
+                            >
                               <Button
                                 as="span"
                                 size="sm"
@@ -168,7 +182,10 @@ const CourseCurriculum = ({ course }) => {
                               type="file"
                               className="hidden"
                               onChange={(e) =>
-                                handleUploadQuizAnswer(curriculum, e.target.files?.[0])
+                                handleUploadQuizAnswer(
+                                  curriculum,
+                                  e.target.files?.[0],
+                                )
                               }
                             />
                           </div>
@@ -183,7 +200,9 @@ const CourseCurriculum = ({ course }) => {
         </Accordion>
         {hasGeneralQuiz ? (
           <div className="mt-4 border rounded-lg p-4 bg-slate-50">
-            <h3 className="font-outfit text-blue-900 font-semibold">General Quiz</h3>
+            <h3 className="font-outfit text-blue-900 font-semibold">
+              General Quiz
+            </h3>
             <p className="font-outfit text-sm text-slate-600 mt-1">
               {generalQuiz?.QUIZ_DESCRIPTION || "Course-level assessment"}
             </p>
@@ -198,14 +217,15 @@ const CourseCurriculum = ({ course }) => {
                         ...generalQuiz,
                         LESSON_ID: `general-${course?.COURSE_ID}`,
                         COURSE_ID: course?.COURSE_ID,
-                        QUIZ_DESCRIPTION: generalQuiz?.QUIZ_DESCRIPTION || "General Quiz",
+                        QUIZ_DESCRIPTION:
+                          generalQuiz?.QUIZ_DESCRIPTION || "General Quiz",
                         DURATION: generalQuiz?.DURATION || 0,
                         ATTEMPTS_ALLOWED: generalQuiz?.ATTEMPTS_ALLOWED || 1,
                         TOTAL_QUIZZES: generalQuiz?.questions?.length || 0,
                         TOTAL_QUIZ_SCORE: generalQuiz?.TOTAL_QUIZ_SCORE || 0,
                       },
                       "general",
-                      generalQuiz?.questions || []
+                      generalQuiz?.questions || [],
                     )
                   }
                 >
@@ -213,14 +233,27 @@ const CourseCurriculum = ({ course }) => {
                 </Button>
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  <a href={generalQuiz?.QUIZ_UPLOAD_FILE_URL} target="_blank" rel="noreferrer">
-                    <Button size="sm" variant="bordered" className="font-outfit">
+                  <a
+                    href={generalQuiz?.QUIZ_UPLOAD_FILE_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <Button
+                      size="sm"
+                      variant="bordered"
+                      className="font-outfit"
+                    >
                       <FiDownloadCloud />
                       Download Quiz
                     </Button>
                   </a>
                   <label htmlFor={`general_quiz_answer_${course?.COURSE_ID}`}>
-                    <Button as="span" size="sm" color="primary" className="font-outfit">
+                    <Button
+                      as="span"
+                      size="sm"
+                      color="primary"
+                      className="font-outfit"
+                    >
                       <FiUploadCloud />
                       Upload Answer
                     </Button>
@@ -229,7 +262,9 @@ const CourseCurriculum = ({ course }) => {
                     id={`general_quiz_answer_${course?.COURSE_ID}`}
                     type="file"
                     className="hidden"
-                    onChange={(e) => handleUploadQuizAnswer(generalQuiz, e.target.files?.[0])}
+                    onChange={(e) =>
+                      handleUploadQuizAnswer(generalQuiz, e.target.files?.[0])
+                    }
                   />
                 </div>
               )}
