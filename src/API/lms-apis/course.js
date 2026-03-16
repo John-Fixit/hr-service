@@ -72,6 +72,19 @@ export const useGetCreatorCourseDetail = (courseID) => {
     },
   });
 };
+
+export const useGetLessonBreakdown = (staffId, courseId, enabled = true) => {
+  return useQuery({
+    queryKey: [`get_lesson_breakdown_${staffId}_${courseId}`],
+    queryFn: async () => {
+      const res = await LMS_API.get(
+        `/course/get-lesson-breakdown/${staffId}/${courseId}`,
+      );
+      return res?.data?.data;
+    },
+    enabled: Boolean(staffId && courseId && enabled),
+  });
+};
 export const useMutateCourseDetail = (staff_id) => {
   return useMutation({
     mutationFn: async (courseID) => {

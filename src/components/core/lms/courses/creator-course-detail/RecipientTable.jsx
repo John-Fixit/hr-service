@@ -1,35 +1,55 @@
 import { useMemo, useState } from "react";
+import PropTypes from "prop-types";
 import { FiEye, FiSearch } from "react-icons/fi";
 import { MdOutlineDelete } from "react-icons/md";
-import { IoCheckmarkDoneCircleOutline } from "react-icons/io5";
+import StaffBreakdownDrawer from "./StaffBreakdownDrawer";
 
 function StatusBadge({ status }) {
   const map = {
     completed: "bg-green-100 text-green-700",
-    progress:  "bg-amber-50 text-amber-600",
-    none:      "bg-slate-100 text-slate-500",
+    progress: "bg-amber-50 text-amber-600",
+    none: "bg-slate-100 text-slate-500",
   };
-  const labels = { completed:"Completed", progress:"In Progress", none:"Not Started" };
+  const labels = {
+    completed: "Completed",
+    progress: "In Progress",
+    none: "Not Started",
+  };
   return (
-    <span className={`${map[status]} text-[11px] font-semibold px-2.5 py-0.5 rounded-full`}>
+    <span
+      className={`${map[status]} text-[11px] font-semibold px-2.5 py-0.5 rounded-full`}
+    >
       {labels[status]}
     </span>
   );
 }
 
-
-
 function ScoreText({ score }) {
-  if (score === null) return <span className="text-slate-400 font-bold">—</span>;
-  const color = score >= 80 ? "text-green-500" : score >= 60 ? "text-amber-500" : "text-red-500";
+  if (score === null)
+    return <span className="text-slate-400 font-bold">—</span>;
+  const color =
+    score >= 80
+      ? "text-green-500"
+      : score >= 60
+        ? "text-amber-500"
+        : "text-red-500";
   return <span className={`${color} font-bold text-[13px]`}>{score}%</span>;
 }
 
-
-const getStatus   = s => s.lessons === 0 ? "none" : s.lessons >= s?.total_lessons ? "completed" : "progress";
-const getProgress = s => Math.round((s.lessons / s?.total_lessons) * 100);
-const getInitials = n => n.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
-
+const getStatus = (s) =>
+  s.lessons === 0
+    ? "none"
+    : s.lessons >= s?.total_lessons
+      ? "completed"
+      : "progress";
+const getProgress = (s) => Math.round((s.lessons / s?.total_lessons) * 100);
+const getInitials = (n) =>
+  n
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
 function Avatar({ name, color, size = 32 }) {
   const fontSize = size * 0.35;
@@ -43,42 +63,55 @@ function Avatar({ name, color, size = 32 }) {
   );
 }
 
-const RecipientTable=({ students=[] }) => {
-  const [tab,    setTab]    = useState("all");
+const RecipientTable = ({ students = [], courseId }) => {
+  console.log("courseId", courseId);
+  const [tab, setTab] = useState("all");
   const [search, setSearch] = useState("");
-  const [page,   setPage]   = useState(1);
-  const [modal,  setModal]  = useState(null);
+  const [page, setPage] = useState(1);
+  const [selectedStaff, setSelectedStaff] = useState(null);
 
   const PAGE_SIZE = 10;
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return students.filter(s => {
+    return students.filter((s) => {
       const matchTab = tab === "all" || getStatus(s) === tab;
-      const matchQ   = !q || s.name.toLowerCase().includes(q) || s.email.toLowerCase().includes(q);
+      const matchQ =
+        !q ||
+        s.name.toLowerCase().includes(q) ||
+        s.email.toLowerCase().includes(q);
       return matchTab && matchQ;
     });
   }, [students, tab, search]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage   = Math.min(page, totalPages);
-  const slice      = filtered.slice((safePage-1)*PAGE_SIZE, safePage*PAGE_SIZE);
+  const safePage = Math.min(page, totalPages);
+  const slice = filtered.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE,
+  );
 
   const TABS = [
-    { key:"all",       label:"All" },
-    { key:"progress",  label:"In Progress" },
-    { key:"completed", label:"Completed" },
-    { key:"none",      label:"Not Started" },
+    { key: "all", label: "All" },
+    { key: "progress", label: "In Progress" },
+    { key: "completed", label: "Completed" },
+    { key: "none", label: "Not Started" },
   ];
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 flex-wrap gap-3">
         <div>
-          <div className="font-bold text-[#0f1b35] text-[15px]" style={{fontFamily:"Sora,sans-serif"}}>Recipients</div>
-          <div className="text-[11px] text-slate-400 mt-0.5">Staff enrolled in this course</div>
+          <div
+            className="font-bold text-[#0f1b35] text-[15px]"
+            style={{ fontFamily: "Sora,sans-serif" }}
+          >
+            Recipients
+          </div>
+          <div className="text-[11px] text-slate-400 mt-0.5">
+            Staff enrolled in this course
+          </div>
         </div>
         <div className="flex gap-2 flex-wrap items-center">
           <div className="relative">
@@ -87,7 +120,10 @@ const RecipientTable=({ students=[] }) => {
             </span>
             <input
               value={search}
-              onChange={e => { setSearch(e.target.value); setPage(1); }}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               placeholder="Search name or email…"
               className="pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-lg outline-none w-48 focus:border-[#1abc9c]"
             />
@@ -97,16 +133,19 @@ const RecipientTable=({ students=[] }) => {
 
       {/* Tabs */}
       <div className="flex border-b border-slate-100 px-6">
-        {TABS.map(t => (
+        {TABS.map((t) => (
           <button
             key={t.key}
-            onClick={() => { setTab(t.key); setPage(1); }}
+            onClick={() => {
+              setTab(t.key);
+              setPage(1);
+            }}
             className={`text-xs font-semibold px-4 py-3 border-b-2 cursor-pointer bg-transparent transition-colors duration-200 -mb-px ${
               tab === t.key
                 ? "border-[#1abc9c] text-[#1abc9c]"
                 : "border-transparent text-slate-400 hover:text-slate-600"
             }`}
-            style={{fontFamily:"Sora,sans-serif"}}
+            style={{ fontFamily: "Sora,sans-serif" }}
           >
             {t.label}
           </button>
@@ -116,16 +155,25 @@ const RecipientTable=({ students=[] }) => {
       {/* Table */}
       <div className="overflow-x-auto">
         {slice.length === 0 ? (
-          <div className="py-12 text-center text-slate-400 text-[13px]">No students found.</div>
+          <div className="py-12 text-center text-slate-400 text-[13px]">
+            No students found.
+          </div>
         ) : (
           <table className="w-full border-collapse">
             <thead>
               <tr className="mt-3">
-                {["Student","Lessons Done","Progress","Quiz Score","Status","Actions"].map(h => (
+                {[
+                  "Student",
+                  "Lessons Done",
+                  "Progress",
+                  "Quiz Score",
+                  "Status",
+                  "Actions",
+                ].map((h) => (
                   <th
                     key={h}
                     className="text-left px-3.5 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 bg-slate-50"
-                    style={{fontFamily:"Sora,sans-serif"}}
+                    style={{ fontFamily: "Sora,sans-serif" }}
                   >
                     {h}
                   </th>
@@ -133,7 +181,7 @@ const RecipientTable=({ students=[] }) => {
               </tr>
             </thead>
             <tbody>
-              {slice.map(s => {
+              {slice.map((s) => {
                 const progress = getProgress(s);
                 return (
                   <tr
@@ -145,15 +193,22 @@ const RecipientTable=({ students=[] }) => {
                       <div className="flex items-center gap-2.5">
                         <Avatar name={s.name} color={s.color} />
                         <div>
-                          <div className="font-semibold text-[13px] text-[#0f1b35] capitalize">{s.name}</div>
-                          <div className="text-[11px] text-slate-400">{s.email}</div>
+                          <div className="font-semibold text-[13px] text-[#0f1b35] capitalize">
+                            {s.name}
+                          </div>
+                          <div className="text-[11px] text-slate-400">
+                            {s.email}
+                          </div>
                         </div>
                       </div>
                     </td>
 
                     {/* Lessons */}
                     <td className="px-3.5 py-3 text-center-middle text-[13px]">
-                      {s.lessons} <span className="text-slate-300">/ {s?.total_lessons}</span>
+                      {s.lessons}{" "}
+                      <span className="text-slate-300">
+                        / {s?.total_lessons}
+                      </span>
                     </td>
 
                     {/* Progress */}
@@ -165,22 +220,43 @@ const RecipientTable=({ students=[] }) => {
                             style={{ width: `${progress}%` }}
                           />
                         </div>
-                        <span className="text-xs font-bold text-slate-700 min-w-[32px] text-right">{progress}%</span>
+                        <span className="text-xs font-bold text-slate-700 min-w-[32px] text-right">
+                          {progress}%
+                        </span>
                       </div>
                     </td>
 
                     {/* Score */}
-                    <td className="px-3.5 py-3 text-center"><ScoreText score={s.score} /></td>
+                    <td className="px-3.5 py-3 text-center">
+                      <ScoreText score={s.score} />
+                    </td>
                     {/* Status */}
-                    <td className="px-3.5 py-3 align-middle"><StatusBadge status={getStatus(s)} /></td>
+                    <td className="px-3.5 py-3 align-middle">
+                      <StatusBadge status={getStatus(s)} />
+                    </td>
 
                     {/* Actions */}
                     <td className="px-3.5 py-3 align-middle">
                       <div className="flex gap-1.5">
                         {[
-                          { id: "view", icon:<FiEye/>,  action: () => setModal(s) },
-                          { id: "delete", icon:<MdOutlineDelete color="red"/>, action: () => {} },
-                        ].map(btn => (
+                          {
+                            id: "view",
+                            icon: <FiEye />,
+                            action: () =>
+                              setSelectedStaff({
+                                staffId: s.staffId,
+                                courseId,
+                                name: s.name,
+                                email: s.email,
+                                color: s.color,
+                              }),
+                          },
+                          // {
+                          //   id: "delete",
+                          //   icon: <MdOutlineDelete color="red" />,
+                          //   action: () => {},
+                          // },
+                        ].map((btn) => (
                           <button
                             key={btn.id}
                             onClick={btn.action}
@@ -203,17 +279,19 @@ const RecipientTable=({ students=[] }) => {
       <div className="flex justify-between items-center px-6 py-3.5 border-t border-slate-100 bg-slate-50/60">
         <span className="text-xs text-slate-400">
           {filtered.length > 0
-            ? `Showing ${(safePage-1)*PAGE_SIZE+1}–${Math.min(safePage*PAGE_SIZE,filtered.length)} of ${filtered.length} students`
+            ? `Showing ${(safePage - 1) * PAGE_SIZE + 1}–${Math.min(safePage * PAGE_SIZE, filtered.length)} of ${filtered.length} students`
             : ""}
         </span>
         <div className="flex gap-1.5 items-center">
           <button
             disabled={safePage <= 1}
-            onClick={() => setPage(p => p-1)}
+            onClick={() => setPage((p) => p - 1)}
             className="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-slate-200 bg-white cursor-pointer disabled:opacity-30"
-            style={{fontFamily:"Sora,sans-serif"}}
-          >← Prev</button>
-          {Array.from({ length: totalPages }, (_,i) => i+1).map(n => (
+            style={{ fontFamily: "Sora,sans-serif" }}
+          >
+            ← Prev
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
             <button
               key={n}
               onClick={() => setPage(n)}
@@ -222,148 +300,45 @@ const RecipientTable=({ students=[] }) => {
                   ? "bg-[#1abc9c] text-white border-none"
                   : "border border-slate-200 bg-white text-slate-400"
               }`}
-              style={{fontFamily:"Sora,sans-serif"}}
-            >{n}</button>
+              style={{ fontFamily: "Sora,sans-serif" }}
+            >
+              {n}
+            </button>
           ))}
           <button
             disabled={safePage >= totalPages}
-            onClick={() => setPage(p => p+1)}
+            onClick={() => setPage((p) => p + 1)}
             className="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-slate-200 bg-white cursor-pointer disabled:opacity-30"
-            style={{fontFamily:"Sora,sans-serif"}}
-          >Next →</button>
+            style={{ fontFamily: "Sora,sans-serif" }}
+          >
+            Next →
+          </button>
         </div>
       </div>
 
-      {/* Modal */}
-      {modal && (
-        <div
-          onClick={e => e.target===e.currentTarget && setModal(null)}
-          className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
-        >
-          <div className="bg-white rounded-2xl w-full max-w-[760px] shadow-2xl max-h-[85vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
-              <div className="flex items-center gap-3">
-                <Avatar name={modal.name} color={modal.color} size={40} />
-                <div>
-                  <div className="font-bold text-[#0f1b35] text-sm" style={{fontFamily:"Sora,sans-serif"}}>{modal.name}</div>
-                  <div className="text-[11px] text-slate-400">{modal.email}</div>
-                </div>
-              </div>
-              <button
-                onClick={() => setModal(null)}
-                className="bg-transparent border-none text-lg text-slate-400 cursor-pointer leading-none"
-              >✕</button>
-            </div>
-            <div className="grid grid-cols-2 gap-3 p-6">
-              {[
-                { label:"Quiz Score",   value: modal.score!==null?modal.score+"%":"—" },
-                { label:"Progress",     value: getProgress(modal)+"%" },
-                { label:"Lessons Done", value: `${modal.lessons} / ${modal?.total_lessons}` },
-              ].map(item => (
-                <div key={item.label} className="bg-slate-50 rounded-xl p-4">
-                  <div
-                    className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1"
-                    style={{fontFamily:"Sora,sans-serif"}}
-                  >{item.label}</div>
-                  <div
-                    className="font-bold text-[22px] text-[#0f1b35]"
-                    style={{fontFamily:"Sora,sans-serif"}}
-                  >{item.value}</div>
-                </div>
-              ))}
-            </div>
-            <div className="px-6 pb-2">
-              <div className="font-semibold text-sm text-[#0f1b35] mb-2">
-                Lesson-by-lesson breakdown
-              </div>
-              <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
-                {(modal.lessonBreakdown || []).map((lesson) => (
-                  <div
-                    key={lesson.lessonId}
-                    className="border border-slate-200 rounded-lg p-3 text-xs"
-                  >
-                    <div className="flex justify-between gap-2">
-                      <span className="font-semibold text-slate-700">
-                        {lesson.lessonTitle || "Untitled lesson"}
-                      </span>
-                      <span className="text-slate-500">
-                        {lesson.isCompleted ? (
-                          <span className="inline-flex items-center gap-1 text-green-600">
-                            <IoCheckmarkDoneCircleOutline /> Completed
-                          </span>
-                        ) : (
-                          "Not completed"
-                        )}
-                      </span>
-                    </div>
-                    <div className="mt-1 text-slate-500">
-                      Score: {lesson.score ?? "—"} / {lesson.totalQuizScore || "—"} | Quiz:{" "}
-                      {lesson.quizType}
-                    </div>
-                    {lesson.uploadedAnswerUrl ? (
-                      <a
-                        href={lesson.uploadedAnswerUrl}
-                        className="text-blue-700 underline"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        View uploaded answer
-                      </a>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            </div>
-            {modal.generalQuiz ? (
-              <div className="px-6 pb-2">
-                <div className="font-semibold text-sm text-[#0f1b35] mb-2">
-                  General quiz
-                </div>
-                <div className="border border-slate-200 rounded-lg p-3 text-xs text-slate-600">
-                  Type: {modal.generalQuiz.quizType} | Score:{" "}
-                  {modal.generalQuiz.score ?? "—"} / {modal.generalQuiz.total || "—"}
-                  {modal.generalQuiz.uploadedAnswerUrl ? (
-                    <div className="mt-1">
-                      <a
-                        href={modal.generalQuiz.uploadedAnswerUrl}
-                        className="text-blue-700 underline"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        View uploaded answer
-                      </a>
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            ) : null}
-            <div className="px-6 pb-6">
-              <div className="font-semibold text-sm text-[#0f1b35] mb-2">
-                Manual grading (uploaded quizzes)
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="number"
-                  min={0}
-                  placeholder="Enter score"
-                  className="border border-slate-200 rounded-lg px-3 py-2 text-xs"
-                />
-                <button
-                  className="bg-[#1abc9c] text-white border-none rounded-lg py-2 text-xs font-semibold cursor-pointer"
-                  style={{fontFamily:"Sora,sans-serif"}}
-                >
-                  Save Grade
-                </button>
-              </div>
-              <p className="text-[11px] text-slate-400 mt-2">
-                Hook this action to your grading API when available.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Staff breakdown drawer — open when any staff is selected; high z-index so it appears above parent drawer */}
+      <StaffBreakdownDrawer
+        open={Boolean(selectedStaff)}
+        onClose={() => setSelectedStaff(null)}
+        staffId={selectedStaff?.staffId}
+        courseId={selectedStaff?.courseId ?? courseId}
+        staffSummary={{
+          name: selectedStaff?.name,
+          email: selectedStaff?.email,
+          color: selectedStaff?.color,
+        }}
+        onSaveGrade={(lessonRecipientId, lessonId, score) => {
+          // TODO: connect to grading API when available
+          console.log("Save grade", { lessonRecipientId, lessonId, score });
+        }}
+      />
     </div>
   );
-}
+};
+
+RecipientTable.propTypes = {
+  students: PropTypes.array,
+  courseId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+};
 
 export default RecipientTable;

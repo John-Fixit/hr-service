@@ -1,10 +1,8 @@
 import { Video } from "lucide-react";
 import { AiOutlineTags } from "react-icons/ai";
 import { BsClockHistory } from "react-icons/bs";
-import { CiFlag1 } from "react-icons/ci";
 import { HiOutlineUsers } from "react-icons/hi";
 import { IoGameControllerOutline } from "react-icons/io5";
-import { SlBadge } from "react-icons/sl";
 import { courseDuration } from "../../../../../utils/utitlities";
 import PropTypes from "prop-types";
 import { FaUser } from "react-icons/fa";
@@ -45,7 +43,7 @@ const CourseFeatures = ({ course }) => {
     {
       icon: FaUser,
       title: "Course Creator",
-      value: course?.CREATOR_EMAIL,
+      value: course?.CREATOR_NAME || course?.CREATOR_EMAIL,
     },
     // {
     //   icon: CiFlag1,

@@ -183,7 +183,9 @@ const CourseInfo = (props) => {
                     placeholder="Enter description"
                     size="large"
                     {...field}
-                    autoSize
+                    // autoSize
+                    // minRows={3}
+                    rows={3}
                   />
                   {!!error?.message && (
                     <span className="text-red-400 font-outfit text-sm px-1">
@@ -207,7 +209,8 @@ const CourseInfo = (props) => {
                     placeholder="Enter Objective"
                     size="large"
                     {...field}
-                    autoSize
+                    // autoSize
+                    rows={3}
                   />
                   {!!error?.message && (
                     <span className="text-red-400 font-outfit text-sm px-1">

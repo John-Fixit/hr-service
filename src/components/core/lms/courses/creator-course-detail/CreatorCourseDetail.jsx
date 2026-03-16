@@ -128,6 +128,7 @@ export default function CreatorCourseDetail() {
       const color =
         avatarColors[Math.floor(Math.random() * avatarColors.length)];
       return {
+        staffId: recipient?.STAFF_ID ?? recipient?.ID,
         name,
         email: recipient?.EMAIL,
         lessons: completedLessons,
@@ -167,7 +168,12 @@ export default function CreatorCourseDetail() {
         },
       };
     });
-  }, [courseDetailData?.course_recipients, courseDetailData?.general_quiz, getLessonDetail, refactorLessonData]);
+  }, [
+    courseDetailData?.course_recipients,
+    courseDetailData?.general_quiz,
+    getLessonDetail,
+    refactorLessonData,
+  ]);
 
   const stats = useMemo(() => calcStats(STUDENTS), [STUDENTS]);
 
@@ -178,6 +184,8 @@ export default function CreatorCourseDetail() {
       </div>
     );
   }
+
+  console.log("courseDetailData", courseDetailData);
 
   return (
     <div
@@ -301,7 +309,10 @@ export default function CreatorCourseDetail() {
       >
         {/* LEFT */}
         <div className="flex flex-col gap-5">
-          <RecipientTable students={STUDENTS} />
+          <RecipientTable
+            students={STUDENTS}
+            courseId={courseDetail?.COURSE_ID}
+          />
 
           {/* Course Overview */}
           <div className="bg-white rounded-2xl border border-slate-200 p-6">
