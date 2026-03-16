@@ -30,8 +30,7 @@ const CreateCourseDrawer = () => {
   const { userData } = useCurrentUser();
 
   const editCourse = data?.editCourse || false;
-  const courseDetail = data?.courseDetail
-
+  const courseDetail = data?.courseDetail;
 
   const { mutateAsync: mutateCreateCourse, isPending: isCreatingCourse } =
     useCreateCourse();
@@ -55,8 +54,8 @@ const CreateCourseDrawer = () => {
   const quizStrategy = hook_form_props.watch("quiz_strategy");
   const hasGeneralQuiz = ["general", "both"].includes(quizStrategy);
 
-  useEffect(()=>{
-    if(editCourse){
+  useEffect(() => {
+    if (editCourse) {
       hook_form_props.reset({
         course_title: courseDetail?.COURSE_TITLE,
         course_objective: courseDetail?.COURSE_OBJECTIVE,
@@ -72,12 +71,13 @@ const CreateCourseDrawer = () => {
           has_quiz: lesson?.HAS_QUIZ,
         })),
         recipients: courseDetail?.course_recipients?.STAFF_IDS,
-        recipientType: courseDetail?.course_recipients?.recipient_type || "staff",
+        recipientType:
+          courseDetail?.course_recipients?.recipient_type || "staff",
         quiz_strategy: courseDetail?.QUIZ_STRATEGY || "lesson",
         general_quiz: courseDetail?.general_quiz || null,
-      })
+      });
     }
-  }, [courseDetail, editCourse, hook_form_props])
+  }, [courseDetail, editCourse, hook_form_props]);
 
   const handleSubmit = async () => {
     // eslint-disable-next-line no-unused-vars
@@ -133,6 +133,8 @@ const CreateCourseDrawer = () => {
       QUIZ_OPTIONS: q?.options?.map((opt) => opt.value),
     }));
 
+    console.log(hook_form_props.getValues());
+
     const json = {
       COURSE_CATEGORY: rest?.course_category,
       COMPANY_ID: userData?.data?.COMPANY_ID,
@@ -152,7 +154,8 @@ const CreateCourseDrawer = () => {
           ? {
               QUIZ_TYPE: generalQuiz?.quiz_type || "manual",
               QUIZ_UPLOAD_FILE_URL: generalQuiz?.quiz_upload_file_url || "",
-              QUIZ_UPLOAD_INSTRUCTION: generalQuiz?.quiz_upload_instruction || "",
+              QUIZ_UPLOAD_INSTRUCTION:
+                generalQuiz?.quiz_upload_instruction || "",
               QUIZ_DESCRIPTION: generalQuiz?.config?.quiz_description || "",
               ATTEMPTS_ALLOWED: generalQuiz?.config?.allowed_attempt || "",
               DURATION: generalQuiz?.config?.time_limit || "",
@@ -173,7 +176,7 @@ const CreateCourseDrawer = () => {
       closeCourseDrawer();
     } catch (err) {
       errorToast(
-        err?.response?.data?.message || err?.message || "Error creating course"
+        err?.response?.data?.message || err?.message || "Error creating course",
       );
     }
   };

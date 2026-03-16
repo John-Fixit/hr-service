@@ -64,7 +64,6 @@ function Avatar({ name, color, size = 32 }) {
 }
 
 const RecipientTable = ({ students = [], courseId }) => {
-  console.log("courseId", courseId);
   const [tab, setTab] = useState("all");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);

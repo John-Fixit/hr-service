@@ -17,7 +17,6 @@ import {
 import { MdOutlineQuiz, MdGrade } from "react-icons/md";
 import { useMemo, useState } from "react";
 import StarLoader from "../../../loaders/StarLoader";
-import useCurrentUser from "../../../../../hooks/useCurrentUser";
 
 const getInitials = (n) =>
   (n || "")
@@ -199,10 +198,8 @@ export default function StaffBreakdownDrawer({
 }) {
   const [expandedGradeId, setExpandedGradeId] = useState(null);
 
-  const { userData } = useCurrentUser();
-
   const { data: breakdownData, isPending } = useGetLessonBreakdown(
-    userData?.data?.STAFF_ID, //as staff id
+    staffId, //as staff id
     courseId,
     open && Boolean(staffId && courseId),
   );
