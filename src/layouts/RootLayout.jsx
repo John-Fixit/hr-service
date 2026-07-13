@@ -3,109 +3,35 @@ import { dashboardContext } from "../context/Dashboard";
 import Navbar from "./navbar";
 import Sidebar from "./sidebar";
 import { Outlet, useLocation } from "react-router-dom";
-import DefaultSidebar from "./defaultSidebar";
 
 function RootLayout() {
-  const {
-    sidebarOpen,
-    sidebarMinimized,
-    isTablet,
-    currentHomeSidemenu,
-    sidebarMinimizedHome,
-  } = useContext(dashboardContext);
+  const { sidebarOpen } = useContext(dashboardContext);
   const { pathname } = useLocation();
+
+  const isMemos = pathname === "/engage/memos";
+  const isProfileDetails = pathname?.includes("/self/profile_details/");
+
+  const mainClassName = [
+    "scrollbar-slim flex-1 w-full overflow-y-auto overflow-x-clip pr-8",
+    isMemos || isProfileDetails ? "py-0" : "py-5",
+    !isMemos && "pl-4 md:pl-6",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <div
-      className={`dark:text-gray-100 dark:bg-slate-700 ${
-        pathname === "/payroll/dashboard" ? "bg-white" : "bg-lighten"
-      } duration-200 ease-in-out z-1 overflow-visible`}
+      className={`h-screen bg-lighten dark:text-gray-100 dark:bg-slate-700 duration-200 ease-in-out ${
+        sidebarOpen ? "lg:pl-[260px]" : "lg:pl-0"
+      }`}
     >
-      {!pathname === "/engage/memos" ? null : <Navbar />}
-      <div className="flex w-full ">
-        {currentHomeSidemenu === null ? <DefaultSidebar /> : <Sidebar />}
-        <div
-          className={`w-full min-h-[93vh] ${
-            sidebarMinimizedHome
-              ? "lg:ml-[7.5rem]"
-              : sidebarOpen
-              ? "lg:ml-64"
-              : !sidebarMinimizedHome && !sidebarOpen && "lg:ml-0"
-          }`}
-        >
-          {pathname.includes("/home") ? (
-            <main
-              className={`py-4 flex-1  mx-auto w-full overflow-clip
-                          ${
-                            sidebarOpen && !isTablet
-                              ? " w-[98%] lg:w-[73%] subsemi:w-[90%]   xx:w-[84%]  "
-                              : " max-w-[90%] sm:w-[72%] md:w-[75%] lg:w-[70%] "
-                          }
-                        `}
-            >
-              <Outlet />
-            </main>
-          ) : pathname === "/engage/memos" ? (
-            <main
-              className={`py-0 flex-1 max-w-[87%] overflow-clip mx-auto ${
-                !sidebarMinimized && !sidebarOpen && "lg:ml-[16rem]"
-              }`}
-            >
-              <Outlet />
-            </main>
-          ) : pathname?.includes("/self/profile_details/") ? (
-            <main
-              className={`py-0 flex-1 max-w-[95%] overflow-clip mx-auto ${
-                !sidebarMinimized && !sidebarOpen && "lg:ml-[16rem]"
-              }`}
-            >
-              <Outlet />
-            </main>
-          ) : pathname?.includes("/self/profile") ? (
-            <main
-              className={`py-0 flex-1 max-w-[90%] overflow-clip mx-auto ${
-                !sidebarMinimized && !sidebarOpen && "lg:ml-[16rem]"
-              }`}
-            >
-              <Outlet />
-            </main>
-          ) : pathname === "/engage/group" ||
-            pathname === "/messaging/engage/group" ? (
-            <main
-              className={`py-0 flex-1 max-w-[93.5%] overflow-clip mx-auto ${
-                !sidebarMinimizedHome && !sidebarOpen && "lg:ml-[16rem]"
-              }`}
-            >
-              <Outlet />
-            </main>
-          ) : pathname === "/integrate/settings" ? (
-            <main
-              className={`py-0 flex-1 max-w-[100%] overflow-clip mx-auto ${
-                !sidebarMinimized && !sidebarOpen && "lg:ml-[16rem]"
-              }`}
-            >
-              <Outlet />
-            </main>
-          ) : pathname === "/people/hr/staff_data" ? (
-            <main
-              className={`py-0 flex-1 max-w-[100%] md:max-w-[95%] overflow-clip mx-auto px-6 ${
-                !sidebarMinimized && !sidebarOpen && "lg:ml-[16rem]"
-              }`}
-            >
-              <Outlet />
-            </main>
-          ) : (
-            <main
-              className={`py-4 flex-1 max-w-[100%] md:max-w-[95%] overflow-clip mx-auto px6 ${
-                !sidebarMinimized && !sidebarOpen && "lg:ml-0"
-              }`}
-            >
-              <Outlet />
-            </main>
-          )}
-        </div>
+      <Sidebar />
+      <div className="flex h-screen w-full flex-col overflow-hidden">
+        {pathname !== "/engage/memos" && <Navbar />}
+        <main className={mainClassName}>
+          <Outlet />
+        </main>
       </div>
-      {/* <SessionTimeout /> */}
     </div>
   );
 }

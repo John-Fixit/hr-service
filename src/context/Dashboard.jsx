@@ -25,9 +25,7 @@ const DashboardContext = ({ children }) => {
   const [currentHomeSidemenu, setCurrentHomeSidemenu] = useState(
     storedValue || null
   );
-  const [sidebarMinimizedHome, setSidebarMinimizedHome] = useState(
-    storedValue ? false : true
-  );
+  const [sidebarMinimizedHome, setSidebarMinimizedHome] = useState(false);
 
   const toggleSideBar = () => {
     setSidebarOpen(true);

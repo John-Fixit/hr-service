@@ -1,32 +1,35 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { MdMenu } from "react-icons/md";
 import { dashboardContext } from "../../context/Dashboard";
 import UserDropdown from "../components/UserDropdown";
 import DropdownNotification from "../components/DropdownNotification";
-import { Search } from "lucide-react";
-// import { FaGlobeAmericas } from "react-icons/fa";
+import { Calendar, ChevronDown, Search } from "lucide-react";
 import { useLocation } from "react-router-dom";
-// import { TbMessage2 } from "react-icons/tb";
-// import { Tooltip } from "@nextui-org/react";
-// import { TiShoppingCart } from "react-icons/ti";
 import SearchProfile from "../SearchProfile";
 import { TbMessage2 } from "react-icons/tb";
 import { cn } from "@nextui-org/react";
 import ChatDrawer from "../../pages/home/rightMenu/components/ChatDrawer";
+import moment from "moment";
 
 const Navbar = () => {
-  const { toggleSideBar, sidebarOpen, sidebarMinimized, sidebarMinimizedHome } =
-    useContext(dashboardContext);
+  const { toggleSideBar } = useContext(dashboardContext);
   const { pathname } = useLocation();
   const [showLargeChatContainer, setShowLargeChatContainer] = useState(false);
   const [selectedChat, setSelectedChat] = useState(null);
-
-  ///===================== code for search bar =================================
   const [openSearchContainer, setOpenSearchContainer] = useState(false);
-  const showSearchContainer = () => {
-    setOpenSearchContainer(true);
-  };
-  //============================== ends here! ==================================
+
+  const showSearchContainer = () => setOpenSearchContainer(true);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setOpenSearchContainer(true);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const selectAChat = () => {
     setShowLargeChatContainer(true);
@@ -38,128 +41,96 @@ const Navbar = () => {
     setSelectedChat(null);
   };
 
+  const todayFormatted = moment().format("dddd, MMMM D, YYYY");
+
   return (
     <div
-      className={`right-0 left-0 p-2 shadow-md  sticky top-0 dark:shadow-md  bg-white  ${
-        pathname.includes("engage/posts") ? "z-40" : "z-10"
-      }`}
+      className={cn(
+        "sticky top-0 z-20 shrink-0 bg-white border-b border-dashboard-border",
+        pathname.includes("engage/posts") && "z-40",
+      )}
     >
-      <div className="px-3 py-1 ">
-        <div className="flex items-center justify-between">
-          <div
-            className={`flex items-center justify-between gap-2 ${
-              sidebarMinimized && !sidebarOpen
-                ? "flex ml-0"
-                : sidebarMinimized && sidebarOpen
-                ? "flex ml-[7.2rem]"
-                : sidebarOpen
-                ? "flex"
-                : !sidebarMinimized && !sidebarOpen && "flex ml-0"
-            }`}
-          >
-            <div
-              className="lg:hidden cursor-pointer"
+      <div className="px-4 md:px-6 py-3">
+        <div className="flex items-center gap-3 md:gap-4">
+          {/* Left spacer — balances right cluster for centered search */}
+          <div className="lg:hidden flex-1 flex items-center min-w-0">
+            <button
+              type="button"
+              className="lg:hidden cursor-pointer p-1.5 -ml-1"
               onClick={() => toggleSideBar()}
             >
-              <MdMenu size={25} />
-            </div>
-
-            {/* <img
-              src="/assets/images/community-logo.png"
-              alt="comuneety-logo"
-              className={`w-32  ${
-                sidebarMinimizedHome && sidebarOpen && "hidden"
-              }`}
-            /> */}
-
-            <div className="hidden md:block">
-              <div
-                className={`flex items-center h-full bg-gray-100 rounded-md  
-            ${
-              sidebarMinimized
-                ? "lg:ml-[1.5rem]"
-                : sidebarOpen
-                ? "lg:ml-32"
-                : !sidebarMinimized && !sidebarOpen && "lg:ml-0"
-            }
-            `}
-              >
-                <div className="mr-auto flex  h-full  ">
-                  <button className="pl-3  py-1 pt-[0.5rem] outline-none rounded">
-                    {" "}
-                    <Search className=" text-gray-400" size={12} />
-                  </button>
-                </div>
-                <input
-                  onClick={showSearchContainer}
-                  name=""
-                  id=""
-                  className="outline-none border-none bg-transparent  px-2 w-full placeholder:text-xs py-2 placeholder:text-gray-400 text-gray-500 cursor-pointer"
-                  type="text"
-                  readOnly
-                  placeholder="Search..."
-                />
-              </div>
-            </div>
+              <MdMenu size={22} className="text-slate-700" />
+            </button>
           </div>
-          <div className="flex items-center justify-between md:gap-8  gap-3 pr-4">
-            {/* <Tooltip showArrow={true} placement="top" content="Marketplace">
-              <span>
-                <TiShoppingCart
-                  size={23}
-                  className="text-gray-500 cursor-pointer"
-                />
+
+          {/* Center — search */}
+          <div className="flex justify-center w-full max-w-[520px] shrink-0">
+            <button
+              type="button"
+              onClick={showSearchContainer}
+              className="hidden md:flex w-full items-center gap-3 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 rounded-2xl px-4 py-2.5 transition-colors cursor-pointer"
+            >
+              <Search size={17} className="text-slate-400 shrink-0" />
+              <span className="flex-1 text-left text-sm text-slate-400 truncate">
+                Search employees, documents, courses...
               </span>
-            </Tooltip>
-            <Tooltip showArrow={true} placement="top" content="Global">
-              <span>
-                <FaGlobeAmericas
-                  size={20}
-                  className="text-gray-500 cursor-pointer"
-                />
+              <kbd className="inline-flex items-center px-2 py-0.5 text-[11px] font-medium text-slate-500 bg-white border border-slate-200 rounded-md shrink-0">
+                ⌘ K
+              </kbd>
+            </button>
+            <button
+              type="button"
+              onClick={showSearchContainer}
+              className="md:hidden p-2 rounded-full bg-slate-100 border border-slate-200"
+            >
+              <Search size={18} className="text-slate-500" />
+            </button>
+          </div>
+
+          {/* Right — date, notifications, profile */}
+          <div className="flex-1 flex items-center justify-end gap-3 md:gap-4 min-w-0">
+            <button
+              type="button"
+              className="hidden lg:flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 rounded-full text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+            >
+              <Calendar size={15} className="text-slate-500 shrink-0" />
+              <span className="whitespace-nowrap font-medium">
+                {todayFormatted}
               </span>
-            </Tooltip>
-            <Tooltip showArrow={true} placement="top" content="Chatroom">
-              <span>
-                <TbMessage2
-                  size={23}
-                  className="text-gray-500 cursor-pointer"
-                />
-              </span>
-            </Tooltip>
-            <Tooltip showArrow={true} placement="top" content="Setting">
-              <Settings size={21} className="text-gray-500 cursor-pointer" />
-            </Tooltip> */}
-            <div>
-              <DropdownNotification />
-            </div>
-            <UserDropdown className="font-medium text-gray-600" />
+              <ChevronDown size={14} className="text-slate-400 shrink-0" />
+            </button>
+
+            <DropdownNotification />
+
+            <UserDropdown />
 
             <div
               onClick={selectAChat}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && selectAChat()}
               className={cn(
-                "rounded-full p-1 bg-gray-300 h-10 w-10 cursor-pointer   items-center justify-center",
-                pathname === "/engage/home" ? "flex md:hidden" : "flex"
+                "rounded-full p-2 bg-slate-100 h-10 w-10 cursor-pointer items-center justify-center border border-slate-200",
+                pathname === "/engage/home" ? "flex md:hidden" : "hidden",
               )}
             >
-              <TbMessage2 className="w-6 h-6" />
+              <TbMessage2 className="w-5 h-5 text-slate-600" />
             </div>
           </div>
         </div>
       </div>
+
       <SearchProfile
         openSearchContainer={openSearchContainer}
         setOpenSearchContainer={setOpenSearchContainer}
       />
 
-      {
-        <ChatDrawer
-          isOpen={showLargeChatContainer}
-          onClose={handleOnclose}
-          user={selectedChat}
-          setUser={() => setSelectedChat(null)}
-        />
-      }
+      <ChatDrawer
+        isOpen={showLargeChatContainer}
+        onClose={handleOnclose}
+        user={selectedChat}
+        setUser={() => setSelectedChat(null)}
+      />
     </div>
   );
 };

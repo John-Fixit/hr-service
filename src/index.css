@@ -5,6 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Domine:wght@400..900&display=swap');
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 
 /* @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap'); */
@@ -34,8 +35,57 @@
 }
 
 * {
-  font-family: Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji,
+  font-family: Inter, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji,
     Segoe UI Emoji, Segoe UI Symbol;
+}
+
+.dashboard-card {
+  @apply bg-white rounded-2xl border border-dashboard-border shadow-none;
+}
+
+.scrollbar-slim {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+}
+
+.scrollbar-slim::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-slim::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
+}
+
+.scrollbar-slim::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Avatar initials fallback — dashboard purple */
+[data-slot="base"].group > .bg-default {
+  @apply !bg-dashboard-purple !text-white;
+}
+
+.sidebar-item-active {
+  @apply !bg-dashboard-purple !text-white rounded-xl mx-3 px-4;
+}
+
+.sidebar-item-active svg,
+.sidebar-item-active .sidebar-icon {
+  @apply !text-white;
+}
+
+.sidebar-nav-active {
+  @apply !bg-dashboard-purple !text-white rounded-xl mx-2 px-3;
+}
+
+/* Active / expanded parent menu — primary text only */
+.sidebar-parent-active {
+  @apply !text-dashboard-purple;
+}
+
+.sidebar-parent-active svg {
+  @apply !text-dashboard-purple;
 }
 
 a {
@@ -74,7 +124,19 @@ a {
   @apply p-2.5  px-4 py-4  my-1 flex  gap-2 gap-y-3 items-center md:cursor-pointer cursor-default duration-300 font-medium text-menuItemColor hover:text-white  hover:no-underline;
 }
 
-.active {
+/* Nested / leaf active menu — must come after base .link-* rules */
+.link.active,
+.link-sub-menu.active,
+.link-sub-menu3.active,
+.link-sub-menu4.active,
+a.sidebar-nav-active {
+  @apply !bg-dashboard-purple !text-white rounded-xl mx-2 px-3;
+}
+
+.link.active svg,
+.link-sub-menu.active svg,
+.link-sub-menu3.active svg,
+a.sidebar-nav-active svg {
   @apply !text-white;
 }
 

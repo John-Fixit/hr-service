@@ -1,122 +1,27 @@
-import { Fragment, useCallback, useContext, useEffect, useState } from "react";
-import { useRef } from "react";
-import SubMenu from "./SubMenu";
+import { useContext, useEffect, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
-import {
-  LMSSectionMenus,
-  MessagingSectionMenu,
-  PayrollSectionMenu,
-  PeopleSectionMenu,
-  // PerformanceSectionMenu,
-  PerformanceSectionMenus,
-  WorkflowSectionMenu,
-  defaultMenu,
-} from "./routes";
-import { NavLink, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { ChevronDown, Plane } from "lucide-react";
 import { dashboardContext } from "../../context/Dashboard";
-import SubMenuSidebar from "../submenuSidebar";
-import ChatDrawer from "../../pages/home/rightMenu/components/ChatDrawer";
-import { useNavigate } from "react-router-dom";
-import SearchProfile from "../SearchProfile";
 import useCurrentUser from "../../hooks/useCurrentUser";
-import { Button } from "@nextui-org/react";
-import { FaArrowLeftLong } from "react-icons/fa6";
+import { filePrefix } from "../../utils/filePrefix";
+import { appNavigationMenu } from "./appNavigationMenu";
+import { filterNavigationMenu } from "./filterNavigationMenu";
+import SidebarNavItem from "./SidebarNavItem";
 
-const getFilteredSideMenu = (sideMenu, userData) => {
-  // Create a copy of the side menu to avoid mutating the original
-  let filteredMenu = [...sideMenu];
-
-  // Apply each filtering condition based on user permissions
-
-  // If user is not HR and not Administrator
-  if (!userData?.data?.IS_HR) {
-    filteredMenu = filteredMenu.filter((el) => el?.name !== "HRIS");
-  }
-  // if (!userData?.data?.IS_ADMINISTRATOR) {
-  //   filteredMenu = filteredMenu.filter(
-  //     (el) => el?.name?.toLowerCase() !== "Administrator".toLowerCase()
-  //   );
-  // } ,l
-
-  // If user is not SALARY (payroll manager)
-  if (!userData?.data?.IS_SALARY) {
-    filteredMenu = filteredMenu.filter(
-      (el) => el?.name?.toLowerCase() !== "Payroll".toLowerCase()
-    );
-  }
-
-  // If user is not HR
-  if (!userData?.data?.IS_HR) {
-    filteredMenu = filteredMenu.filter(
-      (el) =>
-        el?.name?.toLowerCase() !== "Admin".toLowerCase() &&
-        el?.name?.toLowerCase() !== "HRIS".toLowerCase()
-    );
-  }
-  if (!userData?.data?.IS_AUDIT) {
-    filteredMenu = filteredMenu.filter(
-      (el) => el?.name?.toLowerCase() !== "Audit".toLowerCase()
-    );
-  }
-
-  // If user is not Administrator
-  if (!userData?.data?.IS_ADMINISTRATOR) {
-    filteredMenu = filteredMenu.filter(
-      (el) => el?.name?.toLowerCase() !== "Administrator".toLowerCase()
-    );
-  }
-
-  return filteredMenu;
-};
+const SIDEBAR_WIDTH = 260;
 
 const Sidebar = () => {
-  const navigate = useNavigate();
-  const {
-    sidebarOpen,
-    setSidebarOpen,
-    isTablet,
-    sidebarMinimized,
-    currentHomeSidemenu,
-    setCurrentHomeSidemenu,
-    minimizeSidebarHome,
-  } = useContext(dashboardContext);
-
-  const [sideMenu, setSideMenu] = useState([]);
-  const [showLargeChatContainer, setShowLargeChatContainer] = useState(false);
+  const { sidebarOpen, setSidebarOpen, isTablet } =
+    useContext(dashboardContext);
   const sidebarRef = useRef();
   const { pathname } = useLocation();
   const { userData } = useCurrentUser();
-  //search profile functions
-  const [openSearchContainer, setOpenSearchContainer] = useState(false);
 
-  const determineSidebarMenu = useCallback(() => {
-    switch (currentHomeSidemenu) {
-      case "People":
-        return PeopleSectionMenu;
-      // case "Performance":
-      //   return PerformanceSectionMenu;
-      case "Messaging":
-        return MessagingSectionMenu;
-      case "Workflow (Memos)":
-        return WorkflowSectionMenu;
-      case "Payroll":
-        return PayrollSectionMenu;
-      case "Performance":
-        return PerformanceSectionMenus;
-      case "LMS":
-        return LMSSectionMenus;
-      default:
-        return defaultMenu;
-    }
-  }, [currentHomeSidemenu]);
-
-  useEffect(() => {
-    const menus = determineSidebarMenu();
-    setSideMenu(menus);
-    return () => {
-      setSideMenu([]);
-    };
-  }, [determineSidebarMenu]);
+  const navigationSections = useMemo(
+    () => filterNavigationMenu(appNavigationMenu, userData),
+    [userData],
+  );
 
   useEffect(() => {
     if (isTablet) {
@@ -126,255 +31,117 @@ const Sidebar = () => {
     }
   }, [isTablet, setSidebarOpen]);
 
-  const overlayClicked = () => {
-    // setShowminimizedsubMenu(false);
-    setSidebarOpen(false);
-  };
-
   useEffect(() => {
     isTablet && setSidebarOpen(false);
   }, [pathname, isTablet, setSidebarOpen]);
 
+  const overlayClicked = () => setSidebarOpen(false);
+
   const Nav_animation = isTablet
     ? {
-        open: {
-          x: 0,
-          width: "16rem",
-          transition: {
-            damping: 40,
-          },
-        },
+        open: { x: 0, width: SIDEBAR_WIDTH, transition: { damping: 40 } },
         closed: {
-          x: -350,
+          x: -SIDEBAR_WIDTH,
           width: 0,
-          transition: {
-            damping: 40,
-            delay: 0.15,
-          },
-        },
-        minimize: {
-          x: 0,
-          width: "7.5rem",
-          transition: {
-            damping: 40,
-            delay: 0.15,
-          },
+          transition: { damping: 40, delay: 0.15 },
         },
       }
     : {
-        open: {
-          width: "16rem",
-          transition: {
-            damping: 40,
-          },
-        },
-        closed: {
-          width: "0rem",
-          transition: {
-            damping: 40,
-          },
-        },
-        minimize: {
-          width: "7.5rem",
-          transition: {
-            damping: 40,
-          },
-        },
+        open: { width: SIDEBAR_WIDTH, transition: { damping: 40 } },
+        closed: { width: 0, transition: { damping: 40 } },
       };
 
-  const routeToHome = () => {
-    navigate("/engage/home");
-    minimizeSidebarHome();
-    setCurrentHomeSidemenu(null);
-  };
-
-  const openMessageRoom = () => {
-    setShowLargeChatContainer(true);
-    isTablet && setSidebarOpen(false);
-  };
-
-  const filteredSideMenu = getFilteredSideMenu(sideMenu, userData);
+  const userInitial =
+    userData?.data?.FIRST_NAME?.trim()?.[0]?.toUpperCase() || "U";
+  const userName = userData?.data?.LAST_NAME || "User";
+  const userRole = userData?.data?.IS_ADMINISTRATOR ? "Administrator" : "Staff";
 
   return (
-    <div className="relative bg-sidebarBg shadow-sidebar">
-      <div
-        onClick={() => overlayClicked()}
-        className={`md:hidden fixed inset-0 max-h-screen z-[90] bg-chatoverlay cursor-pointer ${
-          sidebarOpen ? "block" : "hidden"
-        } `}
-      ></div>
-      <SubMenuSidebar />
-      <motion.div
+    <>
+      {sidebarOpen && isTablet && (
+        <div
+          onClick={overlayClicked}
+          className="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm lg:hidden"
+          aria-hidden="true"
+        />
+      )}
+
+      <motion.aside
         ref={sidebarRef}
         variants={Nav_animation}
-        initial={{ x: isTablet ? -350 : 0 }}
-        animate={
-          sidebarMinimized && sidebarOpen
-            ? "minimize"
-            : !sidebarMinimized && sidebarOpen
-            ? "open"
-            : "closed"
-        }
-        className="shadow-sidebar group  lg:z-[49] z-[91] max-w-[16rem]  w-[16rem] 
-             fixed top-0 left-0
-           h-screen  dark:!text-gray-100 bg-sidebarBg"
+        initial={{ x: isTablet ? -SIDEBAR_WIDTH : 0 }}
+        animate={sidebarOpen ? "open" : "closed"}
+        className="fixed inset-y-0 left-0 z-40 flex h-screen flex-col overflow-hidden bg-gradient-to-b from-[#1E293B] via-[#1B2638] to-[#0F172A] text-slate-300 lg:z-[49] z-[91]"
+        style={{ maxWidth: SIDEBAR_WIDTH, width: SIDEBAR_WIDTH }}
       >
-        {/* top bar */}
-        <div className="flex flex-col  h-full ">
-          <ul className="whitespace-pre text-[0.9rem] flex flex-col overflow-x-hidden font-medium  scrollbar-thin scrollbar-thumb-transparent  group-hover:scrollbar-thumb-scrollbarColor scrollbar-track-transparent menuScrollBar  h-full  px-0  pb-20">
-            {/* logo & search section */}
-            <div
-              className={`flex flex-col bg-sidebarBg  ${
-                sidebarMinimized && " h-28"
-              }`}
-            >
-              <div
-                className={`w-full   flex-col gap-4 justify-center p-1 px-3 items-center`}
-              >
-                <div
-                  className={`mr-8 py-2  pt-4 cursor-pointer  ${
-                    sidebarMinimized ? "hidden" : "block"
-                  }`}
-                  onClick={routeToHome}
-                >
-                  {/* <img
-                    src="/assets/images/community_logo_light.png"
-                    alt="comuneety-logo"
-                  /> */}
-                </div>
-
-                <div
-                  className={`m-0 pl-2 px-1 my-2 ${
-                    sidebarMinimized && "hidden"
-                  }`}
-                >
-                  <Button
-                    onClick={routeToHome}
-                    isIconOnly
-                    variant="light"
-                    className="text-sidebarInptextColor bg-sidebarInpColor  rounded focus:text-white "
-                  >
-                    <FaArrowLeftLong size={20} className="" />
-                    {/* Menu */}
-                  </Button>
-                </div>
-              </div>
-            </div>
-            {filteredSideMenu?.map((route, i) => (
-              <Fragment key={i}>
-                <div className="p-0">
-                  {!sidebarMinimized && route?.title && (
-                    <small
-                      className={`mx-[1.2rem] text-menuItemTitle font-bold text-sm inline-block tracking-widest px-2 mb-2 font-Lato ${
-                        i === 0 ? "pt-3" : "pt-7"
-                      }`}
-                    >
-                      {route.title?.toLocaleUpperCase()}
-                    </small>
-                  )}
-                  {route?.withSubMenu ? (
-                    <>
-                      <div className=" w-full p-0">
-                        {route.submenu?.map((menu, i) => (
-                          <div key={i} className="flex flex-col gap-1">
-                            <SubMenu
-                              data={menu}
-                              routeMerge={route?.routeMerge}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      {route?.name?.toLowerCase() === "chat room" ? (
-                        <li
-                          className={` ${
-                            sidebarMinimized &&
-                            "border-b border-gray-800 py-0  hover:text-white "
-                          }`}
-                        >
-                          <div
-                            onClick={openMessageRoom}
-                            className={`group/navitem ${
-                              sidebarMinimized
-                                ? "flex flex-col text-center justify-center hover:no-underline   gap-1 cursor-pointer  duration-300 font-medium text-gray-400"
-                                : "link"
-                            }`}
-                          >
-                            <route.icon
-                              size={sidebarMinimized ? 30 : 20}
-                              className={`min-w-max group-hover/navitem:text-menuItemColor ${
-                                sidebarMinimized && "mx-auto"
-                              }
-                                ${
-                                  pathname.includes(route?.route)
-                                    ? "text-white"
-                                    : "text-menuItemIcon"
-                                }`}
-                            />
-                            {route?.name}
-                          </div>
-                        </li>
-                      ) : (
-                        route?.name && (
-                          <li
-                            className={` ${
-                              sidebarMinimized &&
-                              "border-b border-gray-800 py-0  hover:text-white "
-                            }`}
-                          >
-                            <NavLink
-                              to={route?.enabled ? route?.route : "#"}
-                              className={`group/navitem ${
-                                sidebarMinimized
-                                  ? "flex flex-col text-center justify-center hover:no-underline   gap-1 cursor-pointer  duration-300 font-medium text-gray-400"
-                                  : "link"
-                              }`}
-                            >
-                              <route.icon
-                                size={sidebarMinimized ? 30 : 20}
-                                className={`min-w-max group-hover/navitem:text-menuItemColor ${
-                                  sidebarMinimized && "mx-auto"
-                                }
-                                    ${
-                                      pathname.includes(route?.route)
-                                        ? "text-white"
-                                        : "text-menuItemIcon"
-                                    }`}
-                              />
-                              <span
-                                className={`${
-                                  !route?.enabled && "text-menuItemIcon"
-                                }`}
-                              >
-                                {route?.name}
-                              </span>
-                            </NavLink>
-                          </li>
-                        )
-                      )}
-                    </>
-                  )}
-                </div>
-              </Fragment>
-            ))}
-            {/* menu section */}
-          </ul>
+        {/* Logo */}
+        <div className="flex shrink-0 items-center gap-3 px-5 py-5">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 shadow-md border-4 border-white">
+            <Plane className="h-5 w-5 text-white" strokeWidth={2} />
+          </div>
+          <div className="leading-tight flex flex-col">
+            <span className="text-[15px] font-bold text-white">
+              Nigerian Civil
+            </span>
+            <span className="text-[15px] font-bold text-white">
+              Aviation Authority
+            </span>
+          </div>
         </div>
-      </motion.div>
-      {
-        <ChatDrawer
-          // fromMessageRoom={true} // Message room has been PEND for now
-          isOpen={showLargeChatContainer}
-          onClose={() => setShowLargeChatContainer(false)}
-        />
-      }
-      <SearchProfile
-        openSearchContainer={openSearchContainer}
-        setOpenSearchContainer={setOpenSearchContainer}
-      />
-    </div>
+
+        {/* Nav */}
+        <nav className="scrollbar-slim flex-1 overflow-y-auto px-3 pb-4">
+          {navigationSections.map((section, idx) => (
+            <div
+              key={section.title ?? `section-${idx}`}
+              className={idx === 0 ? "mt-1" : "mt-5"}
+            >
+              {section.title && (
+                <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                  {section.title}
+                </p>
+              )}
+              <ul className="space-y-1">
+                {section.items.map((item) => (
+                  <SidebarNavItem key={item.name} item={item} />
+                ))}
+              </ul>
+            </div>
+          ))}
+        </nav>
+
+        {/* Profile */}
+        <div className="shrink-0 border-t border-white/10 p-3">
+          <button
+            type="button"
+            className="flex w-full items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/5"
+          >
+            {userData?.data?.FILE_NAME ? (
+              <img
+                src={filePrefix + userData.data.FILE_NAME}
+                alt={userName}
+                className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-indigo-500/50"
+              />
+            ) : (
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white">
+                {userInitial}
+              </div>
+            )}
+            <div className="min-w-0 flex-1 text-left leading-tight">
+              <p className="truncate text-sm font-semibold text-white uppercase">
+                {userName}
+              </p>
+              <p className="truncate text-xs text-slate-400">{userRole}</p>
+            </div>
+            <ChevronDown
+              className="h-4 w-4 shrink-0 text-slate-400"
+              strokeWidth={2}
+            />
+          </button>
+        </div>
+      </motion.aside>
+    </>
   );
 };
+
 export default Sidebar;

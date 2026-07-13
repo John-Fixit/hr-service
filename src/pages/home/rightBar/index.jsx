@@ -1,17 +1,14 @@
 /* eslint-disable no-unused-vars */
 import { useContext, useEffect, useState } from "react";
 // import ShopMore from "./components/ShopMore";
-import { Avatar, Button, Tooltip, useDisclosure } from "@nextui-org/react";
+import { Button, useDisclosure } from "@nextui-org/react";
 import QuickLink2 from "./components/QuickLink2";
-import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getUpcomingBirthdaysAction } from "../../../API/post";
 import useCurrentUser from "../../../hooks/useCurrentUser";
 import ChatDrawer from "../rightMenu/components/ChatDrawer";
 import { SocketContext } from "../../../context/SocketContext";
 import BirthdayRoom from "../Engage/BirthdayRoom/BirthdayRoom";
-import moment from "moment";
-import { filePrefix } from "../../../utils/filePrefix";
 import StarLoader from "../../../components/core/loaders/StarLoader";
 import ExpandedDrawerWithButton from "../../../components/modals/ExpandedDrawerWithButton";
 
@@ -22,6 +19,7 @@ import { useGetExternalLoan } from "../../../API/loan";
 import LoanWIdget from "./components/LoanWIdget";
 import EcommerceWidget from "./components/EcommerceWidget";
 import { IoMdClose } from "react-icons/io";
+import UpcomingBirthdaysSection from "../rightMenu/components/UpcomingBirthdaysSection";
 
 const RightBar = () => {
   const { userData } = useCurrentUser();
@@ -204,236 +202,88 @@ const RightBar = () => {
 
   return (
     <>
-      <div className="space-y-5  mb-6">
+      <div className="space-y-5 mb-6">
         <QuickLink2 clickedTab={openQuickLink} />
-        <LoanWIdget openLoanModal={openLoanModal} />
+        {/* <LoanWIdget openLoanModal={openLoanModal} /> */}
 
-        <div className="shadow rounded-lg max-w-[600px]">
-          <div className="relative bg-white rounded-lg w-full">
-            <div className="rounded-lg   w-full flex flex-col gap-y-3 ">
-              <div className="w-full h-fit bg-[#ecedf1]  rounded-t-lg">
-                {/* //bg-btnColor/50 */}
-                <img
-                  src="/assets/images/utility.png"
-                  alt="adsimg"
-                  onClick={openUtilityModal}
-                  className="inset-0 rounded-t-lg h-[15rem] w-full object-cover z-2 align-middle cursor-pointer"
-                />
-              </div>
-
-              <div className="flex flex-col gap-y-2 px-4 pb-5">
-                <span className="text-gray-700 font-bold text-lg">
-                  Pay your Utilities Bills at Affordable Prices
-                </span>
-
-                <div className="flex justify-between items-end mt-2">
-                  <div className="flex gap-3 w-full">
-                    <Button
-                      onClick={openUtilityModal}
-                      size="sm"
-                      className=" ml-auto bg-blue-900 text-white"
-                    >
-                      Buy Now
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
+        {/* <div className="dashboard-card overflow-hidden">
+          <div className="w-full h-fit bg-[#ecedf1] rounded-t-2xl">
+            <img
+              src="/assets/images/utility.png"
+              alt="adsimg"
+              onClick={openUtilityModal}
+              className="rounded-t-2xl h-[15rem] w-full object-cover cursor-pointer"
+            />
           </div>
-        </div>
-        <div className="shadow rounded-lg max-w-[600px] hidden">
-          <div className="relative bg-white rounded-lg w-full">
-            <div className="rounded-lg   w-full flex flex-col gap-y-3 ">
-              <div className="w-full h-fit bg-[#ecedf1]  rounded-t-lg">
-                {/* //bg-btnColor/50 */}
-                <img
-                  src="/assets/images/ecommerce-cart.jpg"
-                  alt="adsimg"
-                  onClick={openEcommerceModal}
-                  className="inset-0 rounded-t-lg h-[15rem] w-full object-cover z-2 align-middle cursor-pointer"
-                />
-              </div>
-
-              <div className="flex flex-col gap-y-2 px-4 pb-5">
-                <span className="text-gray-700 font-bold text-lg">
-                  440 Ecommerce store
-                </span>
-
-                <div className="flex justify-between items-end mt-2">
-                  <div className="flex gap-3 w-full">
-                    <Button
-                      onClick={openEcommerceModal}
-                      size="sm"
-                      className=" ml-auto bg-blue-900 text-white"
-                    >
-                      Buy Now
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="shadow rounded-lg max-w-[600px]">
-          <div className="relative bg-white rounded-lg w-full">
-            <div className="rounded-lg  w-full flex flex-col gap-y-3 ">
-              <img
-                src="/assets/images/flights.png"
-                alt="adsimg"
-                // onClick={handleOpen}
-                onClick={handleWidgetOpen}
-                className="inset-0 rounded-t-lg h-[15rem] w-full object-cover z-2 align-middle cursor-pointer"
-              />
-
-              <div className="flex flex-col gap-y-2 px-4 pb-5">
-                <span className="text-gray-700 font-extrabold text-lg">
-                  Flight booking made easy
-                </span>
-
-                <div className="flex justify-between items-end mt-2">
-                  <div className="flex gap-3 w-full">
-                    <Button
-                      onClick={handleOpen}
-                      // onClick={handleWidgetOpen}
-                      size="sm"
-                      className=" ml-auto bg-blue-900 text-white"
-                    >
-                      Book Now
-                    </Button>
-                  </div>
-                </div>
-              </div>
+          <div className="flex flex-col gap-y-2 px-4 py-4">
+            <span className="text-gray-700 font-bold text-lg">
+              Pay your Utilities Bills at Affordable Prices
+            </span>
+            <div className="flex justify-end mt-2">
+              <Button
+                onClick={openUtilityModal}
+                size="sm"
+                className="bg-dashboard-purple text-white"
+              >
+                Buy Now
+              </Button>
             </div>
           </div>
         </div>
 
-        {/* <div className="shadow rounded-lg max-w-[600px]">
-          <div className="relative bg-white rounded-lg w-full">
-            <div className="rounded-lg  w-full flex flex-col gap-y-3">
-              <img
-                src="/assets/images/training.jpeg"
-                alt="adsimg"
-                className="inset-0 rounded-t-lg h-[15rem] w-full object-cover z-2 align-middle"
-              />
-              <div className="flex flex-col gap-y-2 px-4 pb-5">
-                <span className="text-gray-700 font-extrabold text-lg">
-                  100 Days of Code: The Complete ICT Pro Bootcamp
-                </span>
-
-                <span className="text-slate-500 text-sm">
-                  Department of Fintech
-                </span>
-
-                <div className="text-gray-600 font-extrabold text-sm mb-3">
-                  Skills you will gain: Project Mangament, Change Management,
-                  Strategic Thinking.
-                </div>
-
-                <div className="flex gap-x-2 flex-wrap">
-                  <div className="flex items-center gap-x-1">
-                    <div className="w-1 h-1 bg-slate-600 rounded-full "></div>{" "}
-                    <span className="text-xs ">Beginner</span>
-                  </div>
-                  <div className="flex items-center gap-x-1">
-                    <div className="w-1 h-1 bg-slate-600 rounded-full text-xs"></div>{" "}
-                    <span className="text-xs">Professional certificate</span>
-                  </div>
-                  <div className="flex items-center gap-x-1">
-                    <div className="w-1 h-1 bg-slate-600 rounded-full text-xs"></div>{" "}
-                    <span className="text-xs">6 months</span>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-end mt-2">
-                  <span className="text-gray-800 font-extrabold text-lg tracking-wider">
-                    ₦34,900
-                  </span>
-
-                  <div className="flex gap-3">
-                    <Button onClick={moveToCourse} size="sm" color="default">
-                      View More
-                    </Button>
-                    <Button size="sm" color="secondary">
-                      Get Course
-                    </Button>
-                  </div>
-                </div>
-              </div>
+        <div className="dashboard-card overflow-hidden hidden">
+          <div className="w-full h-fit bg-[#ecedf1] rounded-t-2xl">
+            <img
+              src="/assets/images/ecommerce-cart.jpg"
+              alt="adsimg"
+              onClick={openEcommerceModal}
+              className="rounded-t-2xl h-[15rem] w-full object-cover cursor-pointer"
+            />
+          </div>
+          <div className="flex flex-col gap-y-2 px-4 py-4">
+            <span className="text-gray-700 font-bold text-lg">
+              440 Ecommerce store
+            </span>
+            <div className="flex justify-end mt-2">
+              <Button
+                onClick={openEcommerceModal}
+                size="sm"
+                className="bg-dashboard-purple text-white"
+              >
+                Buy Now
+              </Button>
             </div>
           </div>
-        </div> */}
+        </div>
 
-        {/* <div className="z-1 relative shadow-sm rounded-md">
-          <div className="rounded-md w-full">
-            <ShopMore />
+        <div className="dashboard-card overflow-hidden">
+          <img
+            src="/assets/images/flights.png"
+            alt="adsimg"
+            onClick={handleWidgetOpen}
+            className="rounded-t-2xl h-[15rem] w-full object-cover cursor-pointer"
+          />
+          <div className="flex flex-col gap-y-2 px-4 py-4">
+            <span className="text-gray-700 font-extrabold text-lg">
+              Flight booking made easy
+            </span>
+            <div className="flex justify-end mt-2">
+              <Button
+                onClick={handleOpen}
+                size="sm"
+                className="bg-dashboard-purple text-white"
+              >
+                Book Now
+              </Button>
+            </div>
           </div>
         </div> */}
       </div>
-
-      <div className="space-y-5 sticky top-24">
-        <div className="z-1 relative">
-          <div className="rounded-md h-[10rem] w-full shadow-sm bg-white py-3 px-4">
-            <div className="flex flex-col ">
-              <div className="flex flex-col pb-4">
-                <span className=" text-[1.15rem] text-gray-700 font-Roboto  font-semibold">
-                  Upcoming Celebrations
-                </span>
-                <span className=" text-sm font-normal   text-gray-900">
-                  Birthdays, anniversary, etc
-                </span>
-              </div>
-
-              <div className="flex gap-3">
-                {allUpcoming?.slice(0, 3)?.map((upc) => (
-                  <div key={upc?.STAFF_ID} onClick={() => setCurrent(upc)}>
-                    <Tooltip
-                      showArrow={true}
-                      placement="bottom"
-                      content={
-                        <div className="flex flex-col items-center justify-center p-1">
-                          <p>{upc?.LAST_NAME + " " + upc?.FIRST_NAME}</p>
-                          <span className="text-sm text-gray-400">
-                            {moment(upc?.DATE_OF_BIRTH)?.format("MMMM DD")}
-                          </span>
-                        </div>
-                      }
-                    >
-                      {upc?.FILE_NAME ? (
-                        // upc?.FILE_NAME?.includes("http") ? (
-                        <Avatar
-                          className="w-[4.4rem] h-[4.4rem] cursor-pointer"
-                          src={filePrefix + upc?.FILE_NAME}
-                          title={upc?.LAST_NAME + " " + upc?.FIRST_NAME}
-                        />
-                      ) : (
-                        <Avatar
-                          className="w-[4.4rem] h-[4.4rem] cursor-pointer text-xl"
-                          name={
-                            upc?.LAST_NAME?.trim()[0] +
-                            "  " +
-                            upc?.FIRST_NAME?.trim()[0]
-                          }
-                          color="default"
-                          isBordered
-                          title={upc?.LAST_NAME + " " + upc?.FIRST_NAME}
-                        />
-                      )}
-                    </Tooltip>
-                  </div>
-                ))}
-
-                <Avatar
-                  className="w-[4.4rem] h-[4.4rem] cursor-pointer"
-                  onClick={moveToEvent}
-                  fallback={<Plus size={20} strokeWidth={3} />}
-                  classNames={{
-                    base: "bg-white border-2 border-gray-400/90",
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="space-y-5 sticky top-0">
+        <UpcomingBirthdaysSection
+          onSendWishes={setCurrent}
+          onViewAll={moveToEvent}
+        />
 
         <QuickLink2 clickedTab={openQuickLink} isLastTab={true} />
       </div>
@@ -454,7 +304,7 @@ const RightBar = () => {
       )}
 
       {/* Widget Modal */}
-      {/* {showWidget && (
+      {showWidget && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[99]">
           <div className="bg-white rounded-lg w-full max-w-5xl relative">
             <Button
@@ -465,15 +315,15 @@ const RightBar = () => {
             >
               Close
             </Button>
-            
+
             {isLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white rounded-lg">
-                  <div className="flex flex-col items-center space-y-4">
-                    <StarLoader className="w-8 h-8 animate-spin text-blue-500" />
-                    <p className="text-gray-600">Loading...</p>
-                  </div>
+              <div className="absolute inset-0 flex items-center justify-center bg-white rounded-lg">
+                <div className="flex flex-col items-center space-y-4">
+                  <StarLoader className="w-8 h-8 animate-spin text-blue-500" />
+                  <p className="text-gray-600">Loading...</p>
                 </div>
-              )}
+              </div>
+            )}
 
             <iframe
               src="https://lyncs-web-widget.netlify.app/undefined/flights/local-flight"
@@ -484,7 +334,7 @@ const RightBar = () => {
             />
           </div>
         </div>
-      )} */}
+      )}
 
       {showWidget && (
         <ExpandedDrawerWithButton

@@ -1,12 +1,11 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import ArrowDown from "../../components/ArrowDown";
 import useCurrentUser from "../../hooks/useCurrentUser";
 import { Avatar } from "@nextui-org/react";
 import { logoutAdminAction } from "../../API/auth";
-import { dashboardContext } from "../../context/Dashboard";
 import { MdApps } from "react-icons/md";
 import { RiLockPasswordLine } from "react-icons/ri";
+import { ChevronDown } from "lucide-react";
 import ExpandedDrawerWithButton from "../../components/modals/ExpandedDrawerWithButton";
 import StaffResetPassword from "../../components/profile/resetPassword_forms/StaffResetPassword";
 import { filePrefix } from "../../utils/filePrefix";
@@ -16,7 +15,6 @@ const UserDropdown = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { removeCurrentUser, userData } = useCurrentUser();
   const [isloggingOut, setIsloggingOut] = useState(false);
-  const { setCurrentHomeSidemenu } = useContext(dashboardContext);
   const [passwordDrawer, setPasswordDrawer] = useState(false);
     const { handleLogout } = useAdPopupStore();
 
@@ -77,42 +75,37 @@ const UserDropdown = () => {
   };
 
   return (
-    <div className="relative ">
+    <div className="relative">
       <Link
         ref={trigger}
         onClick={() => setDropdownOpen(!dropdownOpen)}
-        className="flex items-center gap-1  hover:no-underline text-inherit"
+        className="flex items-center gap-3 hover:no-underline text-inherit py-1"
         to="#"
       >
-        <span className="rounded-full flex items-center">
-          {userData?.data?.FILE_NAME ? (
-            <Avatar
-              className="w-11 h-11"
-              src={ filePrefix +  userData?.data?.FILE_NAME || ""}
-              title={
-                userData?.data?.LAST_NAME + " " + userData?.data?.FIRST_NAME
-              }
-            />
-          ) : (
-            <Avatar
-              name={userData?.data?.FIRST_NAME?.trim()[0]}
-              className=" cursor-pointer w-11 h-11 text-large"
-              title={
-                userData?.data?.LAST_NAME + " " + userData?.data?.FIRST_NAME
-              }
-            />
-          )}
-        </span>
-        <span className="hidden text-left lg:block">
-          <span className="block text-base font-medium ">
-            {userData?.data?.LAST_NAME || "Africodes Admin"}
+        <Avatar
+          src={
+            userData?.data?.FILE_NAME
+              ? filePrefix + userData.data.FILE_NAME
+              : undefined
+          }
+          name={userData?.data?.FIRST_NAME?.trim()?.[0]}
+          classNames={{
+            base: "bg-dashboard-purple w-10 h-10 shrink-0",
+            name: "text-white font-semibold text-sm",
+          }}
+        />
+        <span className="hidden lg:flex flex-col min-w-0 text-left">
+          <span className="text-sm font-semibold text-slate-900 uppercase tracking-wide truncate leading-tight">
+            {userData?.data?.LAST_NAME || "User"}
           </span>
-          <span className="block text-xs text-gray-400">
-            {userData?.data?.IS_ADMINISTRATOR ? "Administrator" : ""}
+          <span className="text-xs text-slate-500 truncate leading-tight">
+            {userData?.data?.IS_ADMINISTRATOR ? "Administrator" : "Staff"}
           </span>
         </span>
-
-        <ArrowDown />
+        <ChevronDown
+          size={16}
+          className="hidden lg:block text-slate-400 shrink-0"
+        />
       </Link>
 
       {/* <!-- Dropdown Start --> */}
@@ -221,16 +214,16 @@ const UserDropdown = () => {
               </Link>
             </li>
             <li className="group cursor-pointer">
-              <div
-                onClick={() => setCurrentHomeSidemenu(null)}
+              <Link
+                to="/engage/home"
                 className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
               >
                 <MdApps
                   size={20}
                   className="fill-current group-hover:rotate-45 duration-75 ease-in-out"
                 />
-                All Apps
-              </div>
+                Dashboard
+              </Link>
             </li>
             <li className="group cursor-pointer">
               <div

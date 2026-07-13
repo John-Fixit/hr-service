@@ -1,18 +1,22 @@
 /* eslint-disable react/prop-types */
 
-import { Building } from "lucide-react";
+import {
+  BarChart3,
+  Building,
+  CalendarDays,
+  ClipboardCheck,
+  FileText,
+  Plane,
+  UserCircle2,
+} from "lucide-react";
 import { useState } from "react";
-import { PiAirTrafficControl } from "react-icons/pi";
 import { AnimatePresence, motion } from "framer-motion";
 import { BsChatSquareText } from "react-icons/bs";
-import { MdOutlineApproval, MdPostAdd } from "react-icons/md";
-import { FaRegChartBar } from "react-icons/fa";
+import { MdPostAdd } from "react-icons/md";
 import { MdOutlineModelTraining } from "react-icons/md";
 import { MdOutlineEvent } from "react-icons/md";
 import { FaMoneyBillTrendUp } from "react-icons/fa6";
-import { CgProfile } from "react-icons/cg";
 import { GoWorkflow } from "react-icons/go";
-import { TbCalendarX } from "react-icons/tb";
 // import { CiSquareQuestion } from "react-icons/ci";
 import ApplyLeave from "../../../../components/core/leave/ApplyLeave";
 import ExpandedDrawerWithButton from "../../../../components/modals/ExpandedDrawerWithButton";
@@ -23,10 +27,34 @@ import { useDisclosure } from "@nextui-org/react";
 import CreatePostDrawer from "../../centerFeed/components/CreatePostDrawer";
 import Salary from "../../../../components/profile/Salary";
 import PageHeader from "../../../../components/payroll_components/PageHeader";
-import { MdOutlinePayment } from "react-icons/md";
 import PerformanceDrawer from "../../../Performance/PerformanceDrawer";
 import { useGetActivePerformance } from "../../../../API/performance";
 import useCurrentUser from "../../../../hooks/useCurrentUser";
+
+const QuickLinkIcon = ({ icon: Icon, label, bg, iconColor, onClick }) => (
+  <div
+    onClick={onClick}
+    role={onClick ? "button" : undefined}
+    tabIndex={onClick ? 0 : undefined}
+    onKeyDown={
+      onClick
+        ? (e) => {
+            if (e.key === "Enter" || e.key === " ") onClick();
+          }
+        : undefined
+    }
+    className="flex flex-col justify-center items-center cursor-pointer text-slate-600 w-[80px] gap-y-2"
+  >
+    <div
+      className={`rounded-xl ${bg} w-12 h-12 flex justify-center items-center`}
+    >
+      <Icon size={20} className={iconColor} />
+    </div>
+    <div className="w-full text-center truncate text-xs font-medium">
+      {label}
+    </div>
+  </div>
+);
 
 const QuickLink2 = ({ clickedTab, isLastTab = false }) => {
   const [currentLinksGroup, setCurrentLinksGroup] = useState(0);
@@ -72,117 +100,72 @@ const QuickLink2 = ({ clickedTab, isLastTab = false }) => {
 
   return (
     <>
-      <div className="rounded-lg bg-white py-2 shadow-sm">
+      <div className="dashboard-card py-4">
         <div className="text-sm flex flex-col relative">
-          <div className="flex  px-[1.8rem] items-start">
-            <span className="text-gray-700  font-semibold text-lg">
-              Quick Linkss
+          <div className="flex px-5 items-center justify-between mb-3">
+            <span className="text-slate-800 font-semibold text-base">
+              Quick Links
             </span>
+            <button
+              type="button"
+              onClick={nextGroup}
+              className="text-sm font-medium text-dashboard-purple hover:text-dashboard-purple-hover"
+            >
+              View all
+            </button>
           </div>
 
-          <div className="grid grid-cols-3 gap-x-[1.5rem]  gap-y-1 place-items-center  pt-2 h-full ">
+          <div className="grid grid-cols-3 gap-x-3 gap-y-4 place-items-center px-3">
             <AttendanceSetup>
-              <div
-                className=" rounded-lg p-2 flex flex-col justify-center items-center  cursor-pointer opacity-90 text-gray-600 w-[85px] gap-y-1"
-                // onClick={() => clickedTab("attendance")}
-              >
-                <div className="rounded-full  bg-[#322742]  w-[50px] h-[50px] flex justify-center items-center">
-                  {/* bg-green-300 */}
-                  <PiAirTrafficControl
-                    size={22}
-                    className="!font-bold text-white"
-                  />
-                  {/* text-green-900 */}
-                </div>
-
-                <div className=" w-[70px] text-center truncate  text-xs">
-                  Attendance
-                </div>
-              </div>
+              <QuickLinkIcon
+                icon={CalendarDays}
+                label="Attendance"
+                bg="bg-indigo-50"
+                iconColor="text-indigo-600"
+              />
             </AttendanceSetup>
-            <div
-              className=" rounded-lg p-2 flex flex-col justify-center items-center  cursor-pointer opacity-90 text-gray-600 w-[85px] gap-y-1"
+
+            <QuickLinkIcon
+              icon={isLastTab ? MdPostAdd : Plane}
+              label={isLastTab ? "Create Post" : "Leave Request"}
+              bg="bg-sky-50"
+              iconColor="text-sky-600"
               onClick={() =>
                 isLastTab ? openCreate() : setOpenLeaveDrawer(true)
               }
-            >
-              <div className="rounded-full bg-[#322742]   w-[50px] h-[50px] flex justify-center items-center">
-                {/* bg-purple-300 */}
-                {isLastTab ? (
-                  <MdPostAdd size={22} className="!font-bold text-white " />
-                ) : (
-                  <TbCalendarX size={22} className="!font-bold text-white " />
-                )}
-                {/* <PiTreePalmThin size={25} className="!font-bold text-white " /> */}
-                {/* text-purple-600 */}
-              </div>
-              <div className=" w-[70px] text-center truncate  text-xs">
-                {isLastTab ? "Create Post" : "Leave"}
-              </div>
-            </div>
+            />
 
-            <div
-              className=" rounded-lg p-[0.5rem] flex flex-col justify-center items-center  cursor-pointer  opacity-90 text-gray-600 w-[85px] gap-y-1 "
+            <QuickLinkIcon
+              icon={ClipboardCheck}
+              label="Approvals"
+              bg="bg-emerald-50"
+              iconColor="text-emerald-600"
               onClick={() => handleOpenDrawer("approvals")}
-            >
-              <div className="rounded-full  bg-[#322742] w-[50px] h-[50px] flex justify-center items-center">
-                {/* red */}
-                <MdOutlineApproval
-                  size={22}
-                  className="!font-bold text-white "
-                />
-              </div>
+            />
 
-              <div className=" w-[70px] text-center mxauto  truncate  text-xs">
-                {/* Training */} Approvals
-              </div>
-            </div>
-
-            <div
-              className=" rounded-lg p-2 flex flex-col justify-center items-center  cursor-pointer opacity-90 text-gray-600 w-[85px] gap-y-1"
-              // onClick={() => clickedTab("performance")}
-              onClick={() => handleOpenDrawer("performance")}
-            >
-              <div className="rounded-full bg-[#322742]   w-[50px] h-[50px] flex justify-center items-center">
-                <FaRegChartBar size={22} className="!font-bold text-white " />
-              </div>
-
-              <div className=" w-[70px] text-center truncate  text-xs">
-                Performance
-              </div>
-            </div>
-            <div
-              className=" rounded-lg p-2 flex flex-col justify-center items-center  cursor-pointer opacity-90 text-gray-600 w-[85px] gap-y-1"
+            <QuickLinkIcon
+              icon={FileText}
+              label="Payslip"
+              bg="bg-violet-50"
+              iconColor="text-violet-600"
               onClick={() => handleOpenDrawer("payslip")}
-            >
-              <div className="rounded-full bg-[#322742]    w-[50px] h-[50px] flex justify-center items-center">
-                {/* bg-green-200 */}
-                {/* <CiSquareQuestion
-                  size={22}
-                  strokeWidth={1.2}
-                  className="!font-bold text-white "
-                /> */}
-                <MdOutlinePayment size={22} className="!font-bold text-white" />
-              </div>
-              {/* text-green-500 */}
-              <div className=" w-[70px] text-center truncate  text-xs">
-                Payslip
-              </div>
-            </div>
+            />
 
-            <div
-              className=" rounded-lg p-2 flex flex-col justify-center items-center  cursor-pointer opacity-90 text-gray-600 w-[85px] gap-y-1"
+            <QuickLinkIcon
+              icon={UserCircle2}
+              label="My Profile"
+              bg="bg-rose-50"
+              iconColor="text-rose-600"
               onClick={() => clickedTab("profile")}
-            >
-              <div className="rounded-full bg-[#322742]   w-[50px] h-[50px] flex justify-center items-center">
-                {/* bg-orange-200 */}
-                <CgProfile size={22} className="!font-bold text-white " />
-              </div>
-              {/* text-orange-500 */}
-              <div className=" w-[70px] text-center truncate  text-xs">
-                Edit Profile
-              </div>
-            </div>
+            />
+
+            <QuickLinkIcon
+              icon={BarChart3}
+              label="Performance"
+              bg="bg-amber-50"
+              iconColor="text-amber-600"
+              onClick={() => handleOpenDrawer("performance")}
+            />
 
             {/* <div
             className=" rounded-lg p-2 flex flex-col justify-center items-center  cursor-pointer opacity-90 text-gray-600 w-[85px] gap-y-1"
@@ -205,120 +188,64 @@ const QuickLink2 = ({ clickedTab, isLastTab = false }) => {
                 animate={{ x: 0, opacity: 1, transition: { duration: 0.7 } }}
                 exit={{ x: 100, opacity: 0.5, transition: { duration: 0.7 } }}
               >
-                <div className="grid grid-cols-3 gap-x-4   gap-y-1 place-items-center  pt-2 h-full ">
-                  <div
-                    className=" rounded-lg p-2 flex flex-col justify-center items-center  cursor-pointer opacity-90 text-gray-600 w-[85px] gap-y-1 "
+                <div className="grid grid-cols-3 gap-x-3 gap-y-4 place-items-center px-3 pt-2">
+                  <QuickLinkIcon
+                    icon={BsChatSquareText}
+                    label="Chat"
+                    bg="bg-sky-100/40"
+                    iconColor="text-sky-600"
                     onClick={() => clickedTab("chat")}
-                  >
-                    <div className="rounded-full bg-[#322742]  w-[50px] h-[50px] flex justify-center items-center">
-                      {/* bg-yellow-200  */}
-                      <BsChatSquareText
-                        size={20}
-                        className="!font-bold text-white"
-                      />
-                    </div>
-                    {/* text-yellow-500 */}
-                    <div className=" w-[70px] text-center truncate  text-xs">
-                      {/* Salary */} Chat
-                    </div>
-                  </div>
-
-                  <div
-                    className=" rounded-lg p-2 flex flex-col justify-center items-center  cursor-pointer opacity-90 text-gray-600 w-[85px] gap-y-1"
+                  />
+                  <QuickLinkIcon
+                    icon={MdOutlineModelTraining}
+                    label="Courses"
+                    bg="bg-indigo-100/40"
+                    iconColor="text-indigo-600"
                     onClick={() => clickedTab("courses")}
-                  >
-                    <div className="rounded-full bg-[#322742]   w-[50px] h-[50px] flex justify-center items-center">
-                      {/* bg-purple-300 */}
-                      <MdOutlineModelTraining
-                        size={23}
-                        className="!font-bold text-white "
-                      />
-                      {/* text-purple-600 */}
-                    </div>
-                    <div className=" w-[70px] text-center truncate  text-xs">
-                      Courses
-                    </div>
-                  </div>
-                  <div
-                    className=" rounded-lg p-2 flex flex-col justify-center items-center  cursor-pointer opacity-90 text-gray-600 w-[85px] gap-y-1 "
+                  />
+                  <QuickLinkIcon
+                    icon={MdOutlineEvent}
+                    label="Events"
+                    bg="bg-pink-100/40"
+                    iconColor="text-pink-600"
                     onClick={() => clickedTab("events")}
-                  >
-                    <div className="rounded-full bg-[#322742]  w-[50px] h-[50px] flex justify-center items-center">
-                      {/* bg-yellow-200  */}
-                      <MdOutlineEvent
-                        size={22}
-                        className="!font-bold text-white"
-                      />
-                    </div>
-                    {/* text-yellow-500 */}
-                    <div className=" w-[70px] text-center truncate  text-xs">
-                      Events
-                    </div>
-                  </div>
-
-                  <div
-                    className=" rounded-lg p-2 flex flex-col justify-center items-center  cursor-pointer opacity-90 text-gray-600 w-[85px] gap-y-1"
+                  />
+                  <QuickLinkIcon
+                    icon={Building}
+                    label="Get Loan"
+                    bg="bg-amber-100/40"
+                    iconColor="text-amber-600"
                     onClick={() => clickedTab("loan")}
-                  >
-                    <div className="rounded-full bg-[#322742]   w-[50px] h-[50px] flex justify-center items-center">
-                      {/* bg-orange-200 */}
-                      <Building size={22} className="!font-bold text-white " />
-                    </div>
-                    {/* text-orange-500 */}
-                    <div className=" w-[70px] text-center truncate  text-xs">
-                      Get Loan
-                    </div>
-                  </div>
-                  <div
-                    className=" rounded-lg p-2 flex flex-col justify-center items-center  cursor-pointer opacity-90 text-gray-600 w-[85px] gap-y-1"
+                  />
+                  <QuickLinkIcon
+                    icon={FaMoneyBillTrendUp}
+                    label="Pay Bills"
+                    bg="bg-teal-100/40"
+                    iconColor="text-teal-600"
                     onClick={() => clickedTab("bills")}
-                  >
-                    <div className="rounded-full  bg-[#322742]  w-[50px] h-[50px] flex justify-center items-center">
-                      {/* bg-green-300 */}
-                      <FaMoneyBillTrendUp
-                        size={20}
-                        className="!font-bold text-white"
-                      />
-                      {/* text-green-900 */}
-                    </div>
-
-                    <div className=" w-[70px] text-center truncate  text-xs">
-                      Pay Bills
-                    </div>
-                  </div>
-
-                  <div
-                    className=" rounded-lg p-2 flex flex-col justify-center items-center  cursor-pointer opacity-90 text-gray-600 w-[85px] gap-y-1"
+                  />
+                  <QuickLinkIcon
+                    icon={GoWorkflow}
+                    label="Memos"
+                    bg="bg-cyan-100/40"
+                    iconColor="text-cyan-600"
                     onClick={() => clickedTab("memos")}
-                  >
-                    <div className="rounded-full bg-[#322742]    w-[50px] h-[50px] flex justify-center items-center">
-                      {/* bg-green-200 */}
-                      <GoWorkflow
-                        size={22}
-                        className="!font-bold text-white "
-                      />
-                      {/* <Aperture size={25} className="!font-bold text-white " /> */}
-                    </div>
-                    {/* text-green-500 */}
-                    <div className=" w-[70px] text-center truncate  text-xs">
-                      Memos
-                    </div>
-                  </div>
+                  />
                 </div>
               </motion.div>
             </AnimatePresence>
           )}
 
           {
-            <div className="flex flex-col my-3">
-              <div className="flex items-center justify-center">
-                <button
-                  className="border border-gray-400 px-4 py-2 w-[60%] mx-10 rounded-full text-[0.9rem] hover:shadow active:border-gray-600"
-                  onClick={nextGroup}
-                >
-                  View {currentLinksGroup === 0 ? "More" : "Less"}
-                </button>
-              </div>
+            <div className="flex flex-col mt-4 px-3">
+              <button
+                type="button"
+                className="border border-dashboard-border px-4 py-2.5 w-full rounded-xl text-sm font-medium text-dashboard-purple hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center justify-center gap-1"
+                onClick={nextGroup}
+              >
+                View More
+                <span className="text-xs">▼</span>
+              </button>
             </div>
           }
         </div>

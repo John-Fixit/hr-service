@@ -6,7 +6,7 @@ import { useEffect, useRef } from 'react';
 import Postfeed from '../../pages/home/centerFeed/Postfeed';
 import ModalTransparent from './ModalTransparent';
 import { AnimatePresence, motion } from 'framer-motion';
-import { filePrefix } from '../../utils/filePrefix';
+import PostMedia from '../../pages/home/centerFeed/PostMedia';
 
 
 const PostModal = ({ 
@@ -90,12 +90,9 @@ const PostModal = ({
                   animate={{scale:1, opacity:1, transition: { duration: 0.5}}}
                   exit={{scale:0, opacity:0.5, transition: {duration: 0.5}}}
                 >
-                <img 
-                  className="object-cover max-h-[40rem] max-w-[550px]    md:h-[100%] rounded" 
-                  alt="Image" 
-                  src={filePrefix + data?.POST_FILE_NAME || "/assets/images/profiles/avatar-07.jpg"}
-                  
-                
+                <PostMedia
+                  fileName={data?.POST_FILE_NAME}
+                  className="max-h-[40rem] max-w-[550px] rounded object-contain md:h-full"
                 />
             </motion.div>
           </AnimatePresence>

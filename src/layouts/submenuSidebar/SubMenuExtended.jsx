@@ -120,13 +120,16 @@ useEffect(() => {
                                     <NavLink
                                         onClick={close}
                                         to={`/${extendedSubMenuData?.name}${menu.route}`}
-                                        className="link !bg-transparent capitalize relative hover:text-white hover:cursor-pointer"
-                                    >
-                                        {
-                                            pathname.includes(menu.route) && (
-                                            <span className="w-2 h-2 rounded-full bg-btnColor absolute -left-[1.6rem] duration-200 transition-all"></span>
-                                            )
+                                        className={({ isActive }) =>
+                                          [
+                                            "link-sub-menu capitalize relative hover:cursor-pointer hover:no-underline",
+                                            (isActive || pathname.includes(menu.route)) &&
+                                              "sidebar-nav-active",
+                                          ]
+                                            .filter(Boolean)
+                                            .join(" ")
                                         }
+                                    >
                                         {menu.name}
                                     </NavLink>
                                     </li>

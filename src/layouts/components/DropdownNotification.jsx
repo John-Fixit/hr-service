@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { BsBellFill } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import useNotification from "../../hooks/useNotification";
 import { Avatar } from "antd";
-import { Check, User } from "lucide-react";
-import { Button, cn, useDisclosure } from "@nextui-org/react";
+import { Bell, Check, User } from "lucide-react";
+import { Button, useDisclosure } from "@nextui-org/react";
 import { ImCancelCircle } from "react-icons/im";
 import { BiQuestionMark } from "react-icons/bi";
 import ExpandedDrawerWithButton from "../../components/modals/ExpandedDrawerWithButton";
@@ -42,7 +41,11 @@ const DropdownNotification = () => {
   // for aper
   const [selectedTab, setSelectedTab] = useState(0);
   const [viewMode, setViewMode] = useState(false);
-  const {isOpen:isAperOpen, onOpen:onAperOpen, onClose:onAperClose} = useDisclosure()
+  const {
+    isOpen: isAperOpen,
+    onOpen: onAperOpen,
+    onClose: onAperClose,
+  } = useDisclosure();
 
   const { getAvailableNotification } = useGetNotificationData();
   const { mutateAsync: seenNotification } = useSeenNotification();
@@ -99,12 +102,11 @@ const DropdownNotification = () => {
             requestID: id,
           });
 
-
-          if(type === "Performance"){
-           onAperOpen()
-          }else{
+          if (type === "Performance") {
+            onAperOpen();
+          } else {
             setIsOpen({ type: type, status: true, role: action });
-            setViewMode(action === "request")
+            setViewMode(action === "request");
           }
 
           if (action === "request") {
@@ -115,7 +117,7 @@ const DropdownNotification = () => {
           console.log(err);
           setIsOpen({ type: type, status: false, role: action });
         },
-      }
+      },
     );
   };
 
@@ -144,148 +146,175 @@ const DropdownNotification = () => {
       data: null,
       notes: [],
       requestID: null,
-    })
+    });
     if (refreshSignnal === "refresh") {
       getAvailableNotification();
-      setSelectedTab(0)
+      setSelectedTab(0);
     }
-
   };
 
   const tabs = !isOpen?.status
     ? []
     : isOpen?.type === "Leave"
-    ? [
-        {
-          title: "Leave",
-          component: (
-            <LeaveDetail
-              details={details}
-              role={isOpen.role}
-              handleClose={handleClose}
-            />
-          ),
-        },
-        {
-          title: "Attachment",
-          component: <AttachmentDetailsApproval details={details} />,
-        },
-        { title: "Note", component: <NoteDetailsApproval details={details} /> },
-      ]
-    : isOpen?.type === "Leave Return"
-    ? [
-        {
-          title: "Leave Return",
-          component: (
-            <LeaveReturnDetails
-              details={details}
-              role={isOpen.role}
-              handleClose={handleClose}
-            />
-          ),
-        },
-        {
-          title: "Attachment",
-          component: <AttachmentDetailsApproval details={details} />,
-        },
-        { title: "Note", component: <NoteDetailsApproval details={details} /> },
-      ]
-    : isOpen?.type?.includes("Profile")
-    ? [
-        {
-          title: "Profile",
-          component: (
-            <ProfileDetail
-              details={details}
-              role={isOpen.role}
-              handleClose={handleClose}
-            />
-          ),
-        },
-        {
-          title: "Attachment",
-          component: <AttachmentDetailsApproval details={details} />,
-        },
-        { title: "Note", component: <NoteDetailsApproval details={details} /> },
-      ]
-    : isOpen?.type === "Biodata"
-    ? [
-        {
-          title: "Bio Data",
-          component: (
-            <BioDataDetail
-              details={details}
-              role={isOpen.role}
-              handleClose={handleClose}
-            />
-          ),
-        },
-        {
-          title: "Attachment",
-          component: <AttachmentDetailsApproval details={details} />,
-        },
-        { title: "Note", component: <NoteDetailsApproval details={details} /> },
-      ]
-    : isOpen?.type === "Memo"
-    ? [
-        {
-          title: "Memo",
-          component: (
-            <SignMemo
-              role={isOpen.role}
-              memo={{ ...details?.data, APPROVALS_DETAILS: details?.approvers }}
-              details={details}
-              handleClose={handleClose}
-            />
-          ),
-        },
-        {
-          title: "Attachment",
-          component: <AttachmentDetailsApproval details={details} />,
-        },
-        { title: "Note", component: <NoteDetailsApproval details={details} /> },
-      ]
-    : isOpen?.type === "academics" ||
-      isOpen?.type === "Certifications" ||
-      isOpen?.type === "Education" ||
-      isOpen?.type === "Professional Bodies" ||
-      isOpen?.type === "Work Experience"
-    ? [
-        {
-          title: isOpen?.type,
-          component: (
-            <AcademicDetail
-              title={isOpen?.type}
-              details={details}
-              handleClose={handleClose}
-              role={isOpen.role}
-            />
-          ),
-        },
-        { 
-          title: "Attachment",
-          component: <AttachmentDetailsApproval details={details} />,
-        },
-        { title: "Note", component: <NoteDetailsApproval details={details} /> },
-      ]
-    : [
-        {
-          title: isOpen?.type || "Details",
-          component: (
-            <DefaultDetails
-              title={isOpen?.type}
-              details={details}
-              role={isOpen.role}
-              handleClose={handleClose}
-            />
-          ),
-        },
-        {
-          title: "Attachment",
-          component: <AttachmentDetailsApproval details={details} />,
-        },
-        { title: "Note", component: <NoteDetailsApproval details={details} /> },
-      ];
+      ? [
+          {
+            title: "Leave",
+            component: (
+              <LeaveDetail
+                details={details}
+                role={isOpen.role}
+                handleClose={handleClose}
+              />
+            ),
+          },
+          {
+            title: "Attachment",
+            component: <AttachmentDetailsApproval details={details} />,
+          },
+          {
+            title: "Note",
+            component: <NoteDetailsApproval details={details} />,
+          },
+        ]
+      : isOpen?.type === "Leave Return"
+        ? [
+            {
+              title: "Leave Return",
+              component: (
+                <LeaveReturnDetails
+                  details={details}
+                  role={isOpen.role}
+                  handleClose={handleClose}
+                />
+              ),
+            },
+            {
+              title: "Attachment",
+              component: <AttachmentDetailsApproval details={details} />,
+            },
+            {
+              title: "Note",
+              component: <NoteDetailsApproval details={details} />,
+            },
+          ]
+        : isOpen?.type?.includes("Profile")
+          ? [
+              {
+                title: "Profile",
+                component: (
+                  <ProfileDetail
+                    details={details}
+                    role={isOpen.role}
+                    handleClose={handleClose}
+                  />
+                ),
+              },
+              {
+                title: "Attachment",
+                component: <AttachmentDetailsApproval details={details} />,
+              },
+              {
+                title: "Note",
+                component: <NoteDetailsApproval details={details} />,
+              },
+            ]
+          : isOpen?.type === "Biodata"
+            ? [
+                {
+                  title: "Bio Data",
+                  component: (
+                    <BioDataDetail
+                      details={details}
+                      role={isOpen.role}
+                      handleClose={handleClose}
+                    />
+                  ),
+                },
+                {
+                  title: "Attachment",
+                  component: <AttachmentDetailsApproval details={details} />,
+                },
+                {
+                  title: "Note",
+                  component: <NoteDetailsApproval details={details} />,
+                },
+              ]
+            : isOpen?.type === "Memo"
+              ? [
+                  {
+                    title: "Memo",
+                    component: (
+                      <SignMemo
+                        role={isOpen.role}
+                        memo={{
+                          ...details?.data,
+                          APPROVALS_DETAILS: details?.approvers,
+                        }}
+                        details={details}
+                        handleClose={handleClose}
+                      />
+                    ),
+                  },
+                  {
+                    title: "Attachment",
+                    component: <AttachmentDetailsApproval details={details} />,
+                  },
+                  {
+                    title: "Note",
+                    component: <NoteDetailsApproval details={details} />,
+                  },
+                ]
+              : isOpen?.type === "academics" ||
+                  isOpen?.type === "Certifications" ||
+                  isOpen?.type === "Education" ||
+                  isOpen?.type === "Professional Bodies" ||
+                  isOpen?.type === "Work Experience"
+                ? [
+                    {
+                      title: isOpen?.type,
+                      component: (
+                        <AcademicDetail
+                          title={isOpen?.type}
+                          details={details}
+                          handleClose={handleClose}
+                          role={isOpen.role}
+                        />
+                      ),
+                    },
+                    {
+                      title: "Attachment",
+                      component: (
+                        <AttachmentDetailsApproval details={details} />
+                      ),
+                    },
+                    {
+                      title: "Note",
+                      component: <NoteDetailsApproval details={details} />,
+                    },
+                  ]
+                : [
+                    {
+                      title: isOpen?.type || "Details",
+                      component: (
+                        <DefaultDetails
+                          title={isOpen?.type}
+                          details={details}
+                          role={isOpen.role}
+                          handleClose={handleClose}
+                        />
+                      ),
+                    },
+                    {
+                      title: "Attachment",
+                      component: (
+                        <AttachmentDetailsApproval details={details} />
+                      ),
+                    },
+                    {
+                      title: "Note",
+                      component: <NoteDetailsApproval details={details} />,
+                    },
+                  ];
 
   const trigger = useRef(null);
   const dropdown = useRef(null);
@@ -315,26 +344,23 @@ const DropdownNotification = () => {
     return () => document.removeEventListener("keydown", keyHandler);
   });
 
+  const notificationCount =
+    (treated_requests?.length ?? 0) + (awaiting_approval?.length ?? 0);
+
   return (
-    <div className="relative text-gray-600">
+    <div className="relative flex items-center">
       <Link
         ref={trigger}
         onClick={() => setDropdownOpen(!dropdownOpen)}
         to="#"
-        className=" relative"
+        className="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-100 transition-colors"
       >
-        <div className="p-1 flex items-center rounded-lg cursor-pointer">
-          <BsBellFill
-            color="grey"
-            size={21}
-            className="font-medium text-gray-100"
-          />
-          <div className={cn(" absolute h-3 w-5 rounded-full bg-btnColor flex items-center justify-center -right-2 top-[0.4rem] border border-gray-100",(treated_requests?.length + awaiting_approval?.length) === 0 && "hidden")}>
-            <span className="flex items-center justify-center text-[0.57rem] font-bold text-white">
-              {treated_requests?.length + awaiting_approval?.length}
-            </span>
-          </div>
-        </div>
+        <Bell size={20} className="text-slate-600" strokeWidth={1.75} />
+        {notificationCount > 0 && (
+          <span className="absolute top-0.5 right-0 flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-dashboard-purple text-white text-[10px] font-semibold leading-none border-2 border-white">
+            {notificationCount > 99 ? "99+" : notificationCount}
+          </span>
+        )}
       </Link>
 
       <div
@@ -370,7 +396,7 @@ const DropdownNotification = () => {
                       openDrawer(
                         tappr?.REQUEST_ID,
                         tappr?.PACKAGE_NAME,
-                        "request"
+                        "request",
                       )
                     }
                     size="sm"
@@ -407,7 +433,7 @@ const DropdownNotification = () => {
                       openDrawer(
                         tappr?.REQUEST_ID,
                         tappr?.PACKAGE_NAME,
-                        "approval"
+                        "approval",
                       )
                     }
                     size="sm"
@@ -436,7 +462,11 @@ const DropdownNotification = () => {
           </div>
         ) : null}
       </div>
-      <ExpandedDrawerWithButton maxWidth={isOpen.type == "Variation" ? 1100 :  920} isOpen={isOpen.status} onClose={handleClose}>
+      <ExpandedDrawerWithButton
+        maxWidth={isOpen.type == "Variation" ? 1100 : 920}
+        isOpen={isOpen.status}
+        onClose={handleClose}
+      >
         <FormDrawer
           title={""}
           tabs={[
@@ -451,7 +481,7 @@ const DropdownNotification = () => {
 
       <PerformanceApprovalDrawer
         isOpen={isAperOpen}
-        setIsOpen={()=>onAperClose()}
+        setIsOpen={() => onAperClose()}
         selectedTab={selectedTab}
         setSelectedTab={setSelectedTab}
         incomingData={details}

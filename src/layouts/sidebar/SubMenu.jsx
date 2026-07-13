@@ -6,6 +6,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { dashboardContext } from "../../context/Dashboard";
 import ChatDrawer from "../../pages/home/rightMenu/components/ChatDrawer";
 import useCurrentUser from "../../hooks/useCurrentUser";
+import { cn } from "@nextui-org/react";
 
 const SubMenu = ({ data, routeMerge }) => {
   const {
@@ -79,54 +80,51 @@ const SubMenu = ({ data, routeMerge }) => {
     return filteredMenu;
   };
 
+  const hasActiveChild = data.menus?.some(
+    (menu) =>
+      pathname.includes(menu.route) ||
+      pathname.includes(menu.prefix) ||
+      menu.menus?.some((m3) => pathname.includes(m3.route)),
+  );
+  const isParentActive = hasActiveChild || tabClicked === data.name;
+
   return (
     <>
       <li
-        className={`relative z-40 w-[15rem] group/navitemsub  hover:cursor-pointer ${
-          !sidebarMinimized &&
-          tabClicked === data.name &&
-          "bg-sidebarSubMenuBg "
-        } ${
+        className={cn(
+          "relative z-40 w-[15rem] group/navitemsub hover:cursor-pointer",
+          !sidebarMinimized && tabClicked === data.name && "bg-white/5",
           sidebarMinimized
-            ? "border-b border-gray-800 py-4"
-            : "border-0 border-transparent"
-        } ${
-          sidebarMinimized
-            ? "flex flex-col text-center justify-center gap-1 cursor-pointer  duration-300 font-medium text-gray-400"
-            : "link !pr-2 "
-        }`}
+            ? "border-b border-gray-800 py-4 flex flex-col text-center justify-center gap-1 cursor-pointer duration-300 font-medium text-gray-400"
+            : "link !pr-2",
+          isParentActive && "sidebar-parent-active",
+        )}
         onClick={showSubMenu}
         ref={trigger}
       >
         <data.icon
           size={sidebarMinimized ? 30 : 18}
-          className={`min-w-max group-hover/navitemsub:text-menuItemColor ${
-            sidebarMinimized && "mx-auto"
-          } ${
-            pathname.includes(data.name) || pathname.includes(data.prefix)
-              ? "text-white"
-              : "text-menuItemIcon"
-          }`}
+          className={cn(
+            "min-w-max group-hover/navitemsub:text-white",
+            sidebarMinimized && "mx-auto",
+            isParentActive ? "text-dashboard-purple" : "text-menuItemIcon",
+          )}
         />
 
-        <p
-          className={`flex-1 capitalize  ${
-            pathname.includes(data.name)
-              ? "!text-white"
-              : pathname.includes(data?.prefix) && "!text-white"
-          } `}
-        >
+        <p className={cn("flex-1 capitalize", isParentActive && "font-medium")}>
           {data.name}
         </p>
 
         {!sidebarMinimized && (
           <IoIosArrowDown
             strokeWidth={2}
-            className={`${
+            className={cn(
+              "mr-1 group-hover/navitemsub:text-white",
               tabClicked !== data.name
                 ? "-rotate-90 duration-200"
-                : "rotate-30 duration-200"
-            }  mr-1 group-hover/navitemsub:text-menuItemColor`}
+                : "rotate-30 duration-200",
+              isParentActive && "text-dashboard-purple",
+            )}
           />
         )}
       </li>
@@ -164,28 +162,32 @@ const SubMenu = ({ data, routeMerge }) => {
               className="!font-[400] !text-[15px] text-menuItemColor !leading-8 w-full "
             >
               {menu?.withSubMenu3 ? (
-                <div className="link-sub-menu3   capitalize relative hover:text-white hover:cursor-pointer hover:no-underline  visited:no-underline active:no-underline">
-                  {pathname.includes(menu.route) && (
-                    <span className="w-2 h-2 rounded-full bg-btnColor absolute left-[0.3rem] duration-200 transition-all"></span>
+                <div
+                  className={cn(
+                    "link-sub-menu3 capitalize relative hover:cursor-pointer hover:no-underline visited:no-underline active:no-underline",
+                    (pathname.includes(menu.route) ||
+                      pathname.includes(menu.prefix) ||
+                      tabClickedLV3 === menu.name) &&
+                      "sidebar-parent-active",
                   )}
-
+                >
                   <div
-                    className="flex justify-between items-center w-[10.8rem] "
+                    className="flex justify-between items-center w-[10.8rem]"
                     onClick={() => showSubMenuLV3(menu.name)}
                   >
                     <div className="flex items-center gap-x-1">
                       <menu.icon
                         size={sidebarMinimized ? 30 : 15}
-                        className={`min-w-max group-hover/navitemsub:text-menuItemColor ${
-                          sidebarMinimized && "mx-auto"
-                        } ${
+                        className={cn(
+                          "min-w-max group-hover/navitemsub:text-white",
+                          sidebarMinimized && "mx-auto",
                           pathname.includes(menu.name) ||
-                          pathname.includes(menu.prefix)
-                            ? "text-white"
-                            : "text-menuItemIcon"
-                        }`}
+                            pathname.includes(menu.prefix) ||
+                            tabClickedLV3 === menu.name
+                            ? "text-dashboard-purple"
+                            : "text-menuItemIcon",
+                        )}
                       />
-
                       {menu.name}
                     </div>
 
@@ -193,11 +195,16 @@ const SubMenu = ({ data, routeMerge }) => {
                       <IoIosArrowDown
                         strokeWidth={2}
                         size={12}
-                        className={`${
+                        className={cn(
+                          "mr-1 group-hover/navitemsub:text-white",
                           tabClickedLV3 !== menu.name
                             ? "-rotate-90 duration-200"
-                            : "rotate-30 duration-200"
-                        }  mr-1 group-hover/navitemsub:text-menuItemColor`}
+                            : "rotate-30 duration-200",
+                          (pathname.includes(menu.name) ||
+                            pathname.includes(menu.prefix) ||
+                            tabClickedLV3 === menu.name) &&
+                            "text-dashboard-purple",
+                        )}
                       />
                     )}
                   </div>
@@ -233,11 +240,14 @@ const SubMenu = ({ data, routeMerge }) => {
                         >
                           <NavLink
                             to={menu3?.enabled ? `${menu3.route}` : "#"}
-                            className="link-sub-menu4  capitalize relative hover:text-white hover:cursor-pointer hover:no-underline  visited:no-underline active:no-underline "
+                            className={({ isActive }) =>
+                              cn(
+                                "link-sub-menu4 capitalize relative hover:cursor-pointer hover:no-underline visited:no-underline active:no-underline",
+                                (isActive || pathname.includes(menu3.route)) &&
+                                  "sidebar-nav-active",
+                              )
+                            }
                           >
-                            {pathname.includes(menu3.route) && (
-                              <span className="w-2 h-2 rounded-full bg-btnColor absolute left-[0.2rem] top-3 duration-200 transition-all"></span>
-                            )}
                             {menu3.name}
                           </NavLink>
                         </li>
@@ -250,17 +260,12 @@ const SubMenu = ({ data, routeMerge }) => {
                   {menu?.name?.toLowerCase() === "message room" ? (
                     <div
                       onClick={openMessageRoom}
-                      className={` ${
-                        menu?.icon ? "link-sub-menu3" : "link-sub-menu"
-                      }    capitalize relative hover:text-white hover:cursor-pointer hover:no-underline  visited:no-underline active:no-underline`}
-                    >
-                      {pathname.includes(menu.route) && (
-                        <span
-                          className={`w-2 h-2 rounded-full bg-btnColor absolute left-[0.1.7rem] duration-200 top-3 transition-all ${
-                            menu?.icon ? "left-[0rem]" : "left-[0.30rem]"
-                          }`}
-                        ></span>
+                      className={cn(
+                        menu?.icon ? "link-sub-menu3" : "link-sub-menu",
+                        "capitalize relative hover:cursor-pointer hover:no-underline visited:no-underline active:no-underline",
+                        pathname.includes(menu.route) && "sidebar-nav-active",
                       )}
+                    >
                       <span>{menu.name}</span>
                     </div>
                   ) : (
@@ -272,36 +277,26 @@ const SubMenu = ({ data, routeMerge }) => {
                             : `${menu.route}`
                           : `#`
                       }
-                      className={` ${
-                        menu?.icon ? "link-sub-menu3" : "link-sub-menu"
-                      }    capitalize relative hover:text-white hover:cursor-pointer hover:no-underline  visited:no-underline active:no-underline`}
+                      className={({ isActive }) =>
+                        cn(
+                          menu?.icon ? "link-sub-menu3" : "link-sub-menu",
+                          "capitalize relative hover:cursor-pointer hover:no-underline visited:no-underline active:no-underline",
+                          (isActive || pathname.includes(menu.route)) &&
+                            "sidebar-nav-active",
+                        )
+                      }
                     >
-                      {pathname.includes(menu.route) && (
-                        <span
-                          className={`w-2 h-2 rounded-full bg-btnColor absolute left-[0.1.7rem] duration-200 top-3 transition-all ${
-                            menu?.icon ? "left-[0rem]" : "left-[0.30rem]"
-                          }`}
-                        ></span>
-                      )}
-
                       {menu?.icon ? (
-                        <div className="flex items-center gap-x-1 ">
+                        <div className="flex items-center gap-x-1">
                           <menu.icon
                             size={sidebarMinimized ? 30 : 12}
-                            className={`min-w-max group-hover/navitemsub:text-menuItemColor ${
-                              sidebarMinimized && "mx-auto"
-                            } ${
-                              pathname.includes(menu.name)
-                                ? "text-white"
-                                : "text-menuItemIcon"
-                            }`}
+                            className="min-w-max group-hover/navitemsub:text-white"
                           />
-
                           {menu.name}
                         </div>
                       ) : (
                         <span
-                          className={`${!menu?.enabled && "text-menuItemIcon"}`}
+                          className={cn(!menu?.enabled && "text-menuItemIcon")}
                         >
                           {menu.name}
                         </span>

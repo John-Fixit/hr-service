@@ -3,22 +3,24 @@ import { useRef } from "react";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import { dashboardContext } from "../../context/Dashboard";
-import { defaultMenuHome, defaultMenuHomeAll } from "../sidebar/routes";
-import { Tooltip } from "@nextui-org/react";
+import { defaultMenuHome } from "../sidebar/routes";
+import { Tooltip, Avatar } from "@nextui-org/react";
+import { IoIosArrowForward } from "react-icons/io";
+import useCurrentUser from "../../hooks/useCurrentUser";
+import { filePrefix } from "../../utils/filePrefix";
 
 const DefaultSidebar = () => {
   const {
     sidebarOpen,
     setSidebarOpen,
     isTablet,
-    minimizeSidebarHome,
     sidebarMinimizedHome,
     setCurrentHomeSidemenu,
-    setSidebarMinimizedHome,
   } = useContext(dashboardContext);
   const sidebarRef = useRef();
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { userData } = useCurrentUser();
 
   useEffect(() => {
     if (isTablet) {
@@ -28,14 +30,7 @@ const DefaultSidebar = () => {
     }
   }, [isTablet, setSidebarOpen]);
 
-  const overlayClicked = () => {
-    // setShowminimizedsubMenu(false);
-    setSidebarOpen(false);
-  };
-
-  const foldSidebar = () => {
-    minimizeSidebarHome();
-  };
+  const overlayClicked = () => setSidebarOpen(false);
 
   useEffect(() => {
     isTablet && setSidebarOpen(false);
@@ -43,49 +38,14 @@ const DefaultSidebar = () => {
 
   const Nav_animation = isTablet
     ? {
-        open: {
-          x: 0,
-          width: "16rem",
-          transition: {
-            damping: 40,
-          },
-        },
-        closed: {
-          x: -350,
-          width: 0,
-          transition: {
-            damping: 40,
-            delay: 0.15,
-          },
-        },
-        minimize: {
-          x: 0,
-          width: "7.5rem",
-          transition: {
-            damping: 40,
-            delay: 0.15,
-          },
-        },
+        open: { x: 0, width: "16rem", transition: { damping: 40 } },
+        closed: { x: -350, width: 0, transition: { damping: 40, delay: 0.15 } },
+        minimize: { x: 0, width: "7.5rem", transition: { damping: 40, delay: 0.15 } },
       }
     : {
-        open: {
-          width: "16rem",
-          transition: {
-            damping: 40,
-          },
-        },
-        closed: {
-          width: "0rem",
-          transition: {
-            damping: 40,
-          },
-        },
-        minimize: {
-          width: "7.5rem",
-          transition: {
-            damping: 40,
-          },
-        },
+        open: { width: "16rem", transition: { damping: 40 } },
+        closed: { width: "0rem", transition: { damping: 40 } },
+        minimize: { width: "7.5rem", transition: { damping: 40 } },
       };
 
   const showSubMenu = (menu) => {
@@ -95,23 +55,25 @@ const DefaultSidebar = () => {
     }
     if (menu === "Performance") {
       navigate("/performance/dashboard");
+      return;
     }
     if (menu === "LMS") {
       navigate("/lms/dashboard");
+      return;
     }
-
-    setSidebarMinimizedHome(false);
     setCurrentHomeSidemenu(menu);
   };
+
+  const isDashboardActive = pathname.includes("/engage/home");
 
   return (
     <div className="relative bg-sidebarBg shadow-sidebar">
       <div
-        onClick={() => overlayClicked()}
-        className={`lg:hidden fixed inset-0 max-h-screen z-[90] bg-chatoverlay cursor-pointer   ${
+        onClick={overlayClicked}
+        className={`lg:hidden fixed inset-0 max-h-screen z-[90] bg-chatoverlay cursor-pointer ${
           sidebarOpen ? "block" : "hidden"
-        } `}
-      ></div>
+        }`}
+      />
       <motion.div
         ref={sidebarRef}
         variants={Nav_animation}
@@ -123,136 +85,120 @@ const DefaultSidebar = () => {
             ? "open"
             : "closed"
         }
-        className="shadow-sidebar group  lg:z-[49] z-[91] max-w-[16rem]  w-[16rem] 
-             fixed top-0 left-0
-           h-screen  dark:!text-gray-100 bg-sidebarBg"
+        className="shadow-sidebar group lg:z-[49] z-[91] max-w-[16rem] w-[16rem] fixed top-0 left-0 h-screen dark:!text-gray-100 bg-sidebarBg flex flex-col"
         id="s-sidebar"
       >
-        <div className="flex flex-col  h-full ">
-          <ul className="whitespace-pre text-[0.9rem] flex flex-col overflow-x-hidden font-medium  scrollbar-thin scrollbar-thumb-transparent  group-hover:scrollbar-thumb-scrollbarColor scrollbar-track-transparent menuScrollBar  h-full  px-0  pb-20">
-            {/* logo */}
-            <div
-              className={`flex flex-col bg-sidebarBg  ${
-                sidebarMinimizedHome && " h-28"
-              }`}
-            >
-              <div className="flex items-center justify-center h-20 py-6">
-                {/* <img
-                  src="/assets/images/NCAA.png"
-                  alt="comuneety-logo"
-                  className={cn(
-                    ` w-10`,
-                    sidebarMinimizedHome ? "block" : "hidden"
-                  )}
-                /> */}
-                {/* <img
-                  src="/assets/images/community_logo_light.png"
-                  alt="comuneety-logo"
-                  className={cn(
-                    ` w-52 mt-10`,
-                    sidebarMinimizedHome ? "hidden" : "block"
-                  )}
-                /> */}
-              </div>
-              {/* <div
-                className={`w-100 h-4  flex justify-end my-2   p-3 px-4 font-medium hover:cursor-pointer ${
-                  sidebarMinimizedHome && "justify-center"
-                }`}
-                onClick={foldSidebar}
-              >
-                <PiArrowsLeftRightBold
-                  size={25}
-                  className="text-menuItemColor"
-                />
-              </div> */}
-
-              <div
-                className={`w-full   flex-col gap-4 justify-center p-1 px-3 items-center mt-24`}
-              ></div>
+        <div className="flex flex-col h-full">
+          {/* Logo */}
+          <div
+            className={`px-4 py-5 border-b border-white/5 shrink-0 ${
+              sidebarMinimizedHome ? "flex justify-center" : ""
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <img
+                src="/NCAA.png"
+                alt="NCAA"
+                className="w-10 h-10 rounded-full object-cover shrink-0"
+              />
+              {!sidebarMinimizedHome && (
+                <p className="text-white text-sm font-semibold leading-tight">
+                  Nigerian Civil Aviation Authority
+                </p>
+              )}
             </div>
-            {/* logo */}
+          </div>
 
-            {sidebarMinimizedHome ? (
-              <>
-                {defaultMenuHome?.map((route, i) => (
-                  <Fragment key={i}>
-                    <div className="p-0">
-                      {
-                        <>
-                          <Tooltip
-                            showArrow={true}
-                            placement="right"
-                            content={
-                              route?.enabled || route?.name === "More"
-                                ? route?.name
-                                : "Coming soon"
-                            }
-                            color="default"
-                          >
-                            <li
-                              className={`relative  hover:text-white hover:cursor-pointer  link3 flex-col border-b-[1.6px] border-sidebarSubMenuBg/50   ${
-                                route.name === "Dashboard" && "!text-white"
-                              }`}
-                              onClick={() =>
-                                route?.name === "More"
-                                  ? foldSidebar()
-                                  : route?.enabled
-                                  ? showSubMenu(route?.name)
-                                  : () => {}
-                              }
-                            >
-                              <route.icon size={30} className={`min-w-max`} />
-                              <p className="flex-1 capitalize text-md w-full text-center truncate">
-                                {route?.name}
-                              </p>
-                            </li>
-                          </Tooltip>
-                        </>
-                      }
-                    </div>
-                  </Fragment>
-                ))}
-              </>
-            ) : (
-              <>
-                {defaultMenuHomeAll?.map((route, i) => (
-                  <Fragment key={i}>
-                    <div className="relative  grid grid-cols-2 gap-2 mx-3 border-b-[1.6px] border-sidebarSubMenuBg/50">
-                      {route?.map((section, ind) => (
-                        <Fragment key={ind}>
-                          <Tooltip
-                            showArrow={true}
-                            placement="bottom"
-                            content={
-                              section?.enabled ? section?.name : "Coming soon"
-                            }
-                            color="default"
-                          >
-                            <li
-                              className={`relative  hover:text-white hover:cursor-pointer  link4 flex-col ${
-                                section?.name === "Dashboard" && "!text-white"
-                              }`}
-                              onClick={
-                                section?.enabled
-                                  ? () => showSubMenu(section?.name)
-                                  : () => {}
-                              }
-                            >
-                              <section.icon size={30} className={`min-w-max`} />
+          {/* Nav items */}
+          <ul className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-transparent py-4 px-2 space-y-1">
+            {defaultMenuHome?.map((route) => {
+              const isActive =
+                route.name === "Dashboard"
+                  ? isDashboardActive
+                  : pathname.includes(route.route?.replace("/", "") || "");
 
-                              <p className="flex-1 capitalize text-md w-full text-center truncate">
-                                {section?.name}
-                              </p>
-                            </li>
-                          </Tooltip>
-                        </Fragment>
-                      ))}
-                    </div>
-                  </Fragment>
-                ))}
-              </>
-            )}
+              const itemContent = (
+                <li
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-colors duration-200 ${
+                    sidebarMinimizedHome ? "flex-col py-3" : ""
+                  } ${
+                    isActive
+                      ? "bg-dashboard-purple text-white"
+                      : "text-slate-400 hover:text-white hover:bg-white/5"
+                  }`}
+                  onClick={() =>
+                    route?.enabled || route?.name === "More"
+                      ? showSubMenu(route?.name)
+                      : undefined
+                  }
+                >
+                  <route.icon
+                    size={sidebarMinimizedHome ? 24 : 18}
+                    className={`shrink-0 ${isActive ? "text-white" : ""}`}
+                  />
+                  {!sidebarMinimizedHome && (
+                    <>
+                      <span className="flex-1 text-sm font-medium capitalize truncate">
+                        {route?.name}
+                      </span>
+                      <IoIosArrowForward
+                        size={14}
+                        className={`shrink-0 opacity-60 ${isActive ? "text-white" : ""}`}
+                      />
+                    </>
+                  )}
+                  {sidebarMinimizedHome && (
+                    <span className="text-[10px] text-center truncate w-full mt-1">
+                      {route?.name}
+                    </span>
+                  )}
+                </li>
+              );
+
+              return (
+                <Fragment key={route.name}>
+                  {sidebarMinimizedHome ? (
+                    <Tooltip placement="right" content={route?.name}>
+                      {itemContent}
+                    </Tooltip>
+                  ) : (
+                    itemContent
+                  )}
+                </Fragment>
+              );
+            })}
           </ul>
+
+          {/* Bottom profile */}
+          <div
+            className={`shrink-0 border-t border-white/10 p-4 ${
+              sidebarMinimizedHome ? "flex justify-center" : ""
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <Avatar
+                src={
+                  userData?.data?.FILE_NAME
+                    ? filePrefix + userData.data.FILE_NAME
+                    : undefined
+                }
+                name={userData?.data?.FIRST_NAME?.trim()?.[0]}
+                className="w-9 h-9 shrink-0"
+              />
+              {!sidebarMinimizedHome && (
+                <div className="min-w-0">
+                  <p className="text-white text-sm font-semibold truncate">
+                    {userData?.data?.LAST_NAME || "User"}
+                  </p>
+                  <p className="text-slate-400 text-xs truncate">
+                    {userData?.data?.IS_ADMINISTRATOR
+                      ? "Administrator"
+                      : "Staff"}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </motion.div>
     </div>

@@ -120,7 +120,19 @@ const closeUsersLikesModal = ()=>{
                 :
                 
                 
-                <Postfeed data={post} index={i} key={post.POST_ID} setOpenLikesModal={setOpenLikesModal} setLikeData={setLikeData} />
+                <Postfeed
+                  data={post}
+                  index={i}
+                  key={post.POST_ID}
+                  isPinned={i === 0}
+                  badge={
+                    i === 0
+                      ? { label: "Announcement", color: "bg-emerald-50 text-emerald-700" }
+                      : null
+                  }
+                  setOpenLikesModal={setOpenLikesModal}
+                  setLikeData={setLikeData}
+                />
               ))}
 
               {
