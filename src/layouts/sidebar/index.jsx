@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
-import { ChevronDown, Plane } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { dashboardContext } from "../../context/Dashboard";
 import useCurrentUser from "../../hooks/useCurrentUser";
 import { filePrefix } from "../../utils/filePrefix";
@@ -76,9 +76,11 @@ const Sidebar = () => {
       >
         {/* Logo */}
         <div className="flex shrink-0 items-center gap-3 px-5 py-5">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 shadow-md border-4 border-white">
-            <Plane className="h-5 w-5 text-white" strokeWidth={2} />
-          </div>
+          <img
+            src="/NCAA.png"
+            alt="NCAA"
+            className="h-11 w-11 shrink-0 rounded-full border-4 border-white object-cover shadow-md"
+          />
           <div className="leading-tight flex flex-col">
             <span className="text-[15px] font-bold text-white">
               Nigerian Civil

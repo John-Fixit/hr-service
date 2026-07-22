@@ -9,8 +9,6 @@ import { useDisclosure } from "@nextui-org/react";
 import { MdCancel } from "react-icons/md";
 import { useCreatePost } from "../../../lib/query/queryandMutation";
 import useCurrentUser from "../../../hooks/useCurrentUser";
-import { FaPencil } from "react-icons/fa6";
-import { GoPencil } from "react-icons/go";
 
 const actionButtons = [
   {
@@ -172,7 +170,7 @@ const CreatePost = () => {
           <button
             type="button"
             onClick={desc.trim() ? handleCreatePost : onOpen}
-            disabled={isPending}
+            disabled={isPending || !desc.trim()}
             className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-dashboard-purple text-white text-sm font-semibold hover:bg-dashboard-purple-hover disabled:opacity-50 transition-colors shrink-0"
           >
             {isPending ? (

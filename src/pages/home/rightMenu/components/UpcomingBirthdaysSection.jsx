@@ -173,7 +173,7 @@ const UpcomingBirthdaysSection = ({ onSendWishes, onViewAll }) => {
               )}
             </div>
 
-            <p className="mt-3 text-lg font-bold text-slate-900">
+            <p className="mt-3 text-lg font-bold text-slate-900 capitalize">
               {getFullName(featuredToday)}
             </p>
             {getDesignation(featuredToday) && (
