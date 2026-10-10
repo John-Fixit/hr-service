@@ -7,7 +7,7 @@ import {
   PointElement,
   Tooltip,
 } from "chart.js";
-import { ArrowUpRight, Calendar, Play } from "lucide-react";
+import { ArrowUpRight, Activity, Play } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useGetRespondedStats } from "../../../../API/lms-apis/lms-dashboard";
 
@@ -23,52 +23,52 @@ const CurrentActivity = () => {
       course?.TOTAL_LESSONS === course?.TOTAL_RECIPIENTS_COMPLETED,
   );
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="p-5 border-b border-gray-100">
-        <h3 className="text-lg font-semibold text-[rgb(10,31,52)] font-outfit">
+    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_24px_-20px_rgba(15,23,42,0.4)]">
+      <div className="border-b border-slate-100 px-5 py-5">
+        <h3 className="text-base font-semibold tracking-tight text-[#17263c] font-outfit">
           Course response
         </h3>
-        <p className="text-sm text-main-text-color font-outfit mt-0.5">
+        <p className="mt-1 text-xs text-slate-500 font-outfit">
           Respondents per course (hover for course title)
         </p>
       </div>
-      <div className="p-4">
+      <div className="p-5">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <p className="text-sm font-medium text-gray-700 font-outfit">
+            <p className="text-sm font-semibold text-slate-700 font-outfit">
               Respondents by course
             </p>
-            <p className="text-xs text-gray-500 font-outfit">
+            <p className="mt-1 text-xs leading-5 text-slate-500 font-outfit">
               Number of employees who completed or engaged per course
             </p>
           </div>
-          <div className="bg-btnColor/10 rounded-lg p-2">
-            <Calendar className="w-4 h-4 text-btnColor" />
+          <div className="rounded-xl bg-[#f0eeff] p-2.5">
+          <Activity className="h-4 w-4 text-[#6258e8]" />
           </div>
         </div>
         <ActivityChart />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-          <div className="rounded-lg bg-[rgb(10,31,52)] text-white py-3 px-4 flex items-center justify-between">
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-3">
             <div>
-              <p className="text-xs font-medium text-gray-300 font-outfit">
+              <p className="text-[11px] font-medium text-slate-500 font-outfit">
                 Completed
               </p>
-              <p className="text-lg font-bold font-outfit">
+              <p className="mt-1 text-lg font-semibold text-[#17263c] font-outfit">
                 {completedValues?.length || 0}
               </p>
             </div>
-            <ArrowUpRight className="w-5 h-5 text-btnColor" />
+            <ArrowUpRight className="h-4 w-4 text-emerald-600" />
           </div>
-          <div className="rounded-lg bg-btnColor text-white py-3 px-4 flex items-center justify-between">
+          <div className="flex items-center justify-between rounded-xl border border-violet-100 bg-violet-50/70 px-3.5 py-3">
             <div>
-              <p className="text-xs font-medium text-white/80 font-outfit">
+              <p className="text-[11px] font-medium text-violet-800/70 font-outfit">
                 Engaged
               </p>
-              <p className="text-lg font-bold font-outfit">
+              <p className="mt-1 text-lg font-semibold text-violet-950 font-outfit">
                 {engagedValues?.length || 0}
               </p>
             </div>
-            <Play className="w-5 h-5 text-white" />
+            <Play className="h-4 w-4 text-[#6258e8]" />
           </div>
         </div>
       </div>
@@ -118,12 +118,12 @@ const ActivityChart = () => {
         datasets: [
           {
             data: values,
-            borderColor: "#00bcc2",
+            borderColor: "#6258e8",
             backgroundColor: (context) => {
               const ctx = context.chart.ctx;
               const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-              gradient.addColorStop(0, "rgba(0, 188, 194, 0.25)");
-              gradient.addColorStop(1, "rgba(0, 188, 194, 0)");
+              gradient.addColorStop(0, "rgba(98, 88, 232, 0.2)");
+              gradient.addColorStop(1, "rgba(98, 88, 232, 0)");
               return gradient;
             },
             borderWidth: 3,
@@ -131,7 +131,7 @@ const ActivityChart = () => {
             tension: 0.4,
             pointRadius: 3,
             pointHoverRadius: 6,
-            pointHoverBackgroundColor: "#00bcc2",
+            pointHoverBackgroundColor: "#6258e8",
             pointHoverBorderColor: "#fff",
             pointHoverBorderWidth: 2,
           },

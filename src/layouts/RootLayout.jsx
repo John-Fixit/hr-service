@@ -22,8 +22,8 @@ function RootLayout() {
   return (
     <div
       className={`h-screen bg-lighten dark:text-gray-100 dark:bg-slate-700 duration-200 ease-in-out ${
-        // sidebarOpen ? "lg:pl-[260px]" : "lg:pl-0"
-        "lg:pl-0"
+        sidebarOpen ? "lg:pl-[260px]" : "lg:pl-0"
+        // "lg:pl-0"
       }`}
     >
       <Sidebar />
