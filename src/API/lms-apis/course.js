@@ -30,18 +30,19 @@ export const useGetAllCourses = () => {
 };
 export const useGetStaffCourses = (staffId) => {
   return useQuery({
-    queryKey: [`get_staff_course`],
+    queryKey: ["get_staff_course", staffId],
     queryFn: async () => {
       const res = await LMS_API.get(
         `/course/get-courses-by-staff-id/${staffId}`,
       );
       return res?.data?.data;
     },
+    enabled: Boolean(staffId),
   });
 };
-export const useGetCreatorCourses = (staffId) => {
+export const useGetCreatorCourses = (staffId, enabled = true) => {
   return useQuery({
-    queryKey: [`get_creator_course_${staffId}`],
+    queryKey: ["get_creator_course", staffId],
     queryFn: async () => {
       const res = await LMS_API.get(`/course/get-courses-by-creator`, {
         params: {
@@ -50,6 +51,7 @@ export const useGetCreatorCourses = (staffId) => {
       });
       return res?.data?.data?.data;
     },
+    enabled: Boolean(staffId && enabled),
   });
 };
 export const useGetCourseDetail = (courseID) => {

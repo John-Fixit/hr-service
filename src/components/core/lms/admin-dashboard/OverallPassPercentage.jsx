@@ -26,10 +26,10 @@ export default function OverallPassPercentage() {
         datasets: [
           {
             data: [45, 55],
-            backgroundColor: ["#00bcc2", "rgb(10,31,52)"],
+            backgroundColor: ["#6258e8", "#e7e6f7"],
             borderWidth: 0,
-            cutout: "65%",
-            spacing: 2,
+            cutout: "72%",
+            spacing: 3,
           },
         ],
       },
@@ -45,9 +45,9 @@ export default function OverallPassPercentage() {
             labels: {
               usePointStyle: true,
               pointStyle: "circle",
-              padding: 20,
-              font: { size: 14 },
-              color: "#334155",
+              padding: 16,
+              font: { size: 11 },
+              color: "#64748b",
             },
           },
           tooltip: {
@@ -67,11 +67,14 @@ export default function OverallPassPercentage() {
   }, []);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 w-full">
-      <h3 className="text-lg font-semibold text-[rgb(10,31,52)] font-outfit mb-4">
+    <div className="w-full rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_8px_24px_-20px_rgba(15,23,42,0.4)] sm:p-6">
+      <h3 className="text-base font-semibold tracking-tight text-[#17263c] font-outfit">
         Overall pass rate
       </h3>
-      <div className="relative h-72">
+      <p className="mt-1 text-xs text-slate-500 font-outfit">
+        Learner assessment outcomes
+      </p>
+      <div className="relative mt-3 h-56">
         <canvas ref={chartRef}></canvas>
       </div>
     </div>

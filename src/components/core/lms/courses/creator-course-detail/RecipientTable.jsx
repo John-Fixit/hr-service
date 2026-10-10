@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { FiEye, FiSearch } from "react-icons/fi";
-import { MdOutlineDelete } from "react-icons/md";
+import { Download } from "lucide-react";
 import StaffBreakdownDrawer from "./StaffBreakdownDrawer";
+import { exportExcel } from "../../../../../utils/exportReportAsExcel";
 
 function StatusBadge({ status }) {
   const map = {
@@ -24,6 +25,10 @@ function StatusBadge({ status }) {
   );
 }
 
+StatusBadge.propTypes = {
+  status: PropTypes.oneOf(["completed", "progress", "none"]),
+};
+
 function ScoreText({ score }) {
   if (score === null)
     return <span className="text-slate-400 font-bold">—</span>;
@@ -36,13 +41,23 @@ function ScoreText({ score }) {
   return <span className={`${color} font-bold text-[13px]`}>{score}%</span>;
 }
 
+ScoreText.propTypes = {
+  score: PropTypes.number,
+};
+
 const getStatus = (s) =>
-  s.lessons === 0
+  Number(s?.lessons) === 0
     ? "none"
-    : s.lessons >= s?.total_lessons
+    : Number(s?.total_lessons) > 0 &&
+        Number(s?.lessons) >= Number(s?.total_lessons)
       ? "completed"
       : "progress";
-const getProgress = (s) => Math.round((s.lessons / s?.total_lessons) * 100);
+const getProgress = (s) =>
+  Number(s?.total_lessons) > 0
+    ? Math.round(
+        ((Number(s?.lessons) || 0) / Number(s.total_lessons)) * 100,
+      )
+    : 0;
 const getInitials = (n) =>
   n
     .split(" ")
@@ -62,6 +77,12 @@ function Avatar({ name, color, size = 32 }) {
     </div>
   );
 }
+
+Avatar.propTypes = {
+  name: PropTypes.string,
+  color: PropTypes.string,
+  size: PropTypes.number,
+};
 
 const RecipientTable = ({ students = [], courseId }) => {
   const [tab, setTab] = useState("all");
@@ -97,6 +118,23 @@ const RecipientTable = ({ students = [], courseId }) => {
     { key: "none", label: "Not Started" },
   ];
 
+  const handleExport = () => {
+    exportExcel({
+      fileName: `course-${courseId || "learner"}-progress`,
+      excelData: filtered.map((student) => ({
+        Learner: student?.name || "",
+        Email: student?.email || "",
+        Status: getStatus(student),
+        "Lessons completed": Number(student?.lessons) || 0,
+        "Total lessons": Number(student?.total_lessons) || 0,
+        "Progress (%)": getProgress(student),
+        "Assessment score (%)":
+          student?.score != null ? Math.round(Number(student.score)) : "",
+        "Completed at": student?.completedAt || "",
+      })),
+    });
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
       {/* Header */}
@@ -112,7 +150,16 @@ const RecipientTable = ({ students = [], courseId }) => {
             Staff enrolled in this course
           </div>
         </div>
-        <div className="flex gap-2 flex-wrap items-center">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={handleExport}
+            disabled={!filtered.length}
+            className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-700 transition hover:border-violet-200 hover:bg-violet-50 hover:text-[#5146d8] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Download className="h-3.5 w-3.5" />
+            Export report
+          </button>
           <div className="relative">
             <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-500">
               <FiSearch />

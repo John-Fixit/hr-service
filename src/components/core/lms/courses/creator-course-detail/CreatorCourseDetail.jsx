@@ -133,6 +133,7 @@ export default function CreatorCourseDetail() {
         email: recipient?.EMAIL,
         lessons: completedLessons,
         score: totalScorePercentage,
+        completedAt: recipient?.DATE_COMPLETED || null,
         color,
         total_lessons: totalLessons,
         lessonBreakdown:

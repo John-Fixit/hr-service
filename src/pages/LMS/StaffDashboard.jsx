@@ -1,81 +1,33 @@
 import { useLocation } from "react-router-dom";
-import { FaPlus, FaUserGraduate } from "react-icons/fa";
-import { GrPersonalComputer } from "react-icons/gr";
-import { SlDiamond } from "react-icons/sl";
+import {
+  ArrowRight,
+  BookOpen,
+  BookOpenCheck,
+  CheckCircle2,
+  Clock3,
+  Plus,
+  UsersRound,
+} from "lucide-react";
 import StaffCoursesTable from "../../components/core/lms/staff-dashboard/courses/StaffCoursesTable";
 import EmployeeCourse from "../../components/core/lms/employee-courses/EmployeeCourses";
 import { useCourseStore } from "../../hooks/useCourseStore";
-import { useGetStaffCourses } from "../../API/lms-apis/course";
-import { useMemo, useState } from "react";
+import {
+  useGetCreatorCourses,
+  useGetStaffCourses,
+} from "../../API/lms-apis/course";
+import { useMemo } from "react";
 import useCurrentUser from "../../hooks/useCurrentUser";
-import { Tab, Tabs } from "@nextui-org/react";
 
-const employeeStatData = [
-  {
-    icon: GrPersonalComputer,
-    value: "42",
-    label: "Total Courses",
-    valueLabel: "totalCourses",
-    bgColor: "bg-[#00bcc2]/10",
-    iconBg: "bg-[#00bcc2]/15",
-    iconColor: "text-btnColor",
-  },
-  {
-    icon: FaUserGraduate,
-    value: "38",
-    label: "Pending",
-    valueLabel: "pendingCourses",
-    bgColor: "bg-amber-500/10",
-    iconBg: "bg-amber-500/15",
-    iconColor: "text-amber-600",
-  },
-  {
-    icon: SlDiamond,
-    value: "04",
-    label: "Completed",
-    valueLabel: "completedCourses",
-    bgColor: "bg-emerald-500/10",
-    iconBg: "bg-emerald-500/15",
-    iconColor: "text-emerald-600",
-  },
-];
-
-const staffStatData = [
-  {
-    icon: GrPersonalComputer,
-    value: "42",
-    label: "Courses Created",
-    bgColor: "bg-[#00bcc2]/10",
-    iconBg: "bg-[#00bcc2]/15",
-    iconColor: "text-btnColor",
-  },
-  {
-    icon: FaUserGraduate,
-    value: "44k",
-    label: "Total Enrolled",
-    bgColor: "bg-amber-500/10",
-    iconBg: "bg-amber-500/15",
-    iconColor: "text-amber-600",
-  },
-  {
-    icon: SlDiamond,
-    value: "17k",
-    label: "Enrolled Students",
-    bgColor: "bg-emerald-500/10",
-    iconBg: "bg-emerald-500/15",
-    iconColor: "text-emerald-600",
-  },
-];
+const formatCount = (value) =>
+  new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(value);
 
 export default function StaffDashboard() {
   const { openCourseDrawer } = useCourseStore();
   const location = useLocation().pathname;
 
-  const [courseView, setCourseView] = useState("assigned");
-
   const isLearningRoute = location === "/lms/learning";
   const isStaffRoute = location === "/lms/staff";
-  const showCreatorFeatures = isLearningRoute || isStaffRoute;
+  const showCreatorFeatures = isStaffRoute;
 
   const { userData } = useCurrentUser();
 
@@ -83,25 +35,27 @@ export default function StaffDashboard() {
     userData?.data?.STAFF_ID,
   );
   const allCourses = useMemo(() => get_courses?.data || [], [get_courses]);
+  const {
+    data: creatorCourses = [],
+    isPending: isLoadingCreatorCourses,
+  } = useGetCreatorCourses(userData?.data?.STAFF_ID, isStaffRoute);
 
   const statsData = useMemo(() => {
     const totalCourses = allCourses?.length || 0;
-    const completedCourses =
-      allCourses?.filter(
-        (course) => course?.COMPLETED_LESSONS >= course?.TOTAL_LESSONS,
-      )?.length || 0;
-    const pendingCourses =
-      allCourses?.filter(
-        (course) =>
-          course?.COMPLETED_LESSONS === 0 ||
-          course?.COMPLETED_LESSONS < course?.TOTAL_LESSONS,
-      )?.length || 0;
-    const courseInProgress =
-      allCourses?.filter(
-        (course) =>
-          course?.COMPLETED_LESSONS > 0 &&
-          course?.COMPLETED_LESSONS < course?.TOTAL_LESSONS,
-      )?.length || 0;
+    const completedCourses = allCourses.filter((course) => {
+      const totalLessons = Number(course?.TOTAL_LESSONS) || 0;
+      return totalLessons > 0 &&
+        (Number(course?.COMPLETED_LESSONS) || 0) >= totalLessons;
+    }).length;
+    const courseInProgress = allCourses.filter((course) => {
+      const completedLessons = Number(course?.COMPLETED_LESSONS) || 0;
+      const totalLessons = Number(course?.TOTAL_LESSONS) || 0;
+      return completedLessons > 0 && completedLessons < totalLessons;
+    }).length;
+    const pendingCourses = Math.max(
+      totalCourses - completedCourses - courseInProgress,
+      0,
+    );
 
     return {
       totalCourses,
@@ -111,94 +65,184 @@ export default function StaffDashboard() {
     };
   }, [allCourses]);
 
+  const creatorStats = useMemo(() => {
+    const courses = Array.isArray(creatorCourses) ? creatorCourses : [];
+    const hasEnrollmentCounts = courses.some(
+      (course) =>
+        course?.TOTAL_RECIPIENTS != null ||
+        course?.selling != null ||
+        course?.course_recipients?.length != null,
+    );
+    const hasCompletionCounts = courses.some(
+      (course) => course?.TOTAL_RECIPIENTS_COMPLETED != null,
+    );
+    const totalEnrollments = courses.reduce(
+      (sum, course) =>
+        sum +
+        (Number(
+          course?.TOTAL_RECIPIENTS ??
+            course?.selling ??
+            course?.course_recipients?.length,
+        ) || 0),
+      0,
+    );
+    const completedEnrollments = courses.reduce(
+      (sum, course) =>
+        sum + (Number(course?.TOTAL_RECIPIENTS_COMPLETED) || 0),
+      0,
+    );
+
+    return {
+      coursesCreated: courses.length,
+      totalEnrollments:
+        !courses.length || hasEnrollmentCounts ? totalEnrollments : null,
+      completedEnrollments:
+        !courses.length || hasCompletionCounts ? completedEnrollments : null,
+    };
+  }, [creatorCourses]);
+
+  const activeStats = showCreatorFeatures
+    ? [
+        {
+          label: "Courses created",
+          value: creatorStats.coursesCreated,
+          detail: "In your course library",
+          icon: BookOpenCheck,
+          color: "purple",
+        },
+        {
+          label: "Learner enrollments",
+          value: creatorStats.totalEnrollments,
+          detail: "Across courses you created",
+          icon: UsersRound,
+          color: "blue",
+        },
+        {
+          label: "Course completions",
+          value: creatorStats.completedEnrollments,
+          detail: "Learners who completed",
+          icon: CheckCircle2,
+          color: "green",
+        },
+      ]
+    : [
+        {
+          label: "Assigned courses",
+          value: statsData.totalCourses,
+          detail: "Available in your learning",
+          icon: BookOpen,
+          color: "purple",
+        },
+        {
+          label: "Pending",
+          value: statsData.pendingCourses,
+          detail: "Not started yet",
+          icon: Clock3,
+          color: "blue",
+        },
+        {
+          label: "Completed",
+          value: statsData.completedCourses,
+          detail: "Courses finished",
+          icon: CheckCircle2,
+          color: "green",
+        },
+      ];
+
   const pageTitle = isLearningRoute
     ? "My Learning"
     : isStaffRoute
-      ? "Staff Dashboard"
+      ? "My Courses"
       : "Employee Dashboard";
   const pageDescription = isLearningRoute
-    ? "Courses assigned to you and courses you create. Track progress and manage your content."
+    ? "Continue the courses assigned to you and keep track of your learning progress."
     : isStaffRoute
-      ? "Create courses and manage the ones you’ve created. View enrollees and performance."
+      ? "Create and manage your learning content, review enrollments, and follow learner completions."
       : "Browse and complete courses assigned to you. Track your progress here.";
 
-  const statSource = showCreatorFeatures ? staffStatData : employeeStatData;
-  const displayValues = showCreatorFeatures
-    ? statSource.map((s) => s.value)
-    : statSource.map((s) => statsData[s.valueLabel]);
+  const isLoadingStats = showCreatorFeatures
+    ? isLoadingCreatorCourses
+    : isLoadingCourses;
 
   return (
-    <div className="min-h-screen bg-lighten font-outfit">
-      <main className="px-6 md:px-4 lg:px-6 py-6 max-w-7xl mx-auto">
-        <div className="mb-8 flex flex-wrap justify-between items-start gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-semibold text-[rgb(10,31,52)] font-outfit tracking-tight">
-              {pageTitle}
-            </h1>
-            <p className="text-main-text-color text-sm md:text-base mt-1 font-outfit max-w-xl">
-              {pageDescription}
-            </p>
-          </div>
-          {showCreatorFeatures && (
-            <button
-              className="cursor-pointer py-2.5 px-5 rounded-lg bg-btnColor hover:opacity-90 text-white font-outfit font-medium text-sm flex gap-2 items-center shadow-sm transition-opacity"
-              onClick={() => openCourseDrawer({ drawerName: "create-course" })}
-            >
-              <FaPlus className="w-4 h-4" />
-              Create Course
-            </button>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
-          {statSource.map((stat, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-xl p-5 flex items-center gap-4 border border-gray-100 shadow-sm"
-            >
-              <div
-                className={`w-12 h-12 md:w-14 md:h-14 rounded-xl ${stat.iconBg} flex items-center justify-center flex-shrink-0`}
-              >
-                <stat.icon className={`w-6 h-6 md:w-7 md:h-7 ${stat.iconColor}`} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-2xl font-bold text-[rgb(10,31,52)] font-outfit tabular-nums">
-                  {showCreatorFeatures ? stat.value : displayValues[index]}
-                </p>
-                <p className="text-main-text-color text-sm font-medium font-outfit">
-                  {stat.label}
-                </p>
-              </div>
+    <div className="min-h-full bg-[#f4f7fb] font-outfit text-[#17263c]">
+      <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <section className="relative isolate overflow-hidden rounded-2xl bg-gradient-to-br from-[#1e293b] via-[#273451] to-[#3730a3] px-5 py-6 text-white shadow-[0_18px_45px_-28px_rgba(30,41,59,0.65)] sm:px-8 sm:py-8">
+          <div className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full border border-white/10" />
+          <div className="pointer-events-none absolute -right-2 -top-10 h-52 w-52 rounded-full border border-white/10" />
+          <div className="relative flex flex-wrap items-end justify-between gap-6">
+            <div className="max-w-2xl">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-violet-100">
+                <span className="h-1.5 w-1.5 rounded-full bg-violet-300" />
+                Learning management
+              </span>
+              <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+                {pageTitle}
+              </h1>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-200 sm:text-base">
+                {pageDescription}
+              </p>
             </div>
-          ))}
-        </div>
-
-        {showCreatorFeatures && (
-          <div className="mb-6">
-            <Tabs
-              aria-label="Course views"
-              size="sm"
-              color="primary"
-              variant="bordered"
-              selectedKey={courseView}
-              onSelectionChange={setCourseView}
-              classNames={{
-                tabList: "gap-1",
-                cursor: "bg-btnColor",
-                tab: "font-outfit",
-              }}
-            >
-              <Tab key="assigned" title="Assigned to Me" />
-              <Tab key="my-courses" title="Courses I Create" />
-            </Tabs>
+            {showCreatorFeatures && (
+              <button
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-[#5146d8] shadow-sm transition hover:bg-violet-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                onClick={() => openCourseDrawer({ drawerName: "create-course" })}
+              >
+                <Plus className="h-4 w-4" />
+                Create course
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </button>
+            )}
           </div>
-        )}
+          <div className="relative mt-7 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {activeStats.map((stat) => {
+              const Icon = stat.icon;
+              const colorClasses = {
+                purple: "border-violet-200/15 bg-violet-100/10 text-violet-100",
+                blue: "border-blue-200/15 bg-blue-100/10 text-blue-100",
+                green: "border-emerald-200/15 bg-emerald-100/10 text-emerald-100",
+              };
+              return (
+                <div
+                  key={stat.label}
+                  className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.07] px-4 py-3.5 backdrop-blur-sm"
+                >
+                  <span
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${colorClasses[stat.color]}`}
+                  >
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-medium uppercase tracking-wider text-slate-300">
+                      {stat.label}
+                    </p>
+                    <p className="mt-0.5 text-xl font-semibold tabular-nums">
+                      {isLoadingStats || stat.value === null
+                        ? "—"
+                        : formatCount(stat.value)}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
 
-        {showCreatorFeatures && courseView === "my-courses" ? (
-          <StaffCoursesTable />
-        ) : (
-          <EmployeeCourse courses={allCourses} isLoading={isLoadingCourses} />
-        )}
+        <section className="mt-7">
+          <div className="mb-4">
+            <p             className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#6258e8]">
+              {showCreatorFeatures ? "Course management" : "Course catalog"}
+            </p>
+            <h2 className="mt-1 text-xl font-semibold tracking-tight text-[#17263c]">
+              {showCreatorFeatures ? "Courses you created" : "Courses assigned to you"}
+            </h2>
+          </div>
+          {showCreatorFeatures ? (
+            <StaffCoursesTable />
+          ) : (
+            <EmployeeCourse courses={allCourses} isLoading={isLoadingCourses} />
+          )}
+        </section>
       </main>
     </div>
   );

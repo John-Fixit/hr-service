@@ -417,7 +417,7 @@ export const getCompoundPeriod = (startDate, endDate) => {
   if (weeks > 0 && months === 0)
     parts.push(`${weeks} week${weeks > 1 ? "s" : ""}`);
   if (days > 0) parts.push(`${days} day${days > 1 ? "s" : ""}`);
-  if (days === 0) parts.push("Today");
+  if (days === 0) parts.push("1 Day");
 
   return parts.join(" ");
 };
