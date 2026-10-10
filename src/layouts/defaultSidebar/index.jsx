@@ -50,7 +50,11 @@ const DefaultSidebar = () => {
 
   const showSubMenu = (menu) => {
     if (menu === "Dashboard") {
-      navigate("/engage/home");
+      navigate("/lms/dashboard");
+      return;
+    }
+    if (menu === "My Learning") {
+      navigate("/lms/learning");
       return;
     }
     if (menu === "Performance") {
@@ -64,7 +68,8 @@ const DefaultSidebar = () => {
     setCurrentHomeSidemenu(menu);
   };
 
-  const isDashboardActive = pathname.includes("/engage/home");
+  const isDashboardActive =
+    pathname.includes("/engage/home") || pathname.includes("/lms/dashboard");
 
   return (
     <div className="relative bg-sidebarBg shadow-sidebar">

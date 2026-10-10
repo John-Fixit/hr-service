@@ -1554,47 +1554,15 @@ export const PayrollSectionMenu = [
 export const defaultMenuHome = [
   {
     name: "Dashboard",
-    route: "/engage/home",
+    route: "/lms/dashboard",
     icon: MdDashboard,
     enabled: true,
   },
   {
-    name: "People",
-    route: "/people",
-    icon: BsPeople,
-    enabled: true,
-  },
-  {
-    name: "Messaging",
-    route: "/messaging",
-    icon: TbMessage2,
-  },
-  {
-    name: "Workflow (Memos)",
-    route: "/workflow",
-    icon: GoWorkflow,
-  },
-  {
-    name: "Payroll",
-    route: "/payroll",
-    icon: RiSecurePaymentFill,
-  },
-  {
-    name: "Performance",
-    route: "/performance",
-    icon: TiSpanner,
-    enabled: true,
-  },
-  {
-    name: "LMS",
-    route: "/lms",
+    name: "My Learning",
+    route: "/lms/learning",
     icon: FaGraduationCap,
     enabled: true,
-  },
-  {
-    name: "More",
-    route: "/more",
-    icon: CiCircleMore,
   },
 ];
 

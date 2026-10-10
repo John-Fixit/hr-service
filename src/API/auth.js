@@ -1,5 +1,5 @@
 import axios from "axios";
-import { APINEW } from "../services/AxiosInstance";
+import API, { APINEW } from "../services/AxiosInstance";
 import { formatError, showSuccess } from "../utils/messagePopup";
 
 // logout
@@ -20,7 +20,7 @@ const logoutAdmin = async (val) => {
     company_id: val?.COMPANY_ID,
     staff_id: val?.STAFF_ID,
   };
-  let resources = await APINEW.post("login/signout", json);
+  let resources = await API.post("login/signout", json);
   return resources;
 };
 // logout end
@@ -45,7 +45,7 @@ const loginUser = async (data) => {
     username: data?.username,
     password: data?.password,
   };
-  let resources = await APINEW.post("login/signin", json);
+  let resources = await API.post("login/signin", json);
   return resources;
 };
 // login end
