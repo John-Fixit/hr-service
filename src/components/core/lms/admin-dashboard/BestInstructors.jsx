@@ -54,38 +54,36 @@ const BestInstructors = () => {
       }));
   }, [allCourses]);
 
-  console.log(topInstructors);
-
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="p-5 border-b border-gray-100 flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-[rgb(10,31,52)] font-outfit">
+    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_24px_-20px_rgba(15,23,42,0.4)]">
+      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-5">
+        <h3 className="text-base font-semibold tracking-tight text-[#17263c] font-outfit">
           Top instructors
         </h3>
-        <button className="text-sm font-medium text-btnColor hover:underline font-outfit">
+        <button className="text-xs font-semibold text-[#6258e8] transition-colors hover:text-[#4d43c4] font-outfit">
           See all
         </button>
       </div>
-      <div className="p-4 space-y-3">
+      <div className="space-y-2.5 p-4">
         {topInstructors.length ? (
           topInstructors.map((instructor) => (
             <div
               key={instructor.creatorId}
-              className="bg-gray-50/80 rounded-lg py-3 px-4 flex justify-between items-center border border-gray-100"
+              className="flex items-center justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50/70 px-3.5 py-3"
             >
               <div className="flex gap-4 items-center">
                 <div
-                  className={`h-12 w-12 flex items-center justify-center rounded-xl font-semibold text-sm font-outfit ${instructor.color.bg} ${instructor.color.text}`}
+                  className={`flex h-10 w-10 items-center justify-center rounded-xl font-semibold text-sm font-outfit ${instructor.color.bg} ${instructor.color.text}`}
                 >
                   {instructor.initials}
                 </div>
                 <div>
-                  <h3 className="text-base font-medium text-gray-900 font-outfit">
+                  <h3 className="text-sm font-semibold text-slate-800 font-outfit">
                     {instructor.course?.CREATOR_FULLNAME ||
                       instructor.course?.CREATOR_EMAIL ||
                       `Creator ${instructor.creatorId}`}
                   </h3>
-                  <span className="text-sm font-medium text-gray-400 font-outfit">
+                  <span className="text-xs font-medium text-slate-500 font-outfit">
                     {instructor.courseCount} course
                     {instructor.courseCount !== 1 ? "s" : ""}
                   </span>
@@ -99,14 +97,14 @@ const BestInstructors = () => {
                     creatorId: instructor.creatorId,
                   })
                 }
-                className="px-3 py-1.5 bg-btnColor/10 text-btnColor hover:bg-btnColor/20 rounded-lg text-sm font-medium transition-colors font-outfit"
+                className="rounded-lg bg-[#f0eeff] px-3 py-1.5 text-xs font-semibold text-[#6258e8] transition-colors hover:bg-[#e5e2ff] font-outfit"
               >
                 Courses
               </button>
             </div>
           ))
         ) : (
-          <p className="text-sm text-gray-500 font-outfit py-4 text-center">
+          <p className="py-6 text-center text-sm text-slate-500 font-outfit">
             No instructor data yet. Create courses to see top creators.
           </p>
         )}

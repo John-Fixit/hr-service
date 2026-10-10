@@ -58,24 +58,24 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* {sidebarOpen && isTablet && (
+      {sidebarOpen && isTablet && (
         <div
           onClick={overlayClicked}
           className="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm lg:hidden"
           aria-hidden="true"
         />
-      )} */}
+      )}
 
-      {/* <motion.aside
+      <motion.aside
         ref={sidebarRef}
         variants={Nav_animation}
         initial={{ x: isTablet ? -SIDEBAR_WIDTH : 0 }}
         animate={sidebarOpen ? "open" : "closed"}
         className="fixed inset-y-0 left-0 z-40 flex h-screen flex-col overflow-hidden bg-gradient-to-b from-[#1E293B] via-[#1B2638] to-[#0F172A] text-slate-300 lg:z-[49] z-[91]"
         style={{ maxWidth: SIDEBAR_WIDTH, width: SIDEBAR_WIDTH }}
-      > */}
+      >
         {/* Logo */}
-        {/* <div className="flex shrink-0 items-center gap-3 px-5 py-5">
+        <div className="flex shrink-0 items-center gap-3 px-5 py-5">
           <img
             src="/NCAA.png"
             alt="NCAA"
@@ -89,10 +89,10 @@ const Sidebar = () => {
               Aviation Authority
             </span>
           </div>
-        </div> */}
+        </div>
 
         {/* Nav */}
-        {/* <nav className="scrollbar-slim flex-1 overflow-y-auto px-3 pb-4">
+        <nav className="scrollbar-slim flex-1 overflow-y-auto px-3 pb-4">
           {navigationSections.map((section, idx) => (
             <div
               key={section.title ?? `section-${idx}`}
@@ -104,16 +104,17 @@ const Sidebar = () => {
                 </p>
               )}
               <ul className="space-y-1">
+                
                 {section.items.map((item) => (
                   <SidebarNavItem key={item.name} item={item} />
                 ))}
               </ul>
             </div>
           ))}
-        </nav> */}
+        </nav>
 
         {/* Profile */}
-        {/* <div className="shrink-0 border-t border-white/10 p-3">
+        <div className="shrink-0 border-t border-white/10 p-3">
           <button
             type="button"
             className="flex w-full items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/5"
@@ -140,8 +141,8 @@ const Sidebar = () => {
               strokeWidth={2}
             />
           </button>
-        </div> */}
-      {/* </motion.aside> */}
+        </div>
+      </motion.aside>
     </>
   );
 };

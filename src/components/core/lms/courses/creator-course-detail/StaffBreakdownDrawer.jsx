@@ -42,6 +42,12 @@ function Avatar({ name, color, size = 40 }) {
   );
 }
 
+Avatar.propTypes = {
+  name: PropTypes.string,
+  color: PropTypes.string,
+  size: PropTypes.number,
+};
+
 function LessonRow({
   lesson,
   index,
@@ -351,9 +357,7 @@ export default function StaffBreakdownDrawer({
                               dateStyle: "medium",
                             },
                           )
-                        : new Date().toLocaleDateString(undefined, {
-                            dateStyle: "medium",
-                          })}
+                        : "Date unavailable"}
                     </div>
                   </div>
                 </div>

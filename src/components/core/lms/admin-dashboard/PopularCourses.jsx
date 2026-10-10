@@ -1,14 +1,13 @@
-import { PiDotsThreeOutlineVerticalFill } from "react-icons/pi";
 import { useGetPopularCourses } from "../../../../API/lms-apis/lms-dashboard";
 
 const colorVariants = [
   {
-    bgColor: "bg-btnColor",
+    bgColor: "bg-[#6258e8]",
     buttonColor:
       "bg-btnColor/10 text-btnColor hover:bg-btnColor/20 font-outfit",
   },
   {
-    bgColor: "bg-[rgb(10,31,52)]",
+    bgColor: "bg-[#294d68]",
     buttonColor:
       "bg-[rgb(10,31,52)]/10 text-[rgb(10,31,52)] hover:bg-[rgb(10,31,52)]/20 font-outfit",
   },
@@ -27,21 +26,21 @@ const PopularCourses = () => {
   const { data: popularCourses } = useGetPopularCourses();
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="p-5 border-b border-gray-100 flex justify-between items-center">
+    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_24px_-20px_rgba(15,23,42,0.4)]">
+      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-5">
         <div>
-          <h3 className="text-lg font-semibold text-[rgb(10,31,52)] font-outfit">
+          <h3 className="text-base font-semibold tracking-tight text-[#17263c] font-outfit">
             Popular by category
           </h3>
-          <p className="text-sm text-main-text-color font-outfit mt-0.5">
+          <p className="mt-1 text-xs text-slate-500 font-outfit">
             Course count per category
           </p>
         </div>
-        <button className="text-sm font-medium text-btnColor hover:underline font-outfit">
+        <button className="text-xs font-semibold text-[#6258e8] transition-colors hover:text-[#4d43c4] font-outfit">
           All courses
         </button>
       </div>
-      <div className="p-4 space-y-3">
+      <div className="space-y-2.5 p-4">
         {popularCourses?.length ? (
           popularCourses?.slice(0, 5)?.map((item, index) => {
             const variant = colorVariants[index % colorVariants.length];
@@ -51,19 +50,19 @@ const PopularCourses = () => {
             return (
               <div
                 key={`${name}-${index}`}
-                className="bg-gray-50/80 rounded-lg py-3 px-4 flex justify-between items-center gap-4 border border-gray-100"
+                className="flex items-center justify-between gap-4 rounded-xl border border-slate-100 bg-slate-50/70 px-3.5 py-3 transition-colors hover:border-slate-200 hover:bg-slate-50"
               >
                 <div className="flex gap-3 items-center min-w-0">
                   <div
-                    className={`h-12 w-12 flex items-center justify-center ${variant.bgColor} rounded-lg font-semibold uppercase text-white text-lg font-outfit flex-shrink-0`}
+                    className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ${variant.bgColor} text-base font-semibold uppercase text-white font-outfit`}
                   >
                     {abbreviation}
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-sm font-medium text-gray-900 font-outfit truncate">
+                    <h3 className="truncate text-sm font-semibold text-slate-800 font-outfit">
                       {name}
                     </h3>
-                    <span className="text-xs font-medium text-main-text-color font-outfit">
+                    <span className="text-xs font-medium text-slate-500 font-outfit">
                       {item.TOTAL_COURSES} courses
                     </span>
                   </div>
@@ -82,7 +81,7 @@ const PopularCourses = () => {
             );
           })
         ) : (
-          <p className="text-sm text-main-text-color font-outfit py-4 text-center">
+          <p className="py-6 text-center text-sm text-slate-500 font-outfit">
             No categories yet.
           </p>
         )}

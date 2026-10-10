@@ -1,4 +1,11 @@
-import { Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Download,
+  Search,
+  SlidersHorizontal,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import useCurrentUser from "../../../../../hooks/useCurrentUser";
@@ -18,10 +25,17 @@ import { useCourseStore } from "../../../../../hooks/useCourseStore";
 import { Modal } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { errorToast } from "../../../../../utils/toastMsgPop";
+import { exportExcel } from "../../../../../utils/exportReportAsExcel";
 
-const checkCourseExpiration = (end_date) => {
-  const remaining_days = dayjs(end_date).diff(dayjs(), "day");
-  return remaining_days < 0 ? true : false;
+const getAvailabilityStatus = (course) => {
+  const today = dayjs().startOf("day");
+  if (course?.START_DATE && dayjs(course.START_DATE).isAfter(today)) {
+    return "upcoming";
+  }
+  if (course?.END_DATE && dayjs(course.END_DATE).isBefore(today)) {
+    return "ended";
+  }
+  return "active";
 };
 
 const StaffCoursesTable = () => {
@@ -41,35 +55,67 @@ const StaffCoursesTable = () => {
 
   const { openCourseDrawer } = useCourseStore();
 
-  const [rowsPerPage] = useState(10);
-
-  const [searchValue] = useState("");
-
-  const totalPages = allCourses?.length / rowsPerPage;
+  const rowsPerPage = 10;
+  const [searchValue, setSearchValue] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [availabilityFilter, setAvailabilityFilter] = useState("all");
+  const categories = useMemo(
+    () => [
+      ...new Set(
+        allCourses.map((course) => course?.COURSE_CATEGORY).filter(Boolean),
+      ),
+    ],
+    [allCourses],
+  );
 
   const filteredCourses = useMemo(() => {
-    const hasSearchFilter = Boolean(searchValue?.trim());
+    const query = searchValue.trim().toLowerCase();
 
-    if (!hasSearchFilter) return allCourses;
-
-    const lowerCaseSearch = searchValue?.trim()?.toLowerCase();
-
-    return allCourses?.filter((course) => {
-      const courseNameMatch =
-        course?.COURSE_TITLE?.toLowerCase()?.includes(lowerCaseSearch);
-      const courseCategoryMatch =
-        course?.COURSE_CATEGORY?.toLowerCase()?.includes(lowerCaseSearch);
-      const courseDescriptionMatch =
-        course?.COURSE_DESCRIPTION?.toLowerCase()?.includes(lowerCaseSearch);
-      return courseNameMatch || courseCategoryMatch || courseDescriptionMatch;
+    return allCourses.filter((course) => {
+      const matchesSearch =
+        !query ||
+        [
+          course?.COURSE_TITLE,
+          course?.COURSE_CATEGORY,
+          course?.COURSE_DESCRIPTION,
+        ].some((value) => String(value || "").toLowerCase().includes(query));
+      const matchesCategory =
+        categoryFilter === "all" || course?.COURSE_CATEGORY === categoryFilter;
+      const matchesAvailability =
+        availabilityFilter === "all" ||
+        getAvailabilityStatus(course) === availabilityFilter;
+      return matchesSearch && matchesCategory && matchesAvailability;
     });
-  }, [allCourses, searchValue]);
+  }, [allCourses, searchValue, categoryFilter, availabilityFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredCourses.length / rowsPerPage));
+  const safePage = Math.min(currentPage, totalPages);
 
   const paginatedCourses = useMemo(() => {
-    const startIndex = (currentPage - 1) * rowsPerPage;
+    const startIndex = (safePage - 1) * rowsPerPage;
     const endIndex = startIndex + rowsPerPage;
     return filteredCourses?.slice(startIndex, endIndex);
-  }, [filteredCourses, currentPage, rowsPerPage]);
+  }, [filteredCourses, safePage, rowsPerPage]);
+
+  const handleExport = () => {
+    exportExcel({
+      fileName: "my-lms-courses",
+      excelData: filteredCourses.map((course) => ({
+        "Course title": course?.COURSE_TITLE || "",
+        Category: course?.COURSE_CATEGORY || "",
+        Description: course?.COURSE_DESCRIPTION || "",
+        Availability: getAvailabilityStatus(course),
+        "Start date": course?.START_DATE || "",
+        "End date": course?.END_DATE || "",
+        Enrollments:
+          course?.TOTAL_RECIPIENTS ??
+          course?.selling ??
+          course?.course_recipients?.length ??
+          "",
+        Completions: course?.TOTAL_RECIPIENTS_COMPLETED ?? "",
+      })),
+    });
+  };
 
   const handleDeleteCourse = (course) => {
     Modal.confirm({
@@ -121,18 +167,79 @@ const StaffCoursesTable = () => {
 
   return (
     <>
-      <div className="bg-white border rounded-xl shadow-sm">
-        <div className="flex justify-between items-center px-6 pb-4 pt-4 border-b">
-          <h2 className="text-base tracking-wide font-semibold text-[#003384] font-outfit">
-            My Recent Courses
-          </h2>
-          <button className="text-[#6c829e] text-sm font-medium hover:text-[#6c829e] text-[15px] transition-all font-outfit">
-            View All
+      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_24px_-20px_rgba(15,23,42,0.4)]">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 px-5 py-5 sm:px-6">
+          <div>
+            <h2 className="text-base font-semibold tracking-tight text-[#17263c] font-outfit">
+              My courses
+            </h2>
+            <p className="mt-1 text-xs text-slate-500">
+              {filteredCourses.length} of {allCourses.length} courses
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleExport}
+            disabled={isLoadingCourses || !filteredCourses.length}
+            className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 px-3.5 text-sm font-semibold text-slate-700 transition hover:border-violet-200 hover:bg-violet-50 hover:text-[#5146d8] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Download className="h-4 w-4" />
+            Export report
           </button>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto rounded-lg px-6 mt-6">
+        <div className="grid grid-cols-1 gap-3 border-b border-slate-100 bg-slate-50/50 px-5 py-4 sm:grid-cols-2 sm:px-6 xl:grid-cols-[minmax(220px,1fr)_220px_200px]">
+          <label className="relative block">
+            <span className="sr-only">Search your courses</span>
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              value={searchValue}
+              onChange={(event) => {
+                setSearchValue(event.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="Search title, category, or description"
+              className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-700 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+            />
+          </label>
+          <label className="relative">
+            <span className="sr-only">Filter by category</span>
+            <SlidersHorizontal className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <select
+              value={categoryFilter}
+              onChange={(event) => {
+                setCategoryFilter(event.target.value);
+                setCurrentPage(1);
+              }}
+              className="h-10 w-full appearance-none rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-700 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+            >
+              <option value="all">All categories</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span className="sr-only">Filter by course availability</span>
+            <select
+              value={availabilityFilter}
+              onChange={(event) => {
+                setAvailabilityFilter(event.target.value);
+                setCurrentPage(1);
+              }}
+              className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-violet-300 focus:ring-2 focus:ring-violet-100"
+            >
+              <option value="all">All availability</option>
+              <option value="upcoming">Upcoming</option>
+              <option value="active">Active</option>
+              <option value="ended">Ended</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="overflow-x-auto px-5 py-5 sm:px-6">
           <table className="w-full">
             <thead>
               <tr className="bg-[#212529] text-white">
@@ -165,15 +272,16 @@ const StaffCoursesTable = () => {
                     </div>
                   </td>
                 </tr>
-              ) : (
+              ) : paginatedCourses.length ? (
                 paginatedCourses.map((course, idx) => (
                   <tr
-                    key={course.id + idx}
-                    className={`border-b border-gray-200`}
+                    key={course.COURSE_ID ?? idx}
+                    className="border-b border-gray-200"
                   >
                     <td className="py-4 px-2 md:px-6">
-                      <div
-                        className="flex items-center gap-4 w-56 md:w-full"
+                      <button
+                        type="button"
+                        className="flex w-56 items-center gap-4 text-left md:w-full"
                         onClick={() => handleViewCourse(course)}
                       >
                         <img
@@ -181,13 +289,16 @@ const StaffCoursesTable = () => {
                           alt={course.COURSE_TITLE}
                           className="w-16 h-12 rounded-lg object-cover"
                         />
-                        <span className="font-semibold text-[#212529] hover:text-blue-600 cursor-pointer tracking-wide transition-all font-outfit">
+                        <span className="cursor-pointer font-semibold tracking-wide text-[#212529] transition-all hover:text-[#6258e8] font-outfit">
                           {course.COURSE_TITLE}
                         </span>
-                      </div>
+                      </button>
                     </td>
                     <td className="text-center py-4 px-4 text-[#6c829e] font-medium text-[14px] font-outfit">
-                      {course.selling}
+                      {course?.TOTAL_RECIPIENTS ??
+                        course?.selling ??
+                        course?.course_recipients?.length ??
+                        "—"}
                     </td>
                     <td className="text-center py-4 px-4 text-[#6c829e] font-medium text-[14px] font-outfit">
                       {course.COURSE_CATEGORY}
@@ -201,7 +312,7 @@ const StaffCoursesTable = () => {
                       <span
                         className={clsx(
                           "inline-block  px-4 py-1.5 rounded-lg text-nowrap text-sm font-medium font-outfit",
-                          checkCourseExpiration(course?.END_DATE)
+                          getAvailabilityStatus(course) === "ended"
                             ? "text-red-400"
                             : "",
                         )}
@@ -211,7 +322,7 @@ const StaffCoursesTable = () => {
                     </td>
                     <td className="text-center py-4 px-2 md:px-6">
                       <div className="flex items-center justify-center gap-2">
-                        {!checkCourseExpiration(course.END_DATE) && (
+                        {getAvailabilityStatus(course) !== "ended" && (
                           <button
                             onClick={() => handleEditCourse(course)}
                             disabled={
@@ -239,6 +350,15 @@ const StaffCoursesTable = () => {
                     </td>
                   </tr>
                 ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="py-12 text-center text-sm text-slate-500"
+                  >
+                    No courses match your search and filters.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
@@ -247,15 +367,16 @@ const StaffCoursesTable = () => {
         {/* Pagination */}
         <div className="flex justify-between items-center p-6 pt-4">
           <p className="text-gray-400 text-sm font-outfit">
-            Showing {(currentPage - 1) * rowsPerPage} to{" "}
-            {(currentPage - 1) * rowsPerPage + rowsPerPage} of{" "}
-            {allCourses?.length} entries
+            Showing{" "}
+            {filteredCourses.length ? (safePage - 1) * rowsPerPage + 1 : 0} to{" "}
+            {Math.min(safePage * rowsPerPage, filteredCourses.length)} of{" "}
+            {filteredCourses.length} courses
           </p>
           {totalPages > 1 && (
             <div className="flex items-center gap-1">
               <button
                 className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-[#6c829e] font-medium text-[14px]"
-                disabled={currentPage === 1}
+                disabled={safePage === 1}
                 onClick={() => setCurrentPage(currentPage - 1)}
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -266,7 +387,7 @@ const StaffCoursesTable = () => {
                     key={page}
                     onClick={() => setCurrentPage(page)}
                     className={`w-8 h-8 rounded flex items-center justify-center text-sm font-medium transition-colors font-outfit ${
-                      currentPage === page
+                      safePage === page
                         ? "bg-[#003384] text-white"
                         : "text-gray-500 hover:bg-gray-100"
                     }`}
@@ -277,7 +398,7 @@ const StaffCoursesTable = () => {
               )}
               <button
                 className="w-8 h-8 flex items-center justify-center text-black hover:text-[#6c829e] font-medium text-[14px]"
-                disabled={currentPage === totalPages}
+                disabled={safePage === totalPages}
                 onClick={() => setCurrentPage(currentPage + 1)}
               >
                 <ChevronRight className="w-4 h-4" />

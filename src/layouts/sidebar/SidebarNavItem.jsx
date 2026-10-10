@@ -10,7 +10,7 @@ const itemBase =
 
 const inactiveItem = "text-slate-300 hover:bg-white/5 hover:text-white";
 const activeItem =
-  "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-900/40";
+  "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white! shadow-lg shadow-indigo-900/40 hover:text-white";
 
 const iconInactive = "text-slate-400 group-hover:text-white";
 const iconActive = "text-white";
@@ -47,7 +47,7 @@ const SidebarNavItem = ({ item, depth = 0 }) => {
               strokeWidth={2}
             />
           )}
-          <span className="flex-1 truncate">{item.name}</span>
+          <span className="flex-1 truncate text-white">{item.name}</span>
         </NavLink>
       </li>
     );

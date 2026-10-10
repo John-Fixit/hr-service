@@ -28,13 +28,15 @@ export default function ContentUsage() {
         datasets: [
           {
             data: [20, 35, 45, 50, 30, 32, 55, 42, 38, 35, 42, 45],
-            borderColor: "#00bcc2",
-            backgroundColor: "#00bcc2",
-            borderWidth: 2,
-            pointRadius: 4,
-            pointBackgroundColor: "#00bcc2",
-            pointBorderColor: "#00bcc2",
-            tension: 0,
+            borderColor: "#6258e8",
+            backgroundColor: "#6258e8",
+            borderWidth: 2.5,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            pointBackgroundColor: "#6258e8",
+            pointBorderColor: "#ffffff",
+            pointHoverBorderWidth: 2,
+            tension: 0.35,
             fill: false,
           },
         ],
@@ -71,14 +73,14 @@ export default function ContentUsage() {
   }, []);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 w-full">
-      <h3 className="text-lg font-semibold text-[rgb(10,31,52)] font-outfit mb-1">
+    <div className="w-full rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_8px_24px_-20px_rgba(15,23,42,0.4)] sm:p-6">
+      <h3 className="text-base font-semibold tracking-tight text-[#17263c] font-outfit">
         Content usage
       </h3>
-      <p className="text-btnColor text-sm font-medium mb-4 font-outfit">
+      <p className="mt-1 text-xs font-medium text-[#6258e8] font-outfit">
         12.5% higher than last month
       </p>
-      <div className="relative h-60">
+      <div className="relative mt-3 h-56">
         <canvas ref={chartRef}></canvas>
       </div>
     </div>
